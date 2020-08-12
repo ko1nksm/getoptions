@@ -1,0 +1,29 @@
+name: Test
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v1
+    - name: Install packages
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y bash busybox ksh mksh posh yash zsh kcov
+    - name: Install shellspec
+      run: |
+        echo "::add-path::${HOME}/.local/bin"
+        curl -fsSL https://git.io/shellspec | sh -s master -y
+        echo "--color" > $HOME/.shellspec
+    - name: Run tests
+      run: |
+        shellspec -s sh
+        shellspec -s bash
+        shellspec -s 'busybox ash'
+        shellspec -s ksh
+        shellspec -s mksh
+        shellspec -s posh
+        shellspec -s yash
+        shellspec -s zsh
+        shellspec -s bash --kcov
