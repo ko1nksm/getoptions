@@ -1,6 +1,9 @@
 # getoptions
 
 [![Test](https://github.com/ko1nksm/getoptions/workflows/Test/badge.svg)](https://github.com/ko1nksm/getoptions/actions)
+[![CodeFactor Grade](https://img.shields.io/codefactor/grade/github/ko1nksm/getoptions)](https://www.codefactor.io/repository/github/ko1nksm/getoptions)
+[![GitHub top language](https://img.shields.io/github/languages/top/ko1nksm/getoptions.svg)](https://github.com/ko1nksm/getoptions/search?l=Shell)
+[![License](https://img.shields.io/github/license/ko1nksm/getoptions.svg)](https://github.com/ko1nksm/getoptions/blob/master/LICENSE)
 
 An elegant option parser for shell scripts (sh, bash and all POSIX shells)
 
