@@ -25,7 +25,7 @@ parser_definition() {
 abort() { echo "$@" >&2; exit 1; }
 number() {
   case $OPTARG in (*[!0-9]*)
-    abort "$1: not number"
+    abort "$1: not a number"
   esac
 }
 

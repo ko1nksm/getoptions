@@ -36,7 +36,7 @@ error() {
 
 number() {
   case $OPTARG in (*[!0-9]*)
-    abort "'$OPTARG' is not number"
+    abort "'$OPTARG' is not a number"
   esac
 }
 
