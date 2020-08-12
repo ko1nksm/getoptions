@@ -111,7 +111,7 @@ Define a option that take no argument
 - `off:STRING` - The false value for the flag
 - `counter:BOOLEAN` - Counts the number of flags
 - `validate:CODE` - Code for value validation
-- `init:[@on | @off | @unset | =STRING | CODE]` - Initial value
+- `init:[@on | @off | @unset | =STRING | CODE]` - Initial value / Initializer
 - `export:BOOLEAN` - Export variables
 - `hidden:BOOLEAN` - Do not display in help
 
@@ -122,7 +122,7 @@ Define a option that take an argument
 `param <VARIABLE | :CODE> [-? | +? | --* | --{no-}*]... [OPTIONS]... [-- [MESSAGE]...]`
 
 - `validate:CODE` - Code for value validation
-- `init:[@unset | =STRING | CODE]` - Initial value
+- `init:[@unset | =STRING | CODE]` - Initial value / Initializer
 - `export:BOOLEAN` - Export variables
 - `hidden:BOOLEAN` - Do not display in help
 
@@ -134,7 +134,7 @@ Define a option that take an optional argument
 
 - `default:STRING` - Value when option argument is omitted
 - `validate:CODE` - Code for value validation
-- `init:[@unset | =STRING | CODE]` - Initial value
+- `init:[@unset | =STRING | CODE]` - Initial value / Initializer
 - `export:BOOLEAN` - Export variables
 - `hidden:BOOLEAN` - Do not display in help
 
