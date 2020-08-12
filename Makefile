@@ -12,5 +12,5 @@ testall:
 	shellspec -s zsh
 
 coverage:
-	shellspec -s bash --kcov --kcov-options "--coveralls-id=$COVERALLS_REPO_TOKEN"
+	shellspec -s bash --kcov --kcov-options "--coveralls-id=$(COVERALLS_REPO_TOKEN)"
 	bash <(curl -s https://codecov.io/bash) -s coverage
