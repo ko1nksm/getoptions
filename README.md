@@ -1,5 +1,7 @@
 # getoptions
 
+[![Test](https://github.com/ko1nksm/getoptions/workflows/Test/badge.svg)](https://github.com/ko1nksm/getoptions/actions)
+
 An elegant option parser for shell scripts (sh, bash and all POSIX shells)
 
 **Feature**: simple, easy-to-use, fast, portable, POSIX compliant, no requirements and practical
