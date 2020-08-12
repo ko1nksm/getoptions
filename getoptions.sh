@@ -176,7 +176,7 @@ getoptions_help() {
     done
   }
   args() {
-    _type=$1 var=$2 sw='' hide='' _width=$width
+    _type=$1 var=$2 sw='' hidden='' _width=$width
     shift 2
     while [ $# -gt 0 ]; do
       case $1 in
@@ -189,7 +189,7 @@ getoptions_help() {
       shift
     done
 
-    [ "$hide" ] && return 0
+    [ "$hidden" ] && return 0
     case $_type in
       setup | mesg) prefix='' _width=0 ;;
       flag | disp) pad prefix "  $sw  " "$_width" ;;

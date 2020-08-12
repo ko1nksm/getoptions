@@ -99,7 +99,7 @@ Setup global settings
 - `off:STRING` - The default false value for the flag (default: empty string)
 - `export:BOOLEAN` - Export variables
 - `width:INTEGER` - Width of optional part of help
-- `hide:BOOLEAN` - Do not display in help
+- `hidden:BOOLEAN` - Do not display in help
 
 ### `flag`
 
@@ -113,7 +113,7 @@ Define a option that take no argument
 - `validate:CODE` - Code for value validation
 - `init:[@on | @off | @unset | =STRING | CODE]` - Initial value
 - `export:BOOLEAN` - Export variables
-- `hide:BOOLEAN` - Do not display in help
+- `hidden:BOOLEAN` - Do not display in help
 
 ### `param`
 
@@ -124,7 +124,7 @@ Define a option that take an argument
 - `validate:CODE` - Code for value validation
 - `init:[@unset | =STRING | CODE]` - Initial value
 - `export:BOOLEAN` - Export variables
-- `hide:BOOLEAN` - Do not display in help
+- `hidden:BOOLEAN` - Do not display in help
 
 ### `option`
 
@@ -136,7 +136,7 @@ Define a option that take an optional argument
 - `validate:CODE` - Code for value validation
 - `init:[@unset | =STRING | CODE]` - Initial value
 - `export:BOOLEAN` - Export variables
-- `hide:BOOLEAN` - Do not display in help
+- `hidden:BOOLEAN` - Do not display in help
 
 ### `disp`
 
@@ -144,7 +144,7 @@ Define a option that display only
 
 `disp [OPTIONS]... <VARIABLE | :CODE> [-? | +? | --* | --{no-}*]... [-- [MESSAGE]...]`
 
-- `hide:BOOLEAN` - Do not display in help
+- `hidden:BOOLEAN` - Do not display in help
 
 ### `mesg`
 
@@ -152,4 +152,4 @@ Display message in help
 
 `mesg [OPTIONS]... [-- [MESSAGE]...]`
 
-- `hide:BOOLEAN` - Do not display in help
+- `hidden:BOOLEAN` - Do not display in help
