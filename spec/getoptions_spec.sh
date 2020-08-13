@@ -329,9 +329,9 @@ Describe "getoptions_help()"
   }
 
   It "generates usage"
-    parser_definition() { echo 'called' >&2; }
+    parser_definition() { echo 'usage'; }
     When call usage
-    The stderr should eq "called"
+    The output should eq "usage"
     The status should be success
   End
 
