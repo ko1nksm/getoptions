@@ -338,15 +338,19 @@ Describe "getoptions_help()"
   It "displays usage"
     parser_definition() {
       setup width:20 -- 'usage'
+      msg -- "header"
       flag FLAG_A -a +a --{no-}flag-a -- "flag a"
       param PARAM_P -p -- "param p"
       option OPTION_O -o -- "option o"
+      msg -- "footer"
     }
     When call usage
     The line 1 should eq "usage"
-    The line 2 should eq "  -a, +a, --{no-}flag-a  "
-    The line 3 should eq "                    flag a"
-    The line 4 should eq "  -p PARAM_P        param p"
-    The line 5 should eq "  -o [OPTION_O]     option o"
+    The line 2 should eq "header"
+    The line 3 should eq "  -a, +a, --{no-}flag-a  "
+    The line 4 should eq "                    flag a"
+    The line 5 should eq "  -p PARAM_P        param p"
+    The line 6 should eq "  -o [OPTION_O]     option o"
+    The line 7 should eq "footer"
   End
 End

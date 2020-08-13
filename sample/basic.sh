@@ -10,7 +10,7 @@ VERSION=0.1
 # shellcheck disable=SC1083,SC2016
 parser_definition() {
   setup plus:true -- "Usage: ${2##*/} [options] [arguments...]" '' 'getoptions sample' ''
-  mesg -- 'Options:'
+  msg -- 'Options:'
   flag    FLAG_A  -a                                        -- "message a"
   flag    FLAG_B  -b                                        -- "message b"
   flag    FLAG_F  -f +f --{no-}flag                         -- "expands to --flag and --no-flag"

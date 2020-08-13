@@ -22,7 +22,7 @@ An elegant option parser for shell scripts (sh, bash and all POSIX shells)
 # shellcheck disable=SC1083,SC2016
 parser_definition() {
   setup plus:true -- "Usage: ${2##*/} [options] [arguments...]" '' 'getoptions sample' ''
-  mesg -- 'Options:'
+  msg -- 'Options:'
   flag    FLAG_A  -a                                        -- "message a"
   flag    FLAG_B  -b                                        -- "message b"
   flag    FLAG_F  -f +f --{no-}flag                         -- "expands to --flag and --no-flag"
@@ -148,10 +148,10 @@ Define a option that display only
 
 - `hidden:BOOLEAN` - Do not display in help
 
-### `mesg`
+### `msg`
 
 Display message in help
 
-`mesg [OPTIONS]... [-- [MESSAGE]...]`
+`msg [OPTIONS]... [-- [MESSAGE]...]`
 
 - `hidden:BOOLEAN` - Do not display in help
