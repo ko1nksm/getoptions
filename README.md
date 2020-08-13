@@ -60,7 +60,10 @@ number() {
 eval "$(getoptions parser_definition parse "$0")"         # Define parse() function
 eval "$(getoptions_help parser_definition usage "$0")"    # Define usage() function
 parse "$@"
-eval "set -- $RESTARGS" # Reset the positional parameters to exclude options
+eval "set -- $RESTARGS"
+
+echo "$FLAG_A"
+printf '%s\n' "$@" # Rest arguments excluding options
 ```
 
 Parses the following options.
