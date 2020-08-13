@@ -8,7 +8,23 @@
 
 An elegant option parser for shell scripts (sh, bash and all POSIX shells)
 
-**Feature**: simple, easy-to-use, fast, portable, POSIX compliant, no requirements and practical
+It's simple, easy-to-use, fast, portable, POSIX compliant, practical and No more `for/while` loop!
+
+## Features
+
+- Supports all POSIX shell (`dash`, `bash 2.0+`, `ksh 88+`, `zsh 3.1+`, etc)
+- Short option including optional argument (`-a`, `-abc`, `-s`, `-s 123`, `-s123`)
+- Long option including optional argument (`--long`, `--long 123`, `--long=123`)
+- Counter short option (`-vvv`) and reverse option (`+s`, `--no-long`)
+- Parse the options after arguments and treat after `--` as arguments
+- Can be invoked function instead of storing to variable
+- Validation and custom error messages
+- Automatic help generation
+- Can be used as a option parser generator
+
+## Requirements
+
+- POSIX shell and `cat` command only
 
 ## Usage
 
@@ -27,9 +43,9 @@ parser_definition() {
   flag    FLAG_B  -b                                        -- "message b"
   flag    FLAG_F  -f +f --{no-}flag                         -- "expands to --flag and --no-flag"
   flag    VERBOSE -v    --verbose   counter:true init:=0    -- "e.g. -vvv is verbose level 3"
-  param   PARAM   -p    --param                             -- "accept --param value / --param=value"
-  param   NUMBER  -n    --number    validate:'number "$1"'  -- "accept only numbers"
-  option  OPTION  -o    --option    default:"default"       -- "accept -ovalue / --option=value"
+  param   PARAM   -p    --param                             -- "accepts --param value / --param=value"
+  param   NUMBER  -n    --number    validate:'number "$1"'  -- "accepts only a number value"
+  option  OPTION  -o    --option    default:"default"       -- "accepts -ovalue / --option=value"
   disp    :usage  -h    --help
   disp    VERSION       --version
 }
@@ -47,11 +63,30 @@ parse "$@"
 eval "set -- $RESTARGS" # Reset the positional parameters to exclude options
 ```
 
+Parses the following options.
+
 ```sh
 ./sample/basic.sh -ab -f +f --flag --no-flag -vvv -p value -ovalue --option=value 1 2 -- 3 -f
 ```
 
 **Advanced usage**: See [advanced.sh](./sample/advanced.sh)
+
+## `getopt` vs `getopts` vs `getoptions`
+
+|                           | getopt           | getopts               | getoptions     |
+| ------------------------- | ---------------- | --------------------- | -------------- |
+| Implementation            | External command | Shell builtin command | Shell function |
+| Portability               | No               | Yes                   | Yes            |
+| Short option              | ✔️                | ✔️                     | ✔️              |
+| Long option               | ⚠ GNU only       | ❌                     | ✔️              |
+| Optional argument         | ⚠ GNU only       | ❌                     | ✔️              |
+| Option after arguments    | ⚠ GNU only       | ❌                     | ✔️              |
+| Double dash (`--`)        | ⚠ GNU only       | ❌                     | ✔️              |
+| `+` option                | ❌                | ⚠ zsh, ksh, mksh only | ✔️              |
+| `--no-` option            | ❌                | ❌                     | ✔️              |
+| Validation                | ❌                | ❌                     | ✔️              |
+| Custom error message      | ❌                | ✔️                     | ✔️              |
+| Automatic help generation | ❌                | ❌                     | ✔️              |
 
 ## Manual
 
@@ -76,11 +111,12 @@ Generate a function for option parsing.
 
 - `extra` - Passed to the parser definition function
 
-NOTE: You can also only use the generated code without including `getoptions.sh`.
+NOTE: If you want to use as option parser generator, call it without `eval`.
+You can also only use the generated code without including `getoptions.sh`.
 
 ### `getoptions_help`
 
-Generate a function for automatic help generation.
+Generate a function to display help.
 
 `getoptions PARSER_DEFINITION FUNCTION [extra]...`
 
@@ -155,3 +191,22 @@ Display message in help
 `msg [OPTIONS]... [-- [MESSAGE]...]`
 
 - `hidden:BOOLEAN` - Do not display in help
+
+## Development
+
+Tests are executed using [shellspec](https://github.com/shellspec/shellspec).
+
+```sh
+# Install shellspec (if not installed)
+curl -fsSL https://git.io/shellspec | sh
+
+# Run tests
+shellspec
+
+# Run tests with other shell
+shellspec --shell bash
+```
+
+## License
+
+[Creative Commons Zero v1.0 Universal](https://github.com/ko1nksm/getoptions/blob/master/LICENSE)
