@@ -33,7 +33,7 @@ It's simple, easy-to-use, fast, portable, POSIX compliant, practical and No more
 ```sh
 #!/bin/sh
 
-. ./getoptions.sh
+. ./getoptions.sh # or paste it into your script
 
 # shellcheck disable=SC1083,SC2016
 parser_definition() {
