@@ -124,6 +124,7 @@ Define a option that take an argument
 - `validate:CODE` - Code for value validation
 - `init:[@unset | =STRING | CODE]` - Initial value / Initializer
 - `export:BOOLEAN` - Export variables
+- `var` - Variable name displayed in help
 - `hidden:BOOLEAN` - Do not display in help
 
 ### `option`
@@ -136,6 +137,7 @@ Define a option that take an optional argument
 - `validate:CODE` - Code for value validation
 - `init:[@unset | =STRING | CODE]` - Initial value / Initializer
 - `export:BOOLEAN` - Export variables
+- `var` - Variable name displayed in help
 - `hidden:BOOLEAN` - Do not display in help
 
 ### `disp`
