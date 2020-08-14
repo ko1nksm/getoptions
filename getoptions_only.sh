@@ -3,10 +3,10 @@ getoptions() {
   URL="https://github.com/ko1nksm/getoptions"
   LICENSE="Creative Commons Zero v1.0 Universal (CC0 Public Domain)"
   _error='' _on=1 _off='' _export='' _restargs='RESTARGS'
-  _plus='' _optargs='' _no='' _equal=1 indent=''
+  _plus='' _optargs='' _no='' _equal=1 indent='' IFS=' '
 
   for i in 0 1 2 3 4 5; do
-    eval "_$i() { echo \"$indent\" \"\$@\"; }"
+    eval "_$i() { echo \"$indent\$*\"; }"
     indent="$indent  "
   done
 
