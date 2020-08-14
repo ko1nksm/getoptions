@@ -8,7 +8,7 @@
 
 An elegant option parser for shell scripts (sh, bash and all POSIX shells)
 
-It's simple, easy-to-use, fast, portable, POSIX compliant, practical and No more `for/while` loop!
+It's simple, easy-to-use, fast, portable, POSIX compliant, practical and no more `for/while` loop!
 
 ## Features
 
@@ -59,12 +59,14 @@ number() {
 }
 
 eval "$(getoptions parser_definition parse "$0")"         # Define parse() function
-eval "$(getoptions_help parser_definition usage "$0")"    # Define usage() function
 parse "$@"
 eval "set -- $RESTARGS"
 
 echo "$FLAG_A"
 printf '%s\n' "$@" # Rest arguments excluding options
+
+eval "$(getoptions_help parser_definition usage "$0")"    # Define usage() function
+usage
 ```
 
 Parses the following options.
