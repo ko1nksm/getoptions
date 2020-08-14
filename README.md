@@ -20,7 +20,7 @@ It's simple, easy-to-use, fast, portable, POSIX compliant, practical and No more
 - Can be invoked function instead of storing to variable
 - Validation and custom error messages
 - Automatic help generation
-- Can be used as a option parser generator
+- Can be used as a **option parser generator**
 
 ## Requirements
 
