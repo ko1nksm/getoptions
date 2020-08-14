@@ -24,7 +24,7 @@ It's simple, easy-to-use, fast, portable, POSIX compliant, practical and No more
 
 ## Requirements
 
-- POSIX shell and `cat` command only
+- POSIX shell and `cat` command only. (Used only for displaying help)
 
 ## Usage
 
@@ -114,7 +114,7 @@ Generate a function for option parsing.
 
 - `extra` - Passed to the parser definition function
 
-NOTE: If you want to use as option parser generator, call it without `eval`.
+NOTE: If you want to use as **option parser generator**, call it without `eval`.
 You can also only use the generated code without including `getoptions.sh`.
 
 ### `getoptions_help`
