@@ -20,7 +20,7 @@ parser_definition() {
   param   RANGE -r --range validate:'range 10 100'
   param   :multiple -m --multiple init:'MULTIPLE=""'
   option  OPTION -o --option default:"omission value"
-  disp    :'getoptions parser parse "$0"' --generate
+  disp    :'getoptions parser_definition parse "$0"' --generate
   disp    :usage -h --help
   disp    VERSION --version
 }
