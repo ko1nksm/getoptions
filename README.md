@@ -132,13 +132,14 @@ Setup global settings
 `setup [OPTIONS]... [-- [MESSAGE]...]`
 
 - `restargs:STRING` - The variable name for getting rest arguments (default: `RESTARGS`)
-- `plus:BOOLEAN` - Those start with `+` are treated as options
+- `plus:BOOLEAN` - Those start with `+` are treated as options (default: auto)
+- `equal:BOOLEAN` - Support `--long=VALUE` style (default: `1`)
 - `error:FUNCTION` - A Function for displaying custom error messages
 - `on:STRING` - The default true value for the flag (default: `1`)
-- `off:STRING` - The default false value for the flag (default: empty string)
-- `export:BOOLEAN` - Export variables
-- `width:INTEGER` - Width of optional part of help
-- `hidden:BOOLEAN` - Do not display in help
+- `off:STRING` - The default false value for the flag (default: empty)
+- `export:BOOLEAN` - Export variables (default: empty)
+- `width:INTEGER` - Width of optional part of help (default: 30)
+- `hidden:BOOLEAN` - Do not display in help (default: empty)
 
 ### `flag`
 

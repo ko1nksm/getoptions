@@ -2,7 +2,8 @@
 getoptions() {
   URL="https://github.com/ko1nksm/getoptions"
   LICENSE="Creative Commons Zero v1.0 Universal (CC0 Public Domain)"
-  _error='' _on=1 _off='' _export='' _plus='' _optargs='' _restargs=RESTARGS
+  _error='' _on=1 _off='' _export='' _restargs=RESTARGS
+  _plus='' _optargs='' _no='' _equal=1
 
   quote() {
     set -- "$1" "$2'" ''
@@ -24,8 +25,12 @@ getoptions() {
   args() {
     on="$_on" off="$_off" export="$_export" init='@empty'
     while [ $# -gt 1 ] && [ ! "$2" = '--' ] && shift; do
-      [ _"${1#[-+]}" = _"$1" ] && eval "${1%%:*}=\"\${1#*:}\""
-      [ _"${1#+}" = _"$1" ] || _plus=1
+      case $1 in
+        --no-* | --\{no-\}*) _no=1 ;;
+        +*) _plus=1 ;;
+        [-+]*) ;;
+        *) eval "${1%%:*}=\"\${1#*:}\"" ;;
+      esac
     done
   }
 
@@ -123,10 +128,14 @@ getoptions() {
   echo "  OPTIND=\$((\$#+1))"
   echo "  while [ \$# -gt 0 ] && OPTARG=''; do"
   echo "    case \$1 in"
-  echo "      --?*=*) OPTARG=\$1; shift"
-  echo "        eval 'set -- \"\${OPTARG%%\=*}\" \"\${OPTARG#*\=}\"' \${1+'\"\$@\"'}"
-  echo "        ;;"
-  echo "      --no-*) unset OPTARG ;;"
+  if [ "$_equal" ]; then
+    echo "      --?*=*) OPTARG=\$1; shift"
+    echo "        eval 'set -- \"\${OPTARG%%\=*}\" \"\${OPTARG#*\=}\"' \${1+'\"\$@\"'}"
+    echo "        ;;"
+  fi
+  if [ "$_no" ]; then
+    echo "      --no-*) unset OPTARG ;;"
+  fi
   if [ "$_optargs" ]; then
     echo "      -[$_optargs]?*) OPTARG=\$1; shift"
     echo "        eval 'set -- \"\${OPTARG%\"\${OPTARG#??}\"}\" \"\${OPTARG#??}\"' \${1+'\"\$@\"'}"
