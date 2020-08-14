@@ -87,7 +87,6 @@ Parses the following options.
 | Option after arguments    | ⚠ GNU only       | ❌                     | ✔️              |
 | Double dash (`--`)        | ⚠ GNU only       | ❌                     | ✔️              |
 | `+` option                | ❌                | ⚠ zsh, ksh, mksh only | ✔️              |
-| `--no-` option            | ❌                | ❌                     | ✔️              |
 | Validation                | ❌                | ❌                     | ✔️              |
 | Custom error message      | ❌                | ✔️                     | ✔️              |
 | Automatic help generation | ❌                | ❌                     | ✔️              |
