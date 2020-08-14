@@ -3,6 +3,9 @@ SHELL=bash
 test:
 	shellspec
 
+check:
+	shellcheck getoptions.sh getoptions_only.sh sample/basic.sh sample/advanced.sh
+
 testall:
 	shellspec -s sh
 	shellspec -s bash

@@ -32,10 +32,11 @@ It's simple, easy-to-use, fast, portable, POSIX compliant, practical and No more
 
 ```sh
 #!/bin/sh
+VERSION=0.1
 
 . ./getoptions.sh # or paste it into your script
+# . ./getoptions_only.sh # if you don't need automatic help generation.
 
-# shellcheck disable=SC1083,SC2016
 parser_definition() {
   setup plus:true -- "Usage: ${2##*/} [options] [arguments...]" '' 'getoptions sample' ''
   msg -- 'Options:'
