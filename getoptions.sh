@@ -2,34 +2,28 @@
 getoptions() {
   URL="https://github.com/ko1nksm/getoptions"
   LICENSE="Creative Commons Zero v1.0 Universal (CC0 Public Domain)"
-  _error='' _on=1 _off='' _export='' _restargs=RESTARGS
-  _plus='' _optargs='' _no='' _equal=1
+  _error='' _on=1 _off='' _export='' _restargs='RESTARGS'
+  _plus='' _optargs='' _no='' _equal=1 indent=''
 
-  indent=''
   for i in 0 1 2 3 4 5; do
     eval "_$i() { echo \"$indent\" \"\$@\"; }"
     indent="$indent  "
   done
 
   quote() {
-    set -- "$1" "$2'" ''
-    until [ ! "$2" ] && set -- "$1" "'${3%????}'"; do
-      set -- "$1" "${2#*\'}" "$3${2%%\'*}'\''"
-    done
-    set -- "$1" "${2#\'\'}"
-    set -- "$1" "${2%\'\'}"
-    eval "[ \"\$2\" ] && $1=\"\$2\" || $1=\'\'"
+    q="$2'" r=''
+    while [ "$q" ]; do r="$r${q%%\'*}'\''" && q="${q#*\'}"; done
+    q="'${r%????}'" && q="${q#\'\'}" && q="${q%\'\'}" && [ "$q" ] || q="''"
+    eval "$1=\"\$q\""
   }
 
   code() {
-    case $1 in
-      :*) [ ! "${4:-}" ] || "$2" "${4:-}" ;;
-       *) [ ! "${3:-}" ] || "$2" "${3:-}" ;;
-    esac
+    [ ! "${1#:}" = "$1" ] && c=4 || c=3
+    eval "[ ! \${$c:+x} ] || $2 \"\$$c\""
   }
 
   args() {
-    on="$_on" off="$_off" export="$_export" init='@empty'
+    on=$_on off=$_off export=$_export init='@empty'
     while [ $# -gt 1 ] && [ ! "$2" = '--' ] && shift; do
       case $1 in
         --no-* | --\{no-\}*) _no=1 ;;
@@ -43,10 +37,10 @@ getoptions() {
     case $init in
       @empty) code "$1" _0 "${export:+export }$1=''" ;;
       @unset) code "$1" _0 "unset $1 ||:" "unset OPTARG ||:; ${1#:}" ;;
-           *) [ _"${init#@}" = _"$init" ] || eval "init=\"=\${${init#@}}\""
-              [ _"${init#=}" = _"$init" ] && _0 "$init" && return 0
-              quote init "${init#=}"
-              code "$1" _0 "${export:+export }$1=$init" "OPTARG=$init; ${1#:}"
+      *)  [ _"${init#@}" = _"$init" ] || eval "init=\"=\${${init#@}}\""
+          [ _"${init#=}" = _"$init" ] && _0 "$init" && return 0
+          quote init "${init#=}"
+          code "$1" _0 "${export:+export }$1=$init" "OPTARG=$init; ${1#:}"
     esac
   }
 
@@ -79,7 +73,7 @@ getoptions() {
       case $1 in
         --\{no-\}* ) sw="${sw}${sw:+ | }--${1#--?no-?} | --no-${1#--?no-?}" ;;
         [-+]? | --*) sw="${sw}${sw:+ | }$1" ;;
-                  *) eval "${1%%:*}=\"\${1#*:}\"" ;;
+        *) eval "${1%%:*}=\"\${1#*:}\""
       esac
     done
   }
@@ -94,10 +88,8 @@ getoptions() {
     _4 "[ \"\${OPTARG:-}\" ] && set -- noarg \"\$1\" && break"
     _4 "eval '[ \${OPTARG+x} ] &&:' && OPTARG=$on || OPTARG=$off"
     [ "$validate" ] && _4 "{ $validate; } || return \$?"
-    case $counter in
-      '') code "$1" _4 "$1=\$OPTARG" "${1#:}" ;;
-       *) code "$1" _4 "$1=\$((\${$1:-0} + \$OPTARG))" "${1#:}" ;;
-    esac
+    [ "$counter" ] && code="\$((\${$1:-0} + \$OPTARG))" || code="\$OPTARG"
+    code "$1" _4 "$1=$code" "${1#:}"
     _4 ";;"
   }
   param() {
@@ -183,13 +175,9 @@ getoptions() {
 }
 
 getoptions_help() {
-  width="30" plus="" heredoc="GETOPTIONS_HEREDOC_DELIMITER"
+  width=30 plus='' heredoc='GETOPTIONS_HEREDOC'
 
-  pad() {
-    until [ ${#2} -ge "$3" ] && eval "$1=\$2"; do
-      set -- "$1" "$2 " "$3"
-    done
-  }
+  pad() { p=$2; while [ ${#p} -lt "$3" ]; do p="$p "; done; eval "$1=\$p"; }
 
   args() {
     _type=$1 var=$2 sw='' hidden='' _width=$width _pre='' && shift 2
@@ -212,9 +200,7 @@ getoptions_help() {
     [ ${#_pre} -le "$_width" ] && [ $# -gt 0 ] && _pre="${_pre}$1" && shift
     echo "$_pre"
     pad _pre '' "$_width"
-    while [ $# -gt 0 ] && i=$1 && shift; do
-      echo "${_pre}$i"
-    done
+    for i; do echo "${_pre}$i"; done
   }
 
   setup() { args 'setup' - "$@"; }
