@@ -130,7 +130,7 @@ Generate a function to display help.
 
 ### `setup`
 
-Setup global settings (**Required**)
+Setup global settings (**mandatory**)
 
 `setup <restargs> [OPTIONS]... [-- [MESSAGE]...]`
 
