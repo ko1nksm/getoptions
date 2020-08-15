@@ -81,7 +81,7 @@ getoptions() {
     _3 "$sw)"
     _4 '[ "${OPTARG:-}" ] && set -- "$1" noarg && break'
     _4 "eval '[ \${OPTARG+x} ] &&:' && OPTARG=$on || OPTARG=$off"
-    [ "$validate" ] && _4 "{ $validate; } || return \$?"
+    [ "$validate" ] && _4 "$validate || { set -- \"\$1\" $validate; break; }"
     [ "$counter" ] && code="\$((\${$1:-0} + \$OPTARG))" || code='$OPTARG'
     code "$1" _4 "$1=$code" "${1#:}"
     _4 ';;'
@@ -91,7 +91,7 @@ getoptions() {
     _3 "$sw)"
     _4 '[ $# -le 1 ] && set -- "$1" required && break'
     _4 'OPTARG=$2'
-    [ "$validate" ] && _4 "{ $validate; } || return \$?"
+    [ "$validate" ] && _4 "$validate || { set -- \"\$1\" $validate; break; }"
     code "$1" _4 "$1=\$OPTARG" "${1#:}"
     _4 'shift ;;'
   }
@@ -104,7 +104,7 @@ getoptions() {
     _5 "eval 'shift; set -- \"'\"\$1\"'\" \"\$OPTARG\"' \${2+'\"\$@\"'}"
     _4 "fi"
     _4 'OPTARG=$2'
-    [ "$validate" ] && _4 "{ $validate; } || return \$?"
+    [ "$validate" ] && _4 "$validate || { set -- \"\$1\" $validate; break; }"
     code "$1" _4 "$1=\$OPTARG" "${1#:}"
     _4 'shift ;;'
   }
@@ -166,11 +166,12 @@ getoptions() {
   _2 'shift'
   _1 'done'
   _1 '[ $# -eq 0 ] && return 0'
-  [ "$_error" ] && _1 "$_error" '"$@" && exit 1'
+  [ "$_error" ] && _1 "$_error" '"$@" >&2 && exit 1'
   _1 'case $2 in'
   _2 "unknown) echo \"unrecognized option '\$1'\" ;;"
   _2 "noarg) echo \"option '\$1' doesn't allow an argument\" ;;"
   _2 "required) echo \"option '\$1' requires an argument\" ;;"
+  _2 "*) echo \"option '\$1' validation error: \$2\" ;;"
   _1 'esac >&2'
   _1 'exit 1'
   _0 '}'

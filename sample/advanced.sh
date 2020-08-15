@@ -25,26 +25,21 @@ parser_definition() {
   disp    VERSION --version
 }
 
-abort() { echo "$@" >&2; exit 1; }
-
 error() {
-  case $1 in
-    unknown) abort "$@" ;;
+  case $2 in
+    unknown) echo "$@" ;;
+    number) echo "option '$1' is not a number" ;;
+    range) echo "option '$1' is not a number or out of range ($3 - $4)" ;;
     *) return 1 ;; # Display default error
   esac
 }
 
 number() {
-  case $OPTARG in (*[!0-9]*)
-    abort "'$OPTARG' is not a number"
-  esac
+  case $OPTARG in (*[!0-9]*) return 1; esac
 }
 
 range() {
-  number
-  if [ "$OPTARG" -lt "$1" ] || [ "$2" -lt "$OPTARG" ]; then
-    abort "out of range ($1 <= VALUE <= $2)"
-  fi
+  number && [ "$1" -le "$OPTARG" ] && [ "$OPTARG" -le "$2" ]
 }
 
 multiple() {

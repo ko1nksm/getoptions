@@ -46,28 +46,24 @@ parser_definition() {
   flag    FLAG_F  -f +f --{no-}flag                         -- "expands to --flag and --no-flag"
   flag    VERBOSE -v    --verbose   counter:true init:=0    -- "e.g. -vvv is verbose level 3"
   param   PARAM   -p    --param                             -- "accepts --param value / --param=value"
-  param   NUMBER  -n    --number    validate:'number "$1"'  -- "accepts only a number value"
+  param   NUMBER  -n    --number    validate:number         -- "accepts only a number value"
   option  OPTION  -o    --option    default:"default"       -- "accepts -ovalue / --option=value"
   disp    :usage  -h    --help
   disp    VERSION       --version
 }
 
-abort() { echo "$@" >&2; exit 1; }
-number() {
-  case $OPTARG in (*[!0-9]*)
-    abort "$1: not a number"
-  esac
-}
+number() { case $OPTARG in (*[!0-9]*) return 1; esac; }
 
-eval "$(getoptions parser_definition parse "$0")"         # Define parse() function
-parse "$@"
-eval "set -- $REST"
+# Define the parse function for option parsing
+eval "$(getoptions parser_definition parse "$0")"
+# Define the usage function for displaying help (optional)
+eval "$(getoptions_help parser_definition usage "$0")"
+
+parse "$@"          # Option parsing
+eval "set -- $REST" # Exclude options from arguments
 
 echo "$FLAG_A"
-printf '%s\n' "$@" # Rest arguments excluding options
-
-eval "$(getoptions_help parser_definition usage "$0")"    # Define usage() function
-usage
+printf '%s\n' "$@"
 ```
 
 Parses the following options.
@@ -109,6 +105,8 @@ Parses the following options.
   - Shell script code
 - FUNCTION
   - Function name only
+- VALIDATOR
+  - Function name or Function name with arguments
 - OPTIONS
   - `key:value` arguments - If `:value` is omitted, it is the same as `key:key`.
 
@@ -162,7 +160,7 @@ Define a option that take no argument
 - `init:[@on | @off | @unset | =STRING | CODE]` - Initial value / Initializer
 - `off:STRING` - The false value for the flag
 - `on:STRING` - The true value for the flag
-- `validate:CODE` - Code for value validation
+- `validate:VALIDATOR` - Code for value validation
 
 ### `param`
 
@@ -173,7 +171,7 @@ Define a option that take an argument
 - `export:BOOLEAN` - Export variables
 - `hidden:BOOLEAN` - Do not display in help
 - `init:[@unset | =STRING | CODE]` - Initial value / Initializer
-- `validate:CODE` - Code for value validation
+- `validate:VALIDATOR` - Code for value validation
 - `var` - Variable name displayed in help
 
 ### `option`
@@ -186,7 +184,7 @@ Define a option that take an optional argument
 - `export:BOOLEAN` - Export variables
 - `hidden:BOOLEAN` - Do not display in help
 - `init:[@unset | =STRING | CODE]` - Initial value / Initializer
-- `validate:CODE` - Code for value validation
+- `validate:VALIDATOR` - Code for value validation
 - `var` - Variable name displayed in help
 
 ### `disp`
@@ -204,6 +202,24 @@ Display message in help
 `msg [OPTIONS]... [-- [MESSAGE]...]`
 
 - `hidden:BOOLEAN` - Do not display in help
+
+### Custom error handler
+
+Example
+
+```sh
+# $1: Option
+# $2: Validation name (unknown, noarg, required or custom name)
+# $3-: Validation arguments
+error() {
+  case $2 in
+    unknown) echo "unrecognized option '$1'" ;;
+    number) echo "option '$1' is not a number" ;;
+    range) echo "option '$1' is not a number or out of range ($3 - $4)" ;;
+    *) return 1 ;; # Display default error
+  esac
+}
+```
 
 ## Development
 

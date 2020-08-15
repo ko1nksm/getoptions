@@ -9,7 +9,7 @@ VERSION=0.1
 
 # shellcheck disable=SC1083,SC2016
 parser_definition() {
-  setup   REST plus:true -- "Usage: ${2##*/} [options] [arguments...]"
+  setup   REST plus:true -- "Usage: ${2##*/} [options...] [arguments...]"
   msg -- '' 'getoptions sample' ''
   msg -- 'Options:'
   flag    FLAG_A  -a                                        -- "message a"
@@ -17,23 +17,21 @@ parser_definition() {
   flag    FLAG_F  -f +f --{no-}flag                         -- "expands to --flag and --no-flag"
   flag    VERBOSE -v    --verbose   counter:true init:=0    -- "e.g. -vvv is verbose level 3"
   param   PARAM   -p    --param                             -- "accepts --param value / --param=value"
-  param   NUMBER  -n    --number    validate:'number "$1"'  -- "accepts only a number value"
+  param   NUMBER  -n    --number    validate:number         -- "accepts only a number value"
   option  OPTION  -o    --option    default:"default"       -- "accepts -ovalue / --option=value"
   disp    :usage  -h    --help
   disp    VERSION       --version
 }
 
-abort() { echo "$@" >&2; exit 1; }
-number() {
-  case $OPTARG in (*[!0-9]*)
-    abort "$1: not a number"
-  esac
-}
+number() { case $OPTARG in (*[!0-9]*) return 1; esac; }
 
-eval "$(getoptions parser_definition parse "$0")"         # Define parse() function
-eval "$(getoptions_help parser_definition usage "$0")"    # Define usage() function
-parse "$@"
-eval "set -- $REST" # Reset the positional parameters to exclude options
+# Define the parse function for option parsing
+eval "$(getoptions parser_definition parse "$0")"
+# Define the usage function for displaying help (optional)
+eval "$(getoptions_help parser_definition usage "$0")"
+
+parse "$@"          # Option parsing
+eval "set -- $REST" # Exclude options from arguments
 
 echo "FLAG_A: $FLAG_A"
 echo "FLAG_B: $FLAG_B"

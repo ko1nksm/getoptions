@@ -101,7 +101,7 @@ Describe "getoptions()"
     }
     myerror() {
       case $2 in
-        unknown) echo custom "$@" >&2 ;;
+        unknown) echo custom "$@" ;;
         *) return 1 ;;
       esac
     }
