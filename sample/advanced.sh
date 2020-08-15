@@ -10,7 +10,7 @@ VERSION=0.1
 # shellcheck disable=SC1083,SC2016
 parser_definition() {
   setup   REST error:error on:1 off: export:true -- \
-    "Usage: ${2##*/} [options] [arguments...]" '' 'getoptions sample' ''
+    "Usage: ${2##*/} [options...] [arguments...]" '' 'getoptions sample' ''
   flag    FLAG_A -a --flag-a on:1 off: init:= export:
   flag    FLAG_B -b +b --{no-}flag-b on:ON off:OFF init:@off
   flag    FLAG_C -c +c --{no-}flag-c on:1 off:0 init:@unset

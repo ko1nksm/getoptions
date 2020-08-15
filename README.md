@@ -38,7 +38,7 @@ VERSION=0.1
 # . ./getoptions_only.sh # if you don't need automatic help generation.
 
 parser_definition() {
-  setup   REST plus:true -- "Usage: ${2##*/} [options] [arguments...]"
+  setup   REST plus:true -- "Usage: ${2##*/} [options...] [arguments...]"
   msg -- '' 'getoptions sample' ''
   msg -- 'Options:'
   flag    FLAG_A  -a                                        -- "message a"
@@ -80,34 +80,37 @@ Parses the following options.
 
 ## `getopt` vs `getopts` vs `getoptions`
 
-|                           | getopt           | getopts               | getoptions     |
-| ------------------------- | ---------------- | --------------------- | -------------- |
-| Implementation            | External command | Shell builtin command | Shell function |
-| Portability               | No               | Yes                   | Yes            |
-| Short option              | ✔️                | ✔️                     | ✔️              |
-| Long option               | ⚠ GNU only       | ❌                     | ✔️              |
-| Optional argument         | ⚠ GNU only       | ❌                     | ✔️              |
-| Option after arguments    | ⚠ GNU only       | ❌                     | ✔️              |
-| Double dash (`--`)        | ⚠ GNU only       | ❌                     | ✔️              |
-| `+` option                | ❌                | ⚠ zsh, ksh, mksh only | ✔️              |
-| Validation                | ❌                | ❌                     | ✔️              |
-| Custom error message      | ❌                | ✔️                     | ✔️              |
-| Automatic help generation | ❌                | ❌                     | ✔️              |
+|                                   | getopt           | getopts               | getoptions     |
+| --------------------------------- | ---------------- | --------------------- | -------------- |
+| Implementation                    | External command | Shell builtin command | Shell function |
+| Portability                       | No               | Yes                   | Yes            |
+| Short option beginning with `-`   | ✔️                | ✔️                     | ✔️              |
+| Short option beginning with `+`   | ❌                | ⚠ zsh, ksh, mksh only | ✔️              |
+| Long option beginning with `--`   | ⚠ GNU only       | ❌                     | ✔️              |
+| Long option beginning with `-`    | ⚠ GNU only       | ❌                     | ✔️ limited      |
+| Abbreviating long options         | ⚠ GNU only       | ❌                     | ❌              |
+| Optional argument                 | ⚠ GNU only       | ❌                     | ✔️              |
+| Option after arguments            | ⚠ GNU only       | ❌                     | ✔️              |
+| Double dash (`--`)                | ⚠ GNU only       | ❌                     | ✔️              |
+| Scanning modes (see `man getopt`) | ⚠ GNU only       | ❌                     | ✔️ `+` only     |
+| Validation                        | ❌                | ❌                     | ✔️              |
+| Custom error message              | ❌                | ✔️                     | ✔️              |
+| Automatic help generation         | ❌                | ❌                     | ✔️              |
 
 ## Manual
 
 ### Miscellaneous notes
 
-- BOOLEAN
-  - true: not zero-length string, false: zero-length string.
-- FUNCTION
-  - Function name only
-- CODE
-  - Shell script code
-- OPTIONS
-  - `key:value` arguments - If `:value` is omitted, it is the same as `key:key`.
 - `--{no-}foo`
   - Expand to `--foo` and `--no-foo`.
+- BOOLEAN
+  - true: not zero-length string, false: zero-length string.
+- CODE
+  - Shell script code
+- FUNCTION
+  - Function name only
+- OPTIONS
+  - `key:value` arguments - If `:value` is omitted, it is the same as `key:key`.
 
 ### `getoptions`
 
@@ -134,15 +137,16 @@ Setup global settings (**mandatory**)
 
 `setup <restargs> [OPTIONS]... [-- [MESSAGE]...]`
 
-- `restargs:STRING` - The variable name for getting rest arguments
-- `plus:BOOLEAN` - Those start with `+` are treated as options (default: auto)
-- `equal:BOOLEAN` - Support `--long=VALUE` style (default: `1`)
+- `equal:BOOLEAN` - Support `--long=VALUE` style [default: `1`]
 - `error:FUNCTION` - A Function for displaying custom error messages
-- `on:STRING` - The default true value for the flag (default: `1`)
-- `off:STRING` - The default false value for the flag (default: empty)
-- `export:BOOLEAN` - Export variables (default: empty)
-- `width:INTEGER` - Width of optional part of help (default: 30)
-- `hidden:BOOLEAN` - Do not display in help (default: empty)
+- `export:BOOLEAN` - Export variables [default: empty]
+- `hidden:BOOLEAN` - Do not display in help [default: empty]
+- `mode:MODE` - Scanning modes (only `+` supported) [default: empty]
+- `off:STRING` - The default false value for the flag [default: empty]
+- `on:STRING` - The default true value for the flag [default: `1`]
+- `plus:BOOLEAN` - Those start with `+` are treated as options [default: auto]
+- `restargs:STRING` - The variable name for getting rest arguments
+- `width:INTEGER` - Width of optional part of help [default: 30]
 
 ### `flag`
 
@@ -150,13 +154,15 @@ Define a option that take no argument
 
 `flag <VARIABLE | :CODE> [-? | +? | --* | --{no-}*]... [OPTIONS]... [-- [MESSAGE]...]`
 
-- `on:STRING` - The true value for the flag
-- `off:STRING` - The false value for the flag
+- `alt:BOOLEAN` - allow long options starting with single
+  - Cannot be used with the syntax `-abc` and `-s123`.
 - `counter:BOOLEAN` - Counts the number of flags
-- `validate:CODE` - Code for value validation
-- `init:[@on | @off | @unset | =STRING | CODE]` - Initial value / Initializer
 - `export:BOOLEAN` - Export variables
 - `hidden:BOOLEAN` - Do not display in help
+- `init:[@on | @off | @unset | =STRING | CODE]` - Initial value / Initializer
+- `off:STRING` - The false value for the flag
+- `on:STRING` - The true value for the flag
+- `validate:CODE` - Code for value validation
 
 ### `param`
 
@@ -164,11 +170,11 @@ Define a option that take an argument
 
 `param <VARIABLE | :CODE> [-? | +? | --* | --{no-}*]... [OPTIONS]... [-- [MESSAGE]...]`
 
-- `validate:CODE` - Code for value validation
-- `init:[@unset | =STRING | CODE]` - Initial value / Initializer
 - `export:BOOLEAN` - Export variables
-- `var` - Variable name displayed in help
 - `hidden:BOOLEAN` - Do not display in help
+- `init:[@unset | =STRING | CODE]` - Initial value / Initializer
+- `validate:CODE` - Code for value validation
+- `var` - Variable name displayed in help
 
 ### `option`
 
@@ -177,11 +183,11 @@ Define a option that take an optional argument
 `option <VARIABLE | :CODE> [-? | +? | --* | --{no-}*]... [OPTIONS]... [-- [MESSAGE]...]`
 
 - `default:STRING` - Value when option argument is omitted
-- `validate:CODE` - Code for value validation
-- `init:[@unset | =STRING | CODE]` - Initial value / Initializer
 - `export:BOOLEAN` - Export variables
-- `var` - Variable name displayed in help
 - `hidden:BOOLEAN` - Do not display in help
+- `init:[@unset | =STRING | CODE]` - Initial value / Initializer
+- `validate:CODE` - Code for value validation
+- `var` - Variable name displayed in help
 
 ### `disp`
 
