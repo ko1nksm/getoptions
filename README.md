@@ -38,7 +38,8 @@ VERSION=0.1
 # . ./getoptions_only.sh # if you don't need automatic help generation.
 
 parser_definition() {
-  setup plus:true -- "Usage: ${2##*/} [options] [arguments...]" '' 'getoptions sample' ''
+  setup   REST plus:true -- "Usage: ${2##*/} [options] [arguments...]"
+  msg -- '' 'getoptions sample' ''
   msg -- 'Options:'
   flag    FLAG_A  -a                                        -- "message a"
   flag    FLAG_B  -b                                        -- "message b"
@@ -60,7 +61,7 @@ number() {
 
 eval "$(getoptions parser_definition parse "$0")"         # Define parse() function
 parse "$@"
-eval "set -- $RESTARGS"
+eval "set -- $REST"
 
 echo "$FLAG_A"
 printf '%s\n' "$@" # Rest arguments excluding options
@@ -129,11 +130,11 @@ Generate a function to display help.
 
 ### `setup`
 
-Setup global settings
+Setup global settings (**Required**)
 
-`setup [OPTIONS]... [-- [MESSAGE]...]`
+`setup <restargs> [OPTIONS]... [-- [MESSAGE]...]`
 
-- `restargs:STRING` - The variable name for getting rest arguments (default: `RESTARGS`)
+- `restargs:STRING` - The variable name for getting rest arguments
 - `plus:BOOLEAN` - Those start with `+` are treated as options (default: auto)
 - `equal:BOOLEAN` - Support `--long=VALUE` style (default: `1`)
 - `error:FUNCTION` - A Function for displaying custom error messages

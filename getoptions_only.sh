@@ -2,7 +2,7 @@
 getoptions() {
   URL='https://github.com/ko1nksm/getoptions'
   LICENSE='Creative Commons Zero v1.0 Universal (CC0 Public Domain)'
-  _error='' _on=1 _off='' _export='' _restargs='RESTARGS'
+  _error='' _on=1 _off='' _export='' restargs=''
   _plus='' _optargs='' _no='' _equal=1 indent='' IFS=' '
 
   for i in 0 1 2 3 4 5; do
@@ -46,6 +46,7 @@ getoptions() {
   }
 
   setup() {
+    restargs=$1 && shift
     for i; do [ "$i" = '--' ] && break; eval "_${i%%:*}=\${i#*:}"; done
   }
   flag() { args : "$@"; defvar "$@"; }
@@ -58,7 +59,7 @@ getoptions() {
   _0 "# URL: $URL"
   _0 "# LICENSE: $LICENSE"
   "$@"
-  _0 "$_restargs=''"
+  _0 "${restargs:?}=''"
 
   args() {
     sw='' on="$_on" off="$_off" validate='' counter='' default=''
@@ -147,10 +148,10 @@ getoptions() {
   "$@"
   _3 '--)'
   _4 'while [ $# -gt 1 ] && shift; do'
-  _5 "$_restargs=\"\${$_restargs}" '\"\${$(($OPTIND-$#))}\""'
+  _5 "$restargs=\"\${$restargs}" '\"\${$(($OPTIND-$#))}\""'
   _4 'done ;;'
   _3 "[-${_plus:++}]?*)" 'set -- unknown "$1" && break ;;'
-  _3 "*) $_restargs=\"\${$_restargs}" '\"\${$(($OPTIND-$#))}\""'
+  _3 "*) $restargs=\"\${$restargs}" '\"\${$(($OPTIND-$#))}\""'
   _2 'esac'
   _2 'shift'
   _1 'done'

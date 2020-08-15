@@ -9,7 +9,7 @@ VERSION=0.1
 
 # shellcheck disable=SC1083,SC2016
 parser_definition() {
-  setup restargs:ARGS error:error on:1 off: export:true -- \
+  setup   REST error:error on:1 off: export:true -- \
     "Usage: ${2##*/} [options] [arguments...]" '' 'getoptions sample' ''
   flag    FLAG_A -a --flag-a on:1 off: init:= export:
   flag    FLAG_B -b +b --{no-}flag-b on:ON off:OFF init:@off
@@ -54,7 +54,7 @@ multiple() {
 eval "$(getoptions parser_definition parse "$0")"
 eval "$(getoptions_help parser_definition usage "$0")"
 parse "$@"
-eval "set -- $ARGS"
+eval "set -- $REST"
 
 echo "FLAG_A: $FLAG_A"
 echo "FLAG_B: $FLAG_B"

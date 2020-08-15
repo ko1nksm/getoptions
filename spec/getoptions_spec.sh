@@ -12,7 +12,7 @@ Describe "getoptions()"
   }
 
   It "generates option parser"
-    parser_definition() { echo 'called' >&2; }
+    parser_definition() { setup ARGS; echo 'called' >&2; }
     When call parse
     The word 1 of stderr should eq "called"
     The status should be success
@@ -20,12 +20,12 @@ Describe "getoptions()"
 
   It "gets rest arguments"
     parser_definition() {
-      setup restargs:MYARGS -- 'foo bar'
+      setup ARGS -- 'foo bar'
       flag FLAG_A -a
     }
     restargs() {
       parse "$@"
-      eval "set -- $MYARGS"
+      eval "set -- $ARGS"
       echo "$@"
     }
     When call restargs 1 -a 2 -a 3 -- -a
@@ -40,13 +40,13 @@ Describe "getoptions()"
     }
 
     It "treats as arguments by default"
-      parser_definition() { :; }
+      parser_definition() { setup RESTARGS; }
       When call restargs +o
       The output should eq "+o"
     End
 
     It "treats as option when specified plus:true"
-      parser_definition() { setup plus:true; }
+      parser_definition() { setup RESTARGS plus:true; }
       When run restargs +o
       The stderr should eq "unrecognized option '+o'"
       The status should be failure
@@ -55,21 +55,21 @@ Describe "getoptions()"
 
   Describe 'displays error message'
     Specify "when specified unknown option"
-      parser_definition() { :; }
+      parser_definition() { setup ARGS; }
       When run parse -x
       The stderr should eq "unrecognized option '-x'"
       The status should be failure
     End
 
     Specify "when specified an argument to flag"
-      parser_definition() { flag FLAG --flag; }
+      parser_definition() { setup ARGS; flag FLAG --flag; }
       When run parse --flag=value
       The stderr should eq "option '--flag' doesn't allow an argument"
       The status should be failure
     End
 
     Specify "when missing an argument for parameter"
-      parser_definition() { param PARAM --param; }
+      parser_definition() { setup ARGS; param PARAM --param; }
       When run parse --param
       The stderr should eq "option '--param' requires an argument"
       The status should be failure
@@ -78,7 +78,7 @@ Describe "getoptions()"
 
   Context 'when custom error handler defined'
     parser_definition() {
-      setup error:myerror
+      setup RESTARGS error:myerror
       param PARAM -p
     }
     myerror() {
@@ -104,6 +104,7 @@ Describe "getoptions()"
   Describe 'flag'
     It "handles flags"
       parser_definition() {
+        setup ARGS
         flag FLAG_A -a
         flag FLAG_B +b
         flag FLAG_C --flag-c
@@ -122,6 +123,7 @@ Describe "getoptions()"
 
     It "can change the set value"
       parser_definition() {
+        setup ARGS
         flag FLAG_A -a on:ON off:OFF
         flag FLAG_B +b on:ON off:OFF
       }
@@ -132,6 +134,7 @@ Describe "getoptions()"
 
     It "set initial value when not specified flag"
       parser_definition() {
+        setup ARGS
         flag FLAG_A -a on:ON off:OFF init:@on
         flag FLAG_B -b on:ON off:OFF init:@off
         flag FLAG_C -c on:ON off:OFF init:'FLAG_C=func'
@@ -150,6 +153,7 @@ Describe "getoptions()"
 
     It "can be used combined short flags"
       parser_definition() {
+        setup ARGS
         flag FLAG_A -a
         flag FLAG_B -b
         flag FLAG_C -c
@@ -168,6 +172,7 @@ Describe "getoptions()"
 
     It "counts flags"
       parser_definition() {
+        setup ARGS
         flag COUNT -c +c counter:true
       }
       When call parse -c -c -c +c -c
@@ -176,6 +181,7 @@ Describe "getoptions()"
 
     It "calls the function"
       parser_definition() {
+        setup ARGS
         flag :'foo "$1"' -f on:ON
       }
       foo() { echo "called $OPTARG $1"; }
@@ -186,6 +192,7 @@ Describe "getoptions()"
     It "calls the validator"
       valid() { echo "$OPTARG" "$@"; }
       parser_definition() {
+        setup ARGS
         flag FLAG -f +f on:ON off:OFF validate:'valid "$1"'
       }
       When call parse -f +f
@@ -195,7 +202,7 @@ Describe "getoptions()"
 
     Context 'when common flag value is specified'
       parser_definition() {
-        setup on:ON off:OFF
+        setup ARGS on:ON off:OFF
         flag FLAG_A -a
         flag FLAG_B +b
       }
@@ -210,6 +217,7 @@ Describe "getoptions()"
   Describe 'param'
     It "handles parameters"
       parser_definition() {
+        setup ARGS
         param PARAM_P -p
         param PARAM_Q -q
         param PARAM   --param
@@ -222,6 +230,7 @@ Describe "getoptions()"
 
     It "remains initial value when not specified parameter"
       parser_definition() {
+        setup ARGS
         param PARAM_P -p init:="initial"
       }
       When call parse
@@ -230,6 +239,7 @@ Describe "getoptions()"
 
     It "calls the function"
       parser_definition() {
+        setup ARGS
         param :'foo "$1"' -p
       }
       foo() { echo "called $OPTARG $1"; }
@@ -240,6 +250,7 @@ Describe "getoptions()"
     It "calls the validator"
       valid() { echo "$OPTARG" "$@"; }
       parser_definition() {
+        setup ARGS
         param PARAM_P -p validate:'valid "$1"'
         param PARAM_Q -q validate:'valid "$1"'
         param PARAM   --param validate:'valid "$1"'
@@ -254,6 +265,7 @@ Describe "getoptions()"
   Describe 'option'
     It "handles options"
       parser_definition() {
+        setup ARGS
         option OPTION_O -o default:"default"
         option OPTION_P -p
         option OPTION   --option
@@ -266,6 +278,7 @@ Describe "getoptions()"
 
     It "remains initial value when not specified parameter"
       parser_definition() {
+        setup ARGS
         option OPTION_O -p init:="initial"
       }
       When call parse
@@ -274,6 +287,7 @@ Describe "getoptions()"
 
     It "calls the function"
       parser_definition() {
+        setup ARGS
         option :'foo "$1"' -o
       }
       foo() { echo "called $OPTARG $1"; }
@@ -284,6 +298,7 @@ Describe "getoptions()"
     It "calls the validator"
       valid() { echo "$OPTARG" "$@"; }
       parser_definition() {
+        setup ARGS
         option OPTION_O -o validate:'valid "$1"' default:"default"
         option OPTION_P -p validate:'valid "$1"'
         option OPTION   --option validate:'valid "$1"'
@@ -300,6 +315,7 @@ Describe "getoptions()"
 
     It "displays the variable"
       parser_definition() {
+        setup ARGS
         disp VERSION -v
       }
       When run parse -v
@@ -309,6 +325,7 @@ Describe "getoptions()"
     It "calls the function"
       version() { echo "func: $VERSION"; }
       parser_definition() {
+        setup ARGS
         disp :version -v
       }
       When run parse -v
@@ -319,6 +336,7 @@ Describe "getoptions()"
   Describe 'msg'
     It "does nothing"
       parser_definition() {
+        setup ARGS
         msg -- 'test' 'foo bar'
       }
       When run parse

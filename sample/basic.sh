@@ -9,7 +9,8 @@ VERSION=0.1
 
 # shellcheck disable=SC1083,SC2016
 parser_definition() {
-  setup plus:true -- "Usage: ${2##*/} [options] [arguments...]" '' 'getoptions sample' ''
+  setup   REST plus:true -- "Usage: ${2##*/} [options] [arguments...]"
+  msg -- '' 'getoptions sample' ''
   msg -- 'Options:'
   flag    FLAG_A  -a                                        -- "message a"
   flag    FLAG_B  -b                                        -- "message b"
@@ -32,7 +33,7 @@ number() {
 eval "$(getoptions parser_definition parse "$0")"         # Define parse() function
 eval "$(getoptions_help parser_definition usage "$0")"    # Define usage() function
 parse "$@"
-eval "set -- $RESTARGS" # Reset the positional parameters to exclude options
+eval "set -- $REST" # Reset the positional parameters to exclude options
 
 echo "FLAG_A: $FLAG_A"
 echo "FLAG_B: $FLAG_B"
