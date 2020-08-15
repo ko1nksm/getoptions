@@ -361,6 +361,21 @@ Describe "getoptions()"
       The output should be blank
     End
   End
+
+  Describe 'alternative mode'
+    It "allow long options to start with a single '-'"
+      parser_definition() {
+        setup ARGS alt:true
+        flag FLAG --flag
+        param PARAM --param
+        option OPTION --option
+      }
+      When call parse -flag -param p -option=o
+      The variable FLAG should eq 1
+      The variable PARAM should eq "p"
+      The variable OPTION should eq "o"
+    End
+  End
 End
 
 Describe "getoptions_help()"

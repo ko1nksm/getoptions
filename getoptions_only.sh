@@ -2,8 +2,8 @@
 getoptions() {
   URL='https://github.com/ko1nksm/getoptions'
   LICENSE='Creative Commons Zero v1.0 Universal (CC0 Public Domain)'
-  _error='' _on=1 _off='' _export='' _mode='' restargs=''
-  _plus='' _optargs='' _no='' _equal=1 indent='' IFS=' '
+  _error='' _on=1 _off='' _export='' _plus='' _mode='' _alt='' restargs=''
+  _optargs='' _no='' _equal=1 indent='' IFS=' '
 
   for i in 0 1 2 3 4 5; do
     eval "_$i() { echo \"$indent\$*\"; }"
@@ -120,23 +120,24 @@ getoptions() {
   _0 "$2() {"
   _1 'OPTIND=$(($#+1))'
   _1 'while [ $# -gt 0 ] && OPTARG=; do'
+  [ "$_alt" ] && _2 'case $1 in (-[!-]?*) set -- "-$@"; esac'
   _2 'case $1 in'
   if [ "$_equal" ]; then
     _3 '--?*=*) OPTARG=$1; shift'
     wa 'set -- "${OPTARG%%\=*}" "${OPTARG#*\=}" "$@"'
     _4 ';;'
   fi
-  if [ "$_no" ]; then
-    _3 '--no-*) unset OPTARG ;;'
+  [ "$_no" ] && _3 '--no-*) unset OPTARG ;;'
+  if [ ! "$_alt" ]; then
+    if [ "$_optargs" ]; then
+      _3 "-[$_optargs]?*) OPTARG=\$1; shift"
+      wa 'set -- "${OPTARG%"${OPTARG#??}"}" "${OPTARG#??}" "$@"'
+      _4 ';;'
+    fi
+    _3 '-[!-]?*) OPTARG=$1; shift'
+    wa 'set -- "${OPTARG%"${OPTARG#??}"}" "-${OPTARG#??}" "$@"'
+    _4 'OPTARG= ;;'
   fi
-  if [ "$_optargs" ]; then
-    _3 "-[$_optargs]?*) OPTARG=\$1; shift"
-    wa 'set -- "${OPTARG%"${OPTARG#??}"}" "${OPTARG#??}" "$@"'
-    _4 ';;'
-  fi
-  _3 '-[!-]?*) OPTARG=$1; shift'
-  wa 'set -- "${OPTARG%"${OPTARG#??}"}" "-${OPTARG#??}" "$@"'
-  _4 'OPTARG= ;;'
   if [ "$_plus" ]; then
     _3 '+??*) OPTARG=$1; shift'
     wa 'set -- "${OPTARG%"${OPTARG#??}"}" "+${OPTARG#??}" "$@"'
@@ -165,9 +166,7 @@ getoptions() {
   _2 'shift'
   _1 'done'
   _1 '[ $# -eq 0 ] && return 0'
-  if [ "$_error" ]; then
-    _1 "$_error" '"$@" && exit 1'
-  fi
+  [ "$_error" ] && _1 "$_error" '"$@" && exit 1'
   _1 'case $1 in'
   _2 "unknown) echo \"unrecognized option '\$2'\" ;;"
   _2 "noarg) echo \"option '\$2' doesn't allow an argument\" ;;"
