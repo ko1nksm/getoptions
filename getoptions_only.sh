@@ -2,7 +2,7 @@
 getoptions() {
   URL='https://github.com/ko1nksm/getoptions'
   LICENSE='Creative Commons Zero v1.0 Universal (CC0 Public Domain)'
-  _error='' _on=1 _off='' _export='' restargs=''
+  _error='' _on=1 _off='' _export='' _mode='' restargs=''
   _plus='' _optargs='' _no='' _equal=1 indent='' IFS=' '
 
   for i in 0 1 2 3 4 5; do
@@ -151,7 +151,16 @@ getoptions() {
   _5 "$restargs=\"\${$restargs}" '\"\${$(($OPTIND-$#))}\""'
   _4 'done ;;'
   _3 "[-${_plus:++}]?*)" 'set -- unknown "$1" && break ;;'
-  _3 "*) $restargs=\"\${$restargs}" '\"\${$(($OPTIND-$#))}\""'
+  if [ "$_mode" = '+' ]; then
+    _3 '*)'
+    _4 'while [ $# -gt 0 ]; do'
+    _5 "$restargs=\"\${$restargs}" '\"\${$(($OPTIND-$#))}\""'
+    _5 'shift'
+    _4 'done'
+    _4 'break'
+  else
+    _3 "*) $restargs=\"\${$restargs}" '\"\${$(($OPTIND-$#))}\""'
+  fi
   _2 'esac'
   _2 'shift'
   _1 'done'

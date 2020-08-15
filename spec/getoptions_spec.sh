@@ -18,18 +18,36 @@ Describe "getoptions()"
     The status should be success
   End
 
-  It "gets rest arguments"
-    parser_definition() {
-      setup ARGS -- 'foo bar'
-      flag FLAG_A -a
-    }
+  Describe 'get rest arguments'
     restargs() {
       parse "$@"
       eval "set -- $ARGS"
       echo "$@"
     }
-    When call restargs 1 -a 2 -a 3 -- -a
-    The output should eq "1 2 3 -a"
+
+    Context 'when scanning mode is default'
+      It "gets rest arguments"
+        parser_definition() {
+          setup ARGS -- 'foo bar'
+          flag FLAG_A -a
+        }
+        When call restargs -a 1 -a 2 -a 3 -- -a
+        The variable FLAG_A should eq 1
+        The output should eq "1 2 3 -a"
+      End
+    End
+
+    Context 'when scanning mode is +'
+      It "gets rest arguments"
+        parser_definition() {
+          setup ARGS mode:+ -- 'foo bar'
+          flag FLAG_A -a
+        }
+        When call restargs -a 1 -a 2 -a 3 -- -a
+        The variable FLAG_A should eq 1
+        The output should eq "1 -a 2 -a 3 -- -a"
+      End
+    End
   End
 
   Describe '+option'
