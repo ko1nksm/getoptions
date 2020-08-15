@@ -29,12 +29,12 @@ getoptions_help() {
     for i; do echo "${_pre}$i"; done
   }
 
-  setup() { args 'setup' - "$@"; }
+  setup() { args 'setup' : "$@"; }
   flag() { args 'flag' "$@"; }
   param() { args 'param' "$@"; }
   option() { args 'option' "$@"; }
   disp() { args 'disp' "$@"; }
-  msg() { args 'msg' - "$@"; }
+  msg() { args 'msg' : "$@"; }
 
   echo "$2() {"
   echo "cat<<$heredoc"

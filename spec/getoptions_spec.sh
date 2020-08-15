@@ -20,7 +20,7 @@ Describe "getoptions()"
 
   It "gets rest arguments"
     parser_definition() {
-      setup restargs:MYARGS
+      setup restargs:MYARGS -- 'foo bar'
       flag FLAG_A -a
     }
     restargs() {
@@ -313,6 +313,16 @@ Describe "getoptions()"
       }
       When run parse -v
       The output should eq "func: 1.0"
+    End
+  End
+
+  Describe 'msg'
+    It "does nothing"
+      parser_definition() {
+        msg -- 'test' 'foo bar'
+      }
+      When run parse
+      The output should be blank
     End
   End
 End
