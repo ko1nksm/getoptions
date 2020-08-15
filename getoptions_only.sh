@@ -38,8 +38,8 @@ getoptions() {
     case $init in
       @empty) code "$1" _0 "${export:+export }$1=''" ;;
       @unset) code "$1" _0 "unset $1 ||:" "unset OPTARG ||:; ${1#:}" ;;
-      *)  [ _"${init#@}" = _"$init" ] || eval "init=\"=\${${init#@}}\""
-          [ _"${init#=}" = _"$init" ] && _0 "$init" && return 0
+      *)  case $init in (@*) eval "init=\"=\${${init#@}}\""; esac
+          case $init in ([!=]*) _0 "$init"; return 0; esac
           quote init "${init#=}"
           code "$1" _0 "${export:+export }$1=$init" "OPTARG=$init; ${1#:}"
     esac
