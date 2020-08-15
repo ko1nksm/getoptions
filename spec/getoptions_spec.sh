@@ -100,7 +100,7 @@ Describe "getoptions()"
       param PARAM -p
     }
     myerror() {
-      case $1 in
+      case $2 in
         unknown) echo custom "$@" >&2 ;;
         *) return 1 ;;
       esac
@@ -108,7 +108,7 @@ Describe "getoptions()"
 
     It "display custom error message"
       When run parse -x
-      The stderr should eq "custom unknown -x"
+      The stderr should eq "custom -x unknown"
       The status should be failure
     End
 
