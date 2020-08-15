@@ -155,7 +155,7 @@ Define a option that take no argument
 `flag <VARIABLE | :CODE> [-? | +? | --* | --{no-}*]... [OPTIONS]... [-- [MESSAGE]...]`
 
 - `alt:BOOLEAN` - allow long options starting with single
-  - Cannot be used with the syntax `-abc` and `-s123`.
+  - Unlike `getopt`, the syntaxes `-abc` and `-s123` cannot be used when enabled.
 - `counter:BOOLEAN` - Counts the number of flags
 - `export:BOOLEAN` - Export variables
 - `hidden:BOOLEAN` - Do not display in help
