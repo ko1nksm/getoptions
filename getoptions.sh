@@ -1,6 +1,5 @@
 # shellcheck shell=sh
 . ./getoptions_only.sh
-
 getoptions_help() {
   width=30 plus='' heredoc='GETOPTIONS_HEREDOC'
 
