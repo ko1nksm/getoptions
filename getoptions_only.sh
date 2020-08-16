@@ -147,18 +147,18 @@ getoptions() {
   _2 'esac'
   _2 'case $1 in'
   "$@"
-  _3 '--)'
-  _4 'while [ $# -gt 1 ] && shift; do'
-  _5 "$restargs=\"\${$restargs}" '\"\${$(($OPTIND-$#))}\""'
-  _4 'done ;;'
-  _3 "[-${_plus:++}]?*)" 'set -- "$1" unknown && break ;;'
-  if [ "$_mode" = '+' ]; then
-    _3 '*)'
+  _3 "[-${_plus:++}][!-]*)" 'set -- "$1" unknown && break ;;'
+  restargs() {
+    _3 "$1"
     _4 'while [ $# -gt 0 ]; do'
     _5 "$restargs=\"\${$restargs}" '\"\${$(($OPTIND-$#))}\""'
     _5 'shift'
     _4 'done'
-    _4 'break'
+    _4 'break ;;'
+  }
+  restargs '--) shift'
+  if [ "$_mode" = '+' ]; then
+    restargs '*)'
   else
     _3 "*) $restargs=\"\${$restargs}" '\"\${$(($OPTIND-$#))}\""'
   fi
@@ -171,7 +171,7 @@ getoptions() {
   _2 "unknown) echo \"unrecognized option '\$1'\" ;;"
   _2 "noarg) echo \"option '\$1' doesn't allow an argument\" ;;"
   _2 "required) echo \"option '\$1' requires an argument\" ;;"
-  _2 "*) echo \"option '\$1' validation error: \$2\" ;;"
+  _2 "*) echo \"option '\$1' validation error: \$2\""
   _1 'esac >&2'
   _1 'exit 1'
   _0 '}'
