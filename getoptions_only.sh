@@ -114,14 +114,14 @@ getoptions() {
     code "$1" _4 "echo \"\${$1}\"" "${1#:}"
     _4 'exit 0 ;;'
   }
-
-  wa() { _4 "eval '${1% *}' \${1+'\"\$@\"'}"; }
+  msg() { :; }
 
   _0 "$2() {"
   _1 'OPTIND=$(($#+1))'
   _1 'while [ $# -gt 0 ] && OPTARG=; do'
   [ "$_alt" ] && _2 'case $1 in (-[!-]?*) set -- "-$@"; esac'
   _2 'case $1 in'
+  wa() { _4 "eval '${1% *}' \${1+'\"\$@\"'}"; }
   if [ "$_equal" ]; then
     _3 '--?*=*) OPTARG=$1; shift'
     wa 'set -- "${OPTARG%%\=*}" "${OPTARG#*\=}" "$@"'
