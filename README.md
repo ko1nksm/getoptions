@@ -209,7 +209,7 @@ Example
 
 ```sh
 # $1: Option
-# $2: Validation name (unknown, noarg, required or custom name)
+# $2: Validation name (@unknown, @noarg, @required or validator function name)
 # $3-: Validation arguments
 error() {
   case $2 in
