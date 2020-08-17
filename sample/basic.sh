@@ -6,6 +6,7 @@ set -eu
 VERSION=0.1
 
 . ./getoptions.sh
+. ./getoptions_help.sh
 
 # shellcheck disable=SC1083,SC2016
 parser_definition() {

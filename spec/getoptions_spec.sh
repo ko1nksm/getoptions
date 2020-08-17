@@ -379,7 +379,7 @@ Describe "getoptions()"
 End
 
 Describe "getoptions_help()"
-  Include ./getoptions.sh
+  Include ./getoptions_help.sh
 
   usage() {
     eval "$(getoptions_help parser_definition _usage)"

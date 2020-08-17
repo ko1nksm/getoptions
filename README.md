@@ -35,7 +35,7 @@ It's simple, easy-to-use, fast, portable, POSIX compliant, practical and no more
 VERSION=0.1
 
 . ./getoptions.sh # or paste it into your script
-# . ./getoptions_only.sh # if you don't need automatic help generation.
+. ./getoptions_help.sh # if you need automatic help generation
 
 parser_definition() {
   setup   REST plus:true -- "Usage: ${2##*/} [options...] [arguments...]"
