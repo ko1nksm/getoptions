@@ -75,15 +75,13 @@ getoptions() {
   setup() { :; }
   flag() {
     args "$@"
-    [ "$counter" ] && on=1 off=-1
-    quote on "$on"
-    quote off "$off"
+    code='$OPTARG'
+    [ "$counter" ] && on=1 off=-1 code="\$((\${$1:-0}+$code))"
+    quote on "$on" && quote off "$off"
     _3 "$sw)"
     _4 '[ "${OPTARG:-}" ] && set -- "$1" @noarg && break'
     _4 "eval '[ \${OPTARG+x} ] &&:' && OPTARG=$on || OPTARG=$off"
-    [ "$validate" ] && _4 "$validate || { set -- \"\$1\" $validate; break; }"
-    [ "$counter" ] && code="\$((\${$1:-0} + \$OPTARG))" || code='$OPTARG'
-    code "$1" _4 "$1=$code" "${1#:}"
+    valid "$1" "$code"
     _4 ';;'
   }
   param() {
@@ -91,22 +89,24 @@ getoptions() {
     _3 "$sw)"
     _4 '[ $# -le 1 ] && set -- "$1" @required && break'
     _4 'OPTARG=$2'
-    [ "$validate" ] && _4 "$validate || { set -- \"\$1\" $validate; break; }"
-    code "$1" _4 "$1=\$OPTARG" "${1#:}"
+    valid "$1" '$OPTARG'
     _4 'shift ;;'
   }
   option() {
     args "$@"
     quote default "$default"
     _3 "$sw)"
-    _4 'if [ ! "$OPTARG" ]; then'
-    _5 "OPTARG=$default"
-    _5 "eval 'shift; set -- \"'\"\$1\"'\" \"\$OPTARG\"' \${2+'\"\$@\"'}"
-    _4 "fi"
-    _4 'OPTARG=$2'
-    [ "$validate" ] && _4 "$validate || { set -- \"\$1\" $validate; break; }"
-    code "$1" _4 "$1=\$OPTARG" "${1#:}"
+    _4 'case $OPTARG in'
+    _5 '?*) OPTARG=$2 ;;'
+    _5 " *) OPTARG=$default &&" 'set -- "$1" "$@"'
+    _4 "esac"
+    valid "$1" '$OPTARG'
     _4 'shift ;;'
+  }
+  valid() {
+    set -- "$validate" "$@"
+    [ "$1" ] && _4 "$1 || { set -- \"\$1\" $1; break; }"
+    code "$2" _4 "$2=$3" "${2#:}"
   }
   disp() {
     args "$@"
@@ -157,11 +157,10 @@ getoptions() {
     _4 'break ;;'
   }
   restargs '--) shift'
-  if [ "$_mode" = '+' ]; then
-    restargs '*)'
-  else
-    _3 "*) $restargs=\"\${$restargs}" '\"\${$(($OPTIND-$#))}\""'
-  fi
+  case $_mode in
+    +) restargs '*)' ;;
+    *) _3 "*) $restargs=\"\${$restargs}" '\"\${$(($OPTIND-$#))}\""'
+  esac
   _2 'esac'
   _2 'shift'
   _1 'done'
