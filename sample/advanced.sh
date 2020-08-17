@@ -28,7 +28,7 @@ parser_definition() {
 
 error() {
   case $2 in
-    @unknown) echo "$@" ;;
+    unknown) echo "$@" ;;
     number) echo "option '$1' is not a number" ;;
     range) echo "option '$1' is not a number or out of range ($3 - $4)" ;;
     *) return 1 ;; # Display default error

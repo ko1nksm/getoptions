@@ -79,7 +79,7 @@ getoptions() {
     [ "$counter" ] && on=1 off=-1 code="\$((\${$1:-0}+$code))"
     quote on "$on" && quote off "$off"
     _3 "$sw)"
-    _4 '[ "${OPTARG:-}" ] && set -- "$1" @noarg && break'
+    _4 '[ "${OPTARG:-}" ] && set -- "$1" noarg && break'
     _4 "eval '[ \${OPTARG+x} ] &&:' && OPTARG=$on || OPTARG=$off"
     valid "$1" "$code"
     _4 ';;'
@@ -87,7 +87,7 @@ getoptions() {
   param() {
     args "$@"
     _3 "$sw)"
-    _4 '[ $# -le 1 ] && set -- "$1" @required && break'
+    _4 '[ $# -le 1 ] && set -- "$1" required && break'
     _4 'OPTARG=$2'
     valid "$1" '$OPTARG'
     _4 'shift ;;'
@@ -147,7 +147,7 @@ getoptions() {
   _2 'esac'
   _2 'case $1 in'
   "$@"
-  _3 "[-${_plus:++}][!-]*)" 'set -- "$1" @unknown && break ;;'
+  _3 "[-${_plus:++}][!-]*)" 'set -- "$1" unknown && break ;;'
   restargs() {
     _3 "$1"
     _4 'while [ $# -gt 0 ]; do'
@@ -167,9 +167,9 @@ getoptions() {
   _1 '[ $# -eq 0 ] && return 0'
   [ "$_error" ] && _1 "$_error" '"$@" >&2 && exit 1'
   _1 'case $2 in'
-  _2 "@unknown) echo \"unrecognized option '\$1'\" ;;"
-  _2 "@noarg) echo \"option '\$1' doesn't allow an argument\" ;;"
-  _2 "@required) echo \"option '\$1' requires an argument\" ;;"
+  _2 "unknown) echo \"unrecognized option '\$1'\" ;;"
+  _2 "noarg) echo \"option '\$1' doesn't allow an argument\" ;;"
+  _2 "required) echo \"option '\$1' requires an argument\" ;;"
   _2 "*) echo \"option '\$1' validation error: \$2\""
   _1 'esac >&2'
   _1 'exit 1'

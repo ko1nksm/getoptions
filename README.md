@@ -209,11 +209,11 @@ Example
 
 ```sh
 # $1: Option
-# $2: Validation name (@unknown, @noarg, @required or validator function name)
+# $2: Validation name (unknown, noarg, required or validator name)
 # $3-: Validation arguments
 error() {
   case $2 in
-    @unknown) echo "unrecognized option '$1'" ;;
+    unknown) echo "unrecognized option '$1'" ;;
     number) echo "option '$1' is not a number" ;;
     range) echo "option '$1' is not a number or out of range ($3 - $4)" ;;
     *) return 1 ;; # Display default error

@@ -101,14 +101,14 @@ Describe "getoptions()"
     }
     myerror() {
       case $2 in
-        @unknown) echo custom "$@" ;;
+        unknown) echo custom "$@" ;;
         *) return 1 ;;
       esac
     }
 
     It "display custom error message"
       When run parse -x
-      The stderr should eq "custom -x @unknown"
+      The stderr should eq "custom -x unknown"
       The status should be failure
     End
 
