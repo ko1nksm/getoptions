@@ -1,7 +1,7 @@
 # shellcheck shell=sh disable=SC2016
 getoptions() {
   URL='https://github.com/ko1nksm/getoptions'
-  LICENSE='Creative Commons Zero v1.0 Universal (CC0 Public Domain)'
+  LICENSE='Creative Commons Zero v1.0 Universal'
   _error='' _on=1 _off='' _export='' _plus='' _mode='' _alt='' restargs=''
   _optargs='' _no='' _equal=1 indent='' IFS=' '
 
@@ -18,13 +18,13 @@ getoptions() {
   }
 
   code() {
-    [ ! "${1#:}" = "$1" ] && c=4 || c=3
+    [ "${1#:}" = "$1" ] && c=3 || c=4
     eval "[ ! \${$c:+x} ] || $2 \"\$$c\""
   }
 
   args() {
     on=$_on off=$_off export=$_export init='@empty' _optarg=${1#+}
-    while [ $# -gt 2 ] && [ ! "$3" = '--' ] && shift; do
+    while [ $# -gt 2 ] && [ "$3" != '--' ] && shift; do
       case $2 in
         --no-* | --\{no-\}*) _no=1 ;;
         -?) [ "$_optarg" ] || _optargs="${_optargs}${2#-}" ;;
@@ -38,8 +38,8 @@ getoptions() {
     case $init in
       @empty) code "$1" _0 "${export:+export }$1=''" ;;
       @unset) code "$1" _0 "unset $1 ||:" "unset OPTARG ||:; ${1#:}" ;;
-      *)  case $init in (@*) eval "init=\"=\${${init#@}}\""; esac
-          case $init in ([!=]*) _0 "$init"; return 0; esac
+      *)  case $init in @*) eval "init=\"=\${${init#@}}\""; esac
+          case $init in [!=]*) _0 "$init"; return 0; esac
           quote init "${init#=}"
           code "$1" _0 "${export:+export }$1=$init" "OPTARG=$init; ${1#:}"
     esac
@@ -105,12 +105,12 @@ getoptions() {
   }
   valid() {
     set -- "$validate" "$pattern" "$@"
-    if [ "$2" ]; then
+    [ "$2" ] && {
       quote pattern "$2"
       _4 "case \$OPTARG in $2) ;;"
       _5 "*) set -- \"\$1\" pattern $pattern; break"
       _4 "esac"
-    fi
+    }
     [ "$1" ] && _4 "$1 || { set -- \"\$1\" $1; break; }"
     code "$3" _4 "$3=$4" "${3#:}"
   }
@@ -125,31 +125,31 @@ getoptions() {
   _0 "$2() {"
   _1 'OPTIND=$(($#+1))'
   _1 'while [ $# -gt 0 ] && OPTARG=; do'
-  [ "$_alt" ] && _2 'case $1 in (-[!-]?*) set -- "-$@"; esac'
+  [ "$_alt" ] && _2 'case $1 in -[!-]?*) set -- "-$@"; esac'
   _2 'case $1 in'
   wa() { _4 "eval '${1% *}' \${1+'\"\$@\"'}"; }
-  if [ "$_equal" ]; then
+  [ "$_equal" ] && {
     _3 '--?*=*) OPTARG=$1; shift'
     wa 'set -- "${OPTARG%%\=*}" "${OPTARG#*\=}" "$@"'
     _4 ';;'
-  fi
+  }
   [ "$_no" ] && _3 '--no-*) unset OPTARG ;;'
-  if [ ! "$_alt" ]; then
-    if [ "$_optargs" ]; then
+  [ "$_alt" ] || {
+    [ "$_optargs" ] && {
       _3 "-[$_optargs]?*) OPTARG=\$1; shift"
       wa 'set -- "${OPTARG%"${OPTARG#??}"}" "${OPTARG#??}" "$@"'
       _4 ';;'
-    fi
+    }
     _3 '-[!-]?*) OPTARG=$1; shift'
     wa 'set -- "${OPTARG%"${OPTARG#??}"}" "-${OPTARG#??}" "$@"'
     _4 'OPTARG= ;;'
-  fi
-  if [ "$_plus" ]; then
+  }
+  [ "$_plus" ] && {
     _3 '+??*) OPTARG=$1; shift'
     wa 'set -- "${OPTARG%"${OPTARG#??}"}" "+${OPTARG#??}" "$@"'
     _4 'unset OPTARG ;;'
     _3 '+*) unset OPTARG ;;'
-  fi
+  }
   _2 'esac'
   _2 'case $1 in'
   "$@"
