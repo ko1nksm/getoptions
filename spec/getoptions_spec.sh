@@ -278,6 +278,23 @@ Describe "getoptions()"
       The line 2 should eq "value2 -q"
       The line 3 should eq "value3 --param"
     End
+
+    Context 'when specified pattern attribute'
+      Parameters
+        foo success stdout ""
+        baz failure stderr "option '-p' does not match the pattern (foo | bar)"
+      End
+
+      It "checks if it matches the pattern"
+        parser_definition() {
+          setup ARGS
+          param PARAM -p pattern:'foo | bar'
+        }
+        When run parse -p "$1"
+        The status should be "$2"
+        The "$3" should eq "$4"
+      End
+    End
   End
 
   Describe 'option'
@@ -325,6 +342,23 @@ Describe "getoptions()"
       The line 1 should eq "default -o"
       The line 2 should eq "value1 -p"
       The line 3 should eq "value2 --option"
+    End
+
+    Context 'when specified pattern attribute'
+      Parameters
+        foo success stdout ""
+        baz failure stderr "option '-o' does not match the pattern (foo | bar)"
+      End
+
+      It "checks if it matches the pattern"
+        parser_definition() {
+          setup ARGS
+          option OPTION -o pattern:'foo | bar'
+        }
+        When run parse -o"$1"
+        The status should be "$2"
+        The "$3" should eq "$4"
+      End
     End
   End
 

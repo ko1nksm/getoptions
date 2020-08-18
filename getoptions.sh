@@ -62,7 +62,7 @@ getoptions() {
   _0 "${restargs:?}=''"
 
   args() {
-    sw='' on="$_on" off="$_off" validate='' counter='' default=''
+    sw='' on="$_on" off="$_off" validate='' pattern='' counter='' default=''
     while [ $# -gt 1 ] && [ ! "$2" = '--' ] && shift; do
       case $1 in
         --\{no-\}* ) sw="${sw}${sw:+ | }--${1#--?no-?} | --no-${1#--?no-?}" ;;
@@ -104,9 +104,15 @@ getoptions() {
     _4 'shift ;;'
   }
   valid() {
-    set -- "$validate" "$@"
+    set -- "$validate" "$pattern" "$@"
+    if [ "$2" ]; then
+      quote pattern "$2"
+      _4 "case \$OPTARG in $2) ;;"
+      _5 "*) set -- \"\$1\" pattern $pattern; break"
+      _4 "esac"
+    fi
     [ "$1" ] && _4 "$1 || { set -- \"\$1\" $1; break; }"
-    code "$2" _4 "$2=$3" "${2#:}"
+    code "$3" _4 "$3=$4" "${3#:}"
   }
   disp() {
     args "$@"
@@ -170,6 +176,7 @@ getoptions() {
   _2 "unknown) echo \"unrecognized option '\$1'\" ;;"
   _2 "noarg) echo \"option '\$1' doesn't allow an argument\" ;;"
   _2 "required) echo \"option '\$1' requires an argument\" ;;"
+  _2 "pattern) echo \"option '\$1' does not match the pattern (\$3)\" ;;"
   _2 "*) echo \"option '\$1' validation error: \$2\""
   _1 'esac >&2'
   _1 'exit 1'
