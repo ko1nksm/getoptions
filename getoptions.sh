@@ -153,7 +153,6 @@ getoptions() {
   _2 'esac'
   _2 'case $1 in'
   "$@"
-  _3 "[-${_plus:++}][!-]*)" 'set -- "$1" unknown && break ;;'
   restargs() {
     _3 "$1"
     _4 'while [ $# -gt 0 ]; do'
@@ -163,6 +162,7 @@ getoptions() {
     _4 'break ;;'
   }
   restargs '--) shift'
+  _3 "[-${_plus:++}]?*)" 'set -- "$1" unknown && break ;;'
   case $_mode in
     +) restargs '*)' ;;
     *) _3 "*) $restargs=\"\${$restargs}" '\"\${$(($OPTIND-$#))}\""'

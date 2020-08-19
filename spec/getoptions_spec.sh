@@ -31,9 +31,9 @@ Describe "getoptions()"
           setup ARGS -- 'foo bar'
           flag FLAG_A -a
         }
-        When call restargs -a 1 -a 2 -a 3 -- -a
+        When call restargs -a 1 -a 2 -a 3 - -- -a
         The variable FLAG_A should eq 1
-        The output should eq "1 2 3 -a"
+        The output should eq "1 2 3 - -a"
       End
     End
 
@@ -76,6 +76,13 @@ Describe "getoptions()"
       parser_definition() { setup ARGS; }
       When run parse -x
       The stderr should eq "unrecognized option '-x'"
+      The status should be failure
+    End
+
+    Specify "when specified unknown long option"
+      parser_definition() { setup ARGS; }
+      When run parse --long
+      The stderr should eq "unrecognized option '--long'"
       The status should be failure
     End
 
