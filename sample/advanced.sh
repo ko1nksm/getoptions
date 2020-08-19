@@ -19,7 +19,10 @@ parser_definition() {
   param   PARAM -p --param init:="default"
   param   NUMBER -n --number validate:number
   param   RANGE -r --range validate:'range 10 100'
+  param   REGEX --regex validate:'regex "^[1-9][0-9]+$"'
   param   :multiple -m --multiple init:'MULTIPLE=""'
+  param   :'push ARRAY "$OPTARG"' --append init:'ARRAY=""'
+  #param   :'ARRAY+=("$OPTARG")' --append init:'ARRAY=()' # for bash, etc
   option  OPTION -o --option default:"omission value"
   disp    :'getoptions parser_definition parse "$0"' --generate
   disp    :usage -h --help
@@ -31,6 +34,7 @@ error() {
     unknown) echo "$@" ;;
     number) echo "option '$1' is not a number" ;;
     range) echo "option '$1' is not a number or out of range ($3 - $4)" ;;
+    regex) echo "option '$1' is not match regex ($3)" ;;
     *) return 1 ;; # Display default error
   esac
 }
@@ -43,8 +47,19 @@ range() {
   number && [ "$1" -le "$OPTARG" ] && [ "$OPTARG" -le "$2" ]
 }
 
+regex() {
+  awk -v s="$OPTARG" -v r="$1" 'BEGIN{exit match(s, r)==0}'
+}
+
 multiple() {
   MULTIPLE="${MULTIPLE}${MULTIPLE:+,}${OPTARG}"
+}
+
+# Store multiple (escaped) values in one variable in a POSIX compliant way
+push() {
+  until [ "${2#*\'}" = "$2" ] && eval "$1=\"\$$1 '\${3:-}\$2'\""; do
+    set -- "$1" "${2#*\'}" "${2%%\'*}'\"'\"'"
+  done
 }
 
 eval "$(getoptions parser_definition parse "$0")"
@@ -62,9 +77,21 @@ fi
 echo "VERBOSE: $VERBOSE"
 echo "PARAM: $PARAM"
 echo "NUMBER: $NUMBER"
-echo "RANGE: $RANGE"
+echo "RANGE: $RANGE"qq
+echo "RANGE: $REGEX"
 echo "MULTIPLE: $MULTIPLE"
 echo "OPTION: $OPTION"
+disp_array() {
+  eval "set -- $1"
+  i=0
+  while [ $# -gt 0 ] && i=$((i + 1)); do
+    echo "ARRAY $i: $1"
+    shift
+  done
+}
+disp_array "$ARRAY"
+# printf '%s\n' "${ARRAY[@]}" # for bash
+
 i=0
 while [ $# -gt 0 ] && i=$((i + 1)); do
   echo "$i: $1"
