@@ -3,7 +3,7 @@ getoptions() {
   URL='https://github.com/ko1nksm/getoptions'
   LICENSE='Creative Commons Zero v1.0 Universal'
   _error='' _on=1 _off='' _export='' _plus='' _mode='' _alt='' restargs=''
-  _optargs='' _no='' _equal=1 indent='' IFS=' '
+  _opts='' _no='' _equal=1 indent='' IFS=' '
 
   for i in 0 1 2 3 4 5; do
     eval "_$i() { echo \"$indent\$*\"; }"
@@ -23,11 +23,11 @@ getoptions() {
   }
 
   args() {
-    on=$_on off=$_off export=$_export init='@empty' _optarg=${1#+}
+    on=$_on off=$_off export=$_export init='@empty' _hasarg=$1
     while [ $# -gt 2 ] && [ "$3" != '--' ] && shift; do
       case $2 in
         --no-* | --\{no-\}*) _no=1 ;;
-        -?) [ "$_optarg" ] || _optargs="${_optargs}${2#-}" ;;
+        -?) [ "${_hasarg#%}" ] || _opts="${_opts}${2#-}" ;;
         +*) _plus=1 ;;
         [!-+]*) eval "${2%%:*}=\${2#*:}"
       esac
@@ -50,8 +50,8 @@ getoptions() {
     for i; do [ "$i" = '--' ] && break; eval "_${i%%:*}=\${i#*:}"; done
   }
   flag() { args : "$@"; defvar "$@"; }
-  param() { args + "$@"; defvar "$@"; }
-  option() { args + "$@"; defvar "$@"; }
+  param() { args % "$@"; defvar "$@"; }
+  option() { args % "$@"; defvar "$@"; }
   disp() { args : "$@"; }
   msg() { args : _ "$@"; }
 
@@ -62,8 +62,8 @@ getoptions() {
   _0 "${restargs:?}=''"
 
   args() {
-    sw='' on="$_on" off="$_off" validate='' pattern='' counter='' default=''
-    while [ $# -gt 1 ] && [ ! "$2" = '--' ] && shift; do
+    sw='' on=$_on off=$_off validate='' pattern='' counter='' default=''
+    while [ $# -gt 1 ] && [ "$2" != '--' ] && shift; do
       case $1 in
         --\{no-\}* ) sw="${sw}${sw:+ | }--${1#--?no-?} | --no-${1#--?no-?}" ;;
         [-+]? | --*) sw="${sw}${sw:+ | }$1" ;;
@@ -135,8 +135,8 @@ getoptions() {
   }
   [ "$_no" ] && _3 '--no-*) unset OPTARG ;;'
   [ "$_alt" ] || {
-    [ "$_optargs" ] && {
-      _3 "-[$_optargs]?*) OPTARG=\$1; shift"
+    [ "$_opts" ] && {
+      _3 "-[$_opts]?*) OPTARG=\$1; shift"
       wa 'set -- "${OPTARG%"${OPTARG#??}"}" "${OPTARG#??}" "$@"'
       _4 ';;'
     }
