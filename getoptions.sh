@@ -170,6 +170,7 @@ getoptions() {
   _2 'esac'
   _2 'shift'
   _1 'done'
+  _1 'unset OPTARG'
   _1 '[ $# -eq 0 ] && return 0'
   [ "$_error" ] && _1 "$_error" '"$@" >&2 && exit 1'
   _1 'case $2 in'
