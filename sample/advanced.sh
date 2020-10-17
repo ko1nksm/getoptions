@@ -77,8 +77,8 @@ fi
 echo "VERBOSE: $VERBOSE"
 echo "PARAM: $PARAM"
 echo "NUMBER: $NUMBER"
-echo "RANGE: $RANGE"qq
-echo "RANGE: $REGEX"
+echo "RANGE: $RANGE"
+echo "REGEX: $REGEX"
 echo "MULTIPLE: $MULTIPLE"
 echo "OPTION: $OPTION"
 disp_array() {
