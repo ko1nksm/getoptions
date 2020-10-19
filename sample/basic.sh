@@ -10,18 +10,18 @@ VERSION=0.1
 
 # shellcheck disable=SC1083,SC2016
 parser_definition() {
-  setup   REST plus:true -- "Usage: ${2##*/} [options...] [arguments...]"
-  msg -- '' 'getoptions sample' ''
-  msg -- 'Options:'
-  flag    FLAG_A  -a                                        -- "message a"
-  flag    FLAG_B  -b                                        -- "message b"
-  flag    FLAG_F  -f +f --{no-}flag                         -- "expands to --flag and --no-flag"
-  flag    VERBOSE -v    --verbose   counter:true init:=0    -- "e.g. -vvv is verbose level 3"
-  param   PARAM   -p    --param     pattern:"foo | bar"     -- "accepts --param value / --param=value"
-  param   NUMBER  -n    --number    validate:number         -- "accepts only a number value"
-  option  OPTION  -o    --option    default:"default"       -- "accepts -ovalue / --option=value"
-  disp    :usage  -h    --help
-  disp    VERSION       --version
+	setup   REST plus:true -- "Usage: ${2##*/} [options...] [arguments...]"
+	msg -- '' 'getoptions sample' ''
+	msg -- 'Options:'
+	flag    FLAG_A  -a                                        -- "message a"
+	flag    FLAG_B  -b                                        -- "message b"
+	flag    FLAG_F  -f +f --{no-}flag                         -- "expands to --flag and --no-flag"
+	flag    VERBOSE -v    --verbose   counter:true init:=0    -- "e.g. -vvv is verbose level 3"
+	param   PARAM   -p    --param     pattern:"foo | bar"     -- "accepts --param value / --param=value"
+	param   NUMBER  -n    --number    validate:number         -- "accepts only a number value"
+	option  OPTION  -o    --option    default:"default"       -- "accepts -ovalue / --option=value"
+	disp    :usage  -h    --help
+	disp    VERSION       --version
 }
 
 number() { case $OPTARG in (*[!0-9]*) return 1; esac; }
@@ -43,6 +43,6 @@ echo "NUMBER: $NUMBER"
 echo "OPTION: $OPTION"
 i=0
 while [ $# -gt 0 ] && i=$((i + 1)); do
-  echo "$i: $1"
-  shift
+	echo "$i: $1"
+	shift
 done
