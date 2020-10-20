@@ -62,7 +62,8 @@ getoptions() {
 	_0 "${restargs:?}=''"
 
 	args() {
-		sw='' on=$_on off=$_off validate='' pattern='' counter='' default=''
+		sw='' validate='' pattern='' counter='' default=''
+		on=$_on off=$_off export=$_export
 		while [ $# -gt 1 ] && [ "$2" != '--' ] && shift; do
 			case $1 in
 				--\{no-\}* ) sw="${sw}${sw:+ | }--${1#--?no-?} | --no-${1#--?no-?}" ;;
@@ -112,7 +113,7 @@ getoptions() {
 			_4 "esac"
 		}
 		[ "$1" ] && _4 "$1 || { set -- \"\$1\" $1; break; }"
-		code "$3" _4 "$3=$4" "${3#:}"
+		code "$3" _4 "${export:+export }$3=\"$4\"" "${3#:}"
 	}
 	disp() {
 		args "$@"
