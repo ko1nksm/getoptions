@@ -106,13 +106,13 @@ getoptions() {
 	}
 	valid() {
 		set -- "$validate" "$pattern" "$@"
+		[ "$1" ] && _4 "$1 || { set -- \"\$1\" $1; break; }"
 		[ "$2" ] && {
 			quote pattern "$2"
 			_4 "case \$OPTARG in $2) ;;"
 			_5 "*) set -- \"\$1\" pattern $pattern; break"
 			_4 "esac"
 		}
-		[ "$1" ] && _4 "$1 || { set -- \"\$1\" $1; break; }"
 		code "$3" _4 "${export:+export }$3=\"$4\"" "${3#:}"
 	}
 	disp() {
