@@ -78,7 +78,7 @@ Describe "getoptions()"
 		It "treats as option when specified plus:true"
 			parser_definition() { setup RESTARGS plus:true; }
 			When run restargs +o
-			The stderr should eq "unrecognized option '+o'"
+			The stderr should eq "Unrecognized option: +o"
 			The status should be failure
 		End
 	End
@@ -87,28 +87,28 @@ Describe "getoptions()"
 		Specify "when specified unknown option"
 			parser_definition() { setup ARGS; }
 			When run parse -x
-			The stderr should eq "unrecognized option '-x'"
+			The stderr should eq "Unrecognized option: -x"
 			The status should be failure
 		End
 
 		Specify "when specified unknown long option"
 			parser_definition() { setup ARGS; }
 			When run parse --long
-			The stderr should eq "unrecognized option '--long'"
+			The stderr should eq "Unrecognized option: --long"
 			The status should be failure
 		End
 
 		Specify "when specified an argument to flag"
 			parser_definition() { setup ARGS; flag FLAG --flag; }
 			When run parse --flag=value
-			The stderr should eq "option '--flag' doesn't allow an argument"
+			The stderr should eq "Does not allow an argument: --flag"
 			The status should be failure
 		End
 
 		Specify "when missing an argument for parameter"
 			parser_definition() { setup ARGS; param PARAM --param; }
 			When run parse --param
-			The stderr should eq "option '--param' requires an argument"
+			The stderr should eq "Requires an argument: --param"
 			The status should be failure
 		End
 	End
@@ -117,27 +117,58 @@ Describe "getoptions()"
 		parser_definition() {
 			setup RESTARGS error:myerror
 			param PARAM -p
+			param PARAM -q
+			param PARAM --pattern pattern:'foo | bar'
+			param VALID -v validate:'valid "$1"'
 			param ARG --arg validate:arg
 		}
+		valid() { [ "$1" = "-v" ] && return 3; }
 		arg() { false; }
 		myerror() {
-			case $2 in
-				unknown) echo custom "$@" ;;
-				arg) echo "invalid argument: $OPTARG" ;;
-				*) return 1 ;;
+			case $3 in
+				unknown) echo "custom $3: $2"; return 20 ;;
+				valid:3) echo "valid $3: $2"; return 30 ;;
+				pattern:'foo | bar') echo "pattern $3: $2"; return 40 ;;
+				arg:*) echo "invalid argument: $OPTARG"; return 1 ;;
 			esac
+			[ "$2" = "-q" ] && echo "$1" && return 1
+			return 0
 		}
 
 		It "display custom error message"
 			When run parse -x
-			The stderr should eq "custom -x unknown"
-			The status should be failure
+			The stderr should eq "custom unknown: -x"
+			The status should eq 20
 		End
 
-		It "display default error message when custom error hander fails"
+		It "display default error message when custom error handler succeeded"
 			When run parse -p
-			The stderr should eq "option '-p' requires an argument"
-			The status should be failure
+			The stderr should eq "Requires an argument: -p"
+			The status should eq 1
+		End
+
+		It "receives default error message"
+			When run parse -q
+			The stderr should eq "Requires an argument: -q"
+			The status should eq 1
+		End
+
+		It "receives exit status of custom validation"
+			When run parse -v value
+			The stderr should eq "valid valid:3: -v"
+			The status should eq 30
+		End
+
+		It "receives pattern"
+			When run parse --pattern baz
+			The stderr should eq "pattern pattern:foo | bar: --pattern"
+			The status should eq 40
+		End
+
+		It "can refer to the OPTARG variable"
+			When run parse --arg argument
+			The stderr should eq "invalid argument: argument"
+			The status should eq 1
 		End
 
 		It "can refer to the OPTARG variable"
@@ -233,9 +264,9 @@ Describe "getoptions()"
 				setup ARGS
 				flag :'foo "$1"' -f on:ON
 			}
-			foo() { echo "called $OPTARG $1"; }
+			foo() { echo "set [$OPTARG] : ${*:-}"; }
 			When run parse -f
-			The output should eq "called ON -f"
+			The output should eq "set [ON] : -f"
 		End
 
 		It "calls the validator"
@@ -291,9 +322,9 @@ Describe "getoptions()"
 				setup ARGS
 				param :'foo "$1"' -p
 			}
-			foo() { echo "called $OPTARG $1"; }
+			foo() { echo "set [$OPTARG] : ${*:-}"; }
 			When run parse -p 123
-			The output should eq "called 123 -p"
+			The output should eq "set [123] : -p"
 		End
 
 		It "calls the validator"
@@ -313,7 +344,7 @@ Describe "getoptions()"
 		Context 'when specified pattern attribute'
 			Parameters
 				foo success stdout ""
-				baz failure stderr "option '-p' does not match the pattern (foo | bar)"
+				baz failure stderr "Does not match the pattern (foo | bar): -p"
 			End
 
 			It "checks if it matches the pattern"
@@ -356,9 +387,9 @@ Describe "getoptions()"
 				setup ARGS
 				option :'foo "$1"' -o
 			}
-			foo() { echo "called $OPTARG $1"; }
+			foo() { echo "set [$OPTARG] : ${*:-}"; }
 			When run parse -o123
-			The output should eq "called 123 -o"
+			The output should eq "set [123] : -o"
 		End
 
 		It "calls the validator"
@@ -378,7 +409,7 @@ Describe "getoptions()"
 		Context 'when specified pattern attribute'
 			Parameters
 				foo success stdout ""
-				baz failure stderr "option '-o' does not match the pattern (foo | bar)"
+				baz failure stderr "Does not match the pattern (foo | bar): -o"
 			End
 
 			It "checks if it matches the pattern"

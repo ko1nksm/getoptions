@@ -106,11 +106,11 @@ getoptions() {
 	}
 	valid() {
 		set -- "$validate" "$pattern" "$@"
-		[ "$1" ] && _4 "$1 || { set -- \"\$1\" $1; break; }"
+		[ "$1" ] && _4 "$1 || { set -- \"\$1\" ${1%% *}:\$? ${1#* }; break; }"
 		[ "$2" ] && {
 			quote pattern "$2"
 			_4 "case \$OPTARG in $2) ;;"
-			_5 "*) set -- \"\$1\" pattern $pattern; break"
+			_5 "*) set -- \"\$1\" pattern:$pattern; break"
 			_4 "esac"
 		}
 		code "$3" _4 "${export:+export }$3=\"$4\"" "${3#:}"
@@ -172,14 +172,15 @@ getoptions() {
 	_2 'shift'
 	_1 'done'
 	_1 '[ $# -eq 0 ] && { OPTIND=1; unset OPTARG; return 0; }'
-	[ "$_error" ] && _1 "$_error" '"$@" >&2 && exit 1'
 	_1 'case $2 in'
-	_2 "unknown) echo \"unrecognized option '\$1'\" ;;"
-	_2 "noarg) echo \"option '\$1' doesn't allow an argument\" ;;"
-	_2 "required) echo \"option '\$1' requires an argument\" ;;"
-	_2 "pattern) echo \"option '\$1' does not match the pattern (\$3)\" ;;"
-	_2 "*) echo \"option '\$1' validation error: \$2\""
-	_1 'esac >&2'
+	_2 'unknown) set "Unrecognized option: $1" "$@" ;;'
+	_2 'noarg) set "Does not allow an argument: $1" "$@" ;;'
+	_2 'required) set "Requires an argument: $1" "$@" ;;'
+	_2 'pattern:*) set "Does not match the pattern (${2#*:}): $1" "$@" ;;'
+	_2 '*) set "Validation error ($2): $1" "$@"'
+	_1 'esac'
+	[ "$_error" ] && _1 "$_error" '"$@" >&2 || exit $?'
+	_1 'echo "$1" >&2'
 	_1 'exit 1'
 	_0 '}'
 }
