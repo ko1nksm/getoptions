@@ -105,10 +105,13 @@ Describe "getoptions()"
 		parser_definition() {
 			setup RESTARGS error:myerror
 			param PARAM -p
+			param ARG --arg validate:arg
 		}
+		arg() { false; }
 		myerror() {
 			case $2 in
 				unknown) echo custom "$@" ;;
+				arg) echo "invalid argument: $OPTARG" ;;
 				*) return 1 ;;
 			esac
 		}
@@ -123,6 +126,12 @@ Describe "getoptions()"
 			When run parse -p
 			The stderr should eq "option '-p' requires an argument"
 			The status should be failure
+		End
+
+		It "can refer to the OPTARG variable"
+			When run parse --arg argument
+			The stderr should eq "invalid argument: argument"
+			The status should eq 1
 		End
 	End
 
