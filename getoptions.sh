@@ -13,7 +13,7 @@ getoptions() {
 
 	quote() {
 		q="$2'" r=''
-		while [ "$q" ]; do r="${r}${q%%\'*}'\''" && q=${q#*\'}; done
+		while [ "$q" ]; do r="$r${q%%\'*}'\''" && q=${q#*\'}; done
 		q="'${r%????}'" && q=${q#\'\'} && q=${q%\'\'}
 		eval "$1=\${q:-\"''\"}"
 	}
@@ -28,7 +28,7 @@ getoptions() {
 		while [ $# -gt 2 ] && [ "$3" != '--' ] && shift; do
 			case $2 in
 				--no-* | --\{no-\}*) _no=1 ;;
-				-?) [ "${_hasarg#%}" ] || _opts="${_opts}${2#-}" ;;
+				-?) [ "${_hasarg#%}" ] || _opts="$_opts${2#-}" ;;
 				+*) _plus=1 ;;
 				[!-+]*) eval "${2%%:*}=\${2#*:}"
 			esac
@@ -39,10 +39,11 @@ getoptions() {
 		case $init in
 			@empty) code "$1" _0 "${export:+export }$1=''" ;;
 			@unset) code "$1" _0 "unset $1 ||:" "unset OPTARG ||:; ${1#:}" ;;
-			*)  case $init in @*) eval "init=\"=\${${init#@}}\""; esac
-					case $init in [!=]*) _0 "$init"; return 0; esac
-					quote init "${init#=}"
-					code "$1" _0 "${export:+export }$1=$init" "OPTARG=$init; ${1#:}"
+			*)
+				case $init in @*) eval "init=\"=\${${init#@}}\""; esac
+				case $init in [!=]*) _0 "$init"; return 0; esac
+				quote init "${init#=}"
+				code "$1" _0 "${export:+export }$1=$init" "OPTARG=$init; ${1#:}"
 		esac
 	}
 
