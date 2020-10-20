@@ -50,6 +50,18 @@ Describe "getoptions()"
 		End
 	End
 
+	Describe 'reset OPTIND and OPTARG'
+		parser_definition() {
+			setup ARGS
+			flag FLAG_A -a
+		}
+		It "treats as arguments by default"
+			When call parse -a
+			The variable OPTIND should eq 1
+			The variable OPTARG should be undefined
+		End
+	End
+
 	Describe '+option'
 		restargs() {
 			parse "$@"

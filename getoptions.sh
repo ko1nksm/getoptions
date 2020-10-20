@@ -124,7 +124,7 @@ getoptions() {
 
 	_0 "$2() {"
 	_1 'OPTIND=$(($#+1))'
-	_1 'while [ $# -gt 0 ] && OPTARG=; do'
+	_1 'while OPTARG= && [ $# -gt 0 ]; do'
 	[ "$_alt" ] && _2 'case $1 in -[!-]?*) set -- "-$@"; esac'
 	_2 'case $1 in'
 	wa() { _4 "eval '${1% *}' \${1+'\"\$@\"'}"; }
@@ -170,7 +170,7 @@ getoptions() {
 	_2 'esac'
 	_2 'shift'
 	_1 'done'
-	_1 '[ $# -eq 0 ] && { unset OPTARG; return 0 ;}'
+	_1 '[ $# -eq 0 ] && { OPTIND=1; unset OPTARG; return 0; }'
 	[ "$_error" ] && _1 "$_error" '"$@" >&2 && exit 1'
 	_1 'case $2 in'
 	_2 "unknown) echo \"unrecognized option '\$1'\" ;;"
