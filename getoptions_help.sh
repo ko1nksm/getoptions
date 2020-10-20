@@ -7,7 +7,7 @@ getoptions_help() {
 	pad() { p=$2; while [ ${#p} -lt "$3" ]; do p="$p "; done; eval "$1=\$p"; }
 
 	args() {
-		_type=$1 var=$2 sw='' hidden='' _width=$width _pre='' && shift 2
+		_type=$1 var=${2%% *} sw='' hidden='' _width=$width _pre='' && shift 2
 		while [ $# -gt 0 ] && i=$1 && shift && [ ! "$i" = '--' ]; do
 			case $i in
 				--*) pad sw "$sw${sw:+, }" $((${plus:+4} + 4)); sw="$sw$i" ;;
