@@ -179,6 +179,7 @@ Describe "getoptions()"
 		End
 
 		It "set initial value when not specified flag"
+			BeforeCall FLAG_N=none
 			parser_definition() {
 				setup ARGS
 				flag FLAG_A -a on:ON off:OFF init:@on
@@ -187,6 +188,7 @@ Describe "getoptions()"
 				flag FLAG_D -d on:ON off:OFF
 				flag FLAG_Q -q on:"a'b\""
 				flag FLAG_U -u init:@unset
+				flag FLAG_N -n init:@none
 			}
 			When call parse -q
 			The variable FLAG_A should eq "ON"
@@ -195,6 +197,7 @@ Describe "getoptions()"
 			The variable FLAG_D should eq ""
 			The variable FLAG_Q should eq "a'b\""
 			The variable FLAG_U should be undefined
+			The variable FLAG_N should eq "none"
 		End
 
 		It "can be used combined short flags"

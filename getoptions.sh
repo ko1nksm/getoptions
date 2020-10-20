@@ -37,6 +37,7 @@ getoptions() {
 
 	defvar() {
 		case $init in
+			@none) : ;;
 			@empty) code "$1" _0 "${export:+export }$1=''" ;;
 			@unset) code "$1" _0 "unset $1 ||:" "unset OPTARG ||:; ${1#:}" ;;
 			*)
