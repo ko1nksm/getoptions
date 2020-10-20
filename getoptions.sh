@@ -75,7 +75,7 @@ getoptions() {
 	flag() {
 		args "$@"
 		code='$OPTARG'
-		[ "$counter" ] && on=1 off=-1 code="\$((\${$1:-0}+$code))"
+		[ "$counter" ] && on=1 off=-1 code="\$((\${$1:-0}+\${OPTARG:-0}))"
 		quote on "$on" && quote off "$off"
 		_3 "$sw)"
 		_4 '[ "${OPTARG:-}" ] && set -- "$1" noarg && break'
@@ -155,7 +155,7 @@ getoptions() {
 	restargs() {
 		_3 "$1"
 		_4 'while [ $# -gt 0 ]; do'
-		_5 "$restargs=\"\${$restargs}" '\"\${$(($OPTIND-$#))}\""'
+		_5 "$restargs=\"\${$restargs}" '\"\${$((${OPTIND:-0}-$#))}\""'
 		_5 'shift'
 		_4 'done'
 		_4 'break ;;'
@@ -164,7 +164,7 @@ getoptions() {
 	_3 "[-${_plus:++}]?*)" 'set -- "$1" unknown && break ;;'
 	case $_mode in
 		+) restargs '*)' ;;
-		*) _3 "*) $restargs=\"\${$restargs}" '\"\${$(($OPTIND-$#))}\""'
+		*) _3 "*) $restargs=\"\${$restargs}" '\"\${$((${OPTIND:-0}-$#))}\""'
 	esac
 	_2 'esac'
 	_2 'shift'
