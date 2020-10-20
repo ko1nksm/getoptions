@@ -20,7 +20,7 @@ Describe "getoptions_help()"
 
 	It "displays usage"
 		parser_definition() {
-			setup width:20 -- 'usage'
+			setup width:20 plus:true -- 'usage'
 			msg -- "header"
 			flag FLAG_A -a +a --{no-}flag-a -- "flag a"
 			param PARAM_P -p -- "param p"

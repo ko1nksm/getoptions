@@ -12,7 +12,7 @@ getoptions_help() {
 			case $i in
 				--*) pad sw "$sw${sw:+, }" $((${plus:+4} + 4)); sw="$sw$i" ;;
 				-? ) sw="$sw${sw:+, }$i" ;;
-				+? ) pad sw "$sw${sw:+, }" 4; sw="$sw$i" ;;
+				+? ) [ "$plus" ] && pad sw "$sw${sw:+, }" 4 && sw="$sw$i" ;;
 				*  ) eval "${i%%:*}=\"\${i#*:}\"" ;;
 			esac
 		done
