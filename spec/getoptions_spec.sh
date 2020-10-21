@@ -18,6 +18,14 @@ Describe "getoptions()"
 		The status should be success
 	End
 
+	It "generates option parser with help"
+		parser_definition() { setup ARGS help:usage; }
+		getoptions_help() { echo 'getoptions_help called'; }
+		When call parse
+		The output should eq 'getoptions_help called'
+		The status should be success
+	End
+
 	Describe 'get rest arguments'
 		restargs() {
 			parse "$@"

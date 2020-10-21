@@ -4,7 +4,7 @@
 # shellcheck disable=2016
 getoptions() {
 	_error='' _on=1 _off='' _export='' _plus='' _mode='' _alt='' restargs=''
-	_opts='' _no='' _equal=1 indent='' IFS=' '
+	_opts='' _no='' _equal=1 _help='' indent='' IFS=' '
 
 	for i in 0 1 2 3 4 5; do
 		eval "_$i() { echo \"$indent\$*\"; }"
@@ -183,4 +183,6 @@ getoptions() {
 	_1 'echo "$1" >&2'
 	_1 'exit 1'
 	_0 '}'
+
+	[ ! "$_help" ] || eval "shift 2; getoptions_help $1 $_help" ${3+'"$@"'}
 }
