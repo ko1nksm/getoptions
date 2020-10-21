@@ -1,5 +1,5 @@
 # shellcheck shell=sh
-# URL: https://github.com/ko1nksm/getoptions
+# URL: https://github.com/ko1nksm/getoptions (v1.1.0)
 # License: Creative Commons Zero v1.0 Universal
 getoptions_help() {
 	width=30 plus='' here='GETOPTIONS-HEREDOC'
