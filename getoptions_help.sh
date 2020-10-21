@@ -10,10 +10,10 @@ getoptions_help() {
 		_type=$1 var=${2%% *} sw='' hidden='' _width=$width _pre='' && shift 2
 		while [ $# -gt 0 ] && i=$1 && shift && [ ! "$i" = '--' ]; do
 			case $i in
-				--*) pad sw "$sw${sw:+, }" $((${plus:+4} + 4)); sw="$sw$i" ;;
+				--*) pad sw "$sw${sw:+, }" $((${plus:+4}+4)); sw="$sw$i" ;;
 				-? ) sw="$sw${sw:+, }$i" ;;
 				+? ) [ "$plus" ] && pad sw "$sw${sw:+, }" 4 && sw="$sw$i" ;;
-				*  ) eval "${i%%:*}=\"\${i#*:}\"" ;;
+				*  ) eval "${i%%:*}=\${i#*:}" ;;
 			esac
 		done
 		[ "$hidden" ] && return 0
@@ -30,7 +30,7 @@ getoptions_help() {
 		for i; do echo "$_pre$i"; done
 	}
 
-	for i in 'setup :' 'flag' 'param' 'option' 'disp' 'msg :'; do
+	for i in 'setup :' flag param option disp 'msg :'; do
 		eval "${i% *}() { args $i \"\$@\"; }"
 	done
 

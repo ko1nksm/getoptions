@@ -63,11 +63,11 @@ getoptions() {
 
 	args() {
 		sw='' validate='' pattern='' counter='' default=''
-		on=$_on off=$_off export=$_export
+		on=$_on off=$_off export=$_export _both='--{no-}'
 		while [ $# -gt 1 ] && [ "$2" != '--' ] && shift; do
 			case $1 in
-				--\{no-\}* ) sw="${sw}${sw:+ | }--${1#--?no-?} | --no-${1#--?no-?}" ;;
-				[-+]? | --*) sw="${sw}${sw:+ | }$1" ;;
+				$_both*) sw="$sw${sw:+ | }--${1#$_both} | --no-${1#$_both}" ;;
+				[-+]? | --*) sw="$sw${sw:+ | }$1" ;;
 				*) eval "${1%%:*}=\"\${1#*:}\""
 			esac
 		done
