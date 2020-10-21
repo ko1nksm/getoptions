@@ -10,23 +10,81 @@ An elegant option parser for shell scripts (sh, bash and all POSIX shells)
 
 It's simple, easy-to-use, fast, portable, POSIX compliant, practical and no more `for/while` loop!
 
-## Features
+## Table of Contents <!-- omit in toc -->
 
-- Supports all POSIX shell (`dash`, `bash 2.0+`, `ksh 88+`, `zsh 3.1+`, etc)
-- Short option including optional argument (`-a`, `-abc`, `-s`, `-s 123`, `-s123`)
-- Long option including optional argument (`--long`, `--long 123`, `--long=123`)
-- Counter short option (`-vvv`) and reverse option (`+s`, `--no-long`)
-- Parse the options after arguments and treat after `--` as arguments
-- Can be invoked function instead of storing to variable
-- Validation and custom error messages
-- Automatic help generation
-- Can be used as a **option parser generator**
+- [Requirements](#requirements)
+- [Comparison](#comparison)
+  - [with other implementations](#with-other-implementations)
+  - [`getopt` vs `getopts` vs `getoptions`](#getopt-vs-getopts-vs-getoptions)
+- [Usage](#usage)
+  - [Basic usage](#basic-usage)
+  - [Advanced usage](#advanced-usage)
+- [References](#references)
+  - [Data types and initial values](#data-types-and-initial-values)
+  - [Global functions](#global-functions)
+    - [`getoptions` - Generate a function for option parsing](#getoptions---generate-a-function-for-option-parsing)
+      - [About option parser](#about-option-parser)
+    - [`getoptions_help` - Generate a function to display help (optional)](#getoptions_help---generate-a-function-to-display-help-optional)
+  - [Helper functions (not globally defined)](#helper-functions-not-globally-defined)
+    - [`setup` - Setup global settings (mandatory)](#setup---setup-global-settings-mandatory)
+    - [`flag` - Define a option that take no argument](#flag---define-a-option-that-take-no-argument)
+    - [`param` - Define a option that take an argument](#param---define-a-option-that-take-an-argument)
+    - [`option` - Define a option that take an optional argument](#option---define-a-option-that-take-an-optional-argument)
+    - [`disp` - Define a option that display only](#disp---define-a-option-that-display-only)
+    - [`msg` - Display message in help](#msg---display-message-in-help)
+  - [Custom error handler](#custom-error-handler)
+- [For developers](#for-developers)
+- [Changelog](#changelog)
+- [License](#license)
 
 ## Requirements
 
-- POSIX shell and `cat` command only. (Used only for displaying help)
+- No requirements for option parsing (POSIX shell only)
+- `cat` is required for optional automatic help generation
+
+## Comparison
+
+### with other implementations
+
+- Supports all POSIX shells (`dash`, `bash 2.0+`, `ksh 88+`, `zsh 3.1+`, etc)
+- Implemented as a shell function (~5KB and ~200 lines)
+- To use, just include the script file, no installation required
+- Fast and portable because no external commands are used
+- Only one function is defined globally
+- No global variables are used (except special variable `OPTARG` and `OPTIND`)
+- Support for POSIX and GNU compatible option syntaxes
+  - `-a`, `-abc`, `-s`, `+s`, `-s VALUE`, `-sVALUE`, `-vvv`
+  - `--flag`, `--no-flag`, `--param VALUE`, `--param=VALUE`, `--option[=VALUE]`
+  - Stop option parsing with `--`, Treat `-` as an argument
+- Can be invoked action function instead of storing to variable
+- Support for validation and custom error messages
+- Support for automatic help generation (optional, additional ~1.2KB and ~50 lines required)
+- Can be removed a library by using it as a **generator**
+
+### `getopt` vs `getopts` vs `getoptions`
+
+|                                   | getopt           | getopts               | getoptions      |
+| --------------------------------- | ---------------- | --------------------- | --------------- |
+| Implementation                    | External command | Shell builtin command | Shell function  |
+| Portability                       | No               | Yes                   | Yes             |
+| Short option beginning with `-`   | ✔️                | ✔️                     | ✔️               |
+| Short option beginning with `+`   | ❌                | ⚠ zsh, ksh, mksh only | ✔️               |
+| Combining short options           | ✔️                | ✔️                     | ✔️               |
+| Long option beginning with `--`   | ⚠ GNU only       | ❌                     | ✔️               |
+| Long option beginning with `-`    | ⚠ GNU only       | ❌                     | ✔️ limited       |
+| Abbreviating long options         | ⚠ GNU only       | ❌                     | ❌               |
+| Optional argument                 | ⚠ GNU only       | ❌                     | ✔️               |
+| Option after arguments            | ⚠ GNU only       | ❌                     | ✔️               |
+| Stop option parsing with `--`     | ⚠ GNU only       | ❌                     | ✔️               |
+| Scanning modes (see `man getopt`) | ⚠ GNU only       | ❌                     | ✔️ `+` only      |
+| Validation by pattern matching    | ❌                | ❌                     | ✔️               |
+| Custom validation                 | ❌                | ❌                     | ✔️               |
+| Custom error message              | ❌                | ✔️                     | ✔️ more flexible |
+| Automatic help generation         | ❌                | ❌                     | ✔️               |
 
 ## Usage
+
+### Basic usage
 
 [basic.sh](./sample/basic.sh)
 
@@ -72,138 +130,153 @@ Parses the following options.
 ./sample/basic.sh -ab -f +f --flag --no-flag -vvv -p value -ovalue --option=value 1 2 -- 3 -f
 ```
 
-**Advanced usage**: See [advanced.sh](./sample/advanced.sh)
+### Advanced usage
 
-## `getopt` vs `getopts` vs `getoptions`
+See [advanced.sh](./sample/advanced.sh)
 
-|                                   | getopt           | getopts               | getoptions     |
-| --------------------------------- | ---------------- | --------------------- | -------------- |
-| Implementation                    | External command | Shell builtin command | Shell function |
-| Portability                       | No               | Yes                   | Yes            |
-| Short option beginning with `-`   | ✔️                | ✔️                     | ✔️              |
-| Short option beginning with `+`   | ❌                | ⚠ zsh, ksh, mksh only | ✔️              |
-| Long option beginning with `--`   | ⚠ GNU only       | ❌                     | ✔️              |
-| Long option beginning with `-`    | ⚠ GNU only       | ❌                     | ✔️ limited      |
-| Abbreviating long options         | ⚠ GNU only       | ❌                     | ❌              |
-| Optional argument                 | ⚠ GNU only       | ❌                     | ✔️              |
-| Option after arguments            | ⚠ GNU only       | ❌                     | ✔️              |
-| Double dash (`--`)                | ⚠ GNU only       | ❌                     | ✔️              |
-| Scanning modes (see `man getopt`) | ⚠ GNU only       | ❌                     | ✔️ `+` only     |
-| Validation                        | ❌                | ❌                     | ✔️              |
-| Custom error message              | ❌                | ✔️                     | ✔️              |
-| Automatic help generation         | ❌                | ❌                     | ✔️              |
+## References
 
-## Manual
+### Data types and initial values
 
-### Miscellaneous notes
+| name      | description                                                                       |
+| --------- | --------------------------------------------------------------------------------- |
+| SWITCH    | `-?`, `+?`, `--*`, `--{no-}*` (expand to `--flag` and `--no-flag`)                |
+| BOOLEAN   | Boolean (true: not zero-length string, false: zero-length string)                 |
+| STRING    | String                                                                            |
+| NUMBER    | Number                                                                            |
+| STATEMENT | Function name (arguments can be added) - e.g. `foo`, `foo 1 2 3`                  |
+| CODE      | Shell script code - e.g `foo; bar`                                                |
+| KEY-VALUE | `key:value` style arguments - If `:value` is omitted, it is the same as `key:key` |
+| `@on`     | Positive value [default: `1`]                                                     |
+| `@off`    | Negative value [default: empty]                                                   |
+| `@unset`  | Unset variable                                                                    |
+| `@none`   | As is (do not initialize)                                                         |
 
-- `--{no-}foo`
-  - Expand to `--foo` and `--no-foo`.
-- BOOLEAN
-  - true: not zero-length string, false: zero-length string.
-- CODE
-  - Shell script code
-- FUNCTION
-  - Function name only
-- VALIDATOR
-  - Function name or Function name with arguments
-- OPTIONS
-  - `key:value` arguments - If `:value` is omitted, it is the same as `key:key`.
+### Global functions
 
-### `getoptions`
+#### `getoptions` - Generate a function for option parsing
 
-Generate a function for option parsing.
+`getoptions <parser_definition> <parser_name> [extra]...`
 
-`getoptions PARSER_DEFINITION FUNCTION [extra]...`
+- Parameters
+  - `parser_definition` - Option parser definition
+  - `parser_name` - Functin name for option parser
+  - `extra` - Passed to the parser definition function
 
-- `extra` - Passed to the parser definition function
+##### About option parser
 
-NOTE: If you want to use as **option parser generator**, call it without `eval`.
+The optional parser reuses the shell special variables `OPTIND` and `OPTARG`
+for a different purpose than `getopts`. When the option parsing is
+successfully completed, `OPTIND` is reset to 1 and `OPTARG` is unset.
+When option parsing fails, `OPTARG` is set to the value of the failed option.
+
+If you want to use as **option parser generator**, call it without `eval`.
 You can also only use the generated code without including `getoptions.sh`.
 
-### `getoptions_help`
+#### `getoptions_help` - Generate a function to display help (optional)
 
-Generate a function to display help.
+`getoptions_help <parser_definition> <parser_name> [extra]...`
 
-`getoptions PARSER_DEFINITION FUNCTION [extra]...`
+- Parameters
+  - `parser_definition` - Option parser definition
+  - `parser_name` - Functin name for display help
+  - `extra` - Passed to the parser definition function
 
-- `extra` - Passed to the parser definition function
+NOTE: If you don't like the output, feel free to change it.
 
-### `setup`
+### Helper functions (not globally defined)
 
-Setup global settings (**mandatory**)
+Helper functions are not defined globally.
+They are available only in the `getoptions` and `getoptions_help` functions.
 
-`setup <restargs> [OPTIONS]... [-- [MESSAGE]...]`
+#### `setup` - Setup global settings (mandatory)
 
-- `equal:BOOLEAN` - Support `--long=VALUE` style [default: `1`]
-- `error:FUNCTION` - A Function for displaying custom error messages
-- `export:BOOLEAN` - Export variables [default: empty]
-- `hidden:BOOLEAN` - Do not display in help [default: empty]
-- `mode:MODE` - Scanning modes (only `+` supported) [default: empty]
-- `off:STRING` - The default false value for the flag [default: empty]
-- `on:STRING` - The default true value for the flag [default: `1`]
-- `plus:BOOLEAN` - Those start with `+` are treated as options [default: auto]
-- `restargs:STRING` - The variable name for getting rest arguments
-- `width:INTEGER` - Width of optional part of help [default: 30]
+`setup <restargs> [Options]... [-- [Messages]...]`
 
-### `flag`
+- Parameters
+  - `restargs` - The variable name for getting rest arguments
+- Options (`KEY-VALUE`)
+  - `equal:BOOLEAN` - Support `--long=VALUE` style [default: `1`]
+  - `error:STATEMENT` - Custom error handler
+  - `export:BOOLEAN` - Export variables [default: empty]
+  - `hidden:BOOLEAN` - Do not display in help [default: empty]
+  - `mode:STRING` - Scanning modes (only `+` supported) [default: empty]
+  - `off:STRING` - The default negative value for the flag [default: empty]
+  - `on:STRING` - The default positive value for the flag [default: `1`]
+  - `plus:BOOLEAN` - Those start with `+` are treated as options [default: auto]
+  - `width:NUMBER` - Width of optional part of help [default: 30]
+- `[Messages]` - Help messages (only used by `getoptions_help`)
 
-Define a option that take no argument
+#### `flag` - Define a option that take no argument
 
-`flag <VARIABLE | :CODE> [-? | +? | --* | --{no-}*]... [OPTIONS]... [-- [MESSAGE]...]`
+`flag <VARIABLE | :STATEMENT> [SWITCH]... [Options]... [-- [Messages]...]`
 
-- `alt:BOOLEAN` - allow long options starting with single
-  - Unlike `getopt`, the syntaxes `-abc` and `-s123` cannot be used when enabled.
-- `counter:BOOLEAN` - Counts the number of flags
-- `export:BOOLEAN` - Export variables
-- `hidden:BOOLEAN` - Do not display in help
-- `init:[@on | @off | @unset | =STRING | CODE]` - Initial value / Initializer
-- `off:STRING` - The false value for the flag
-- `on:STRING` - The true value for the flag
-- `validate:VALIDATOR` - Code for value validation
+- Parameters
+  - `<VARIABLE | :STATEMENT>` - Variable or Action function
+  - `[SWITCH]` - Options
+- Options (`KEY-VALUE`)
+  - `alt:BOOLEAN` - allow long options starting with single
+    - Unlike `getopt`, the syntaxes `-abc` and `-s123` cannot be used when enabled.
+  - `counter:BOOLEAN` - Counts the number of flags
+  - `export:BOOLEAN` - Export variables
+  - `hidden:BOOLEAN` - Do not display in help
+  - `init:[@on | @off | @unset | @none | =STRING | CODE]` - Initial value or Initializer
+  - `off:STRING` - The negative value
+  - `on:STRING` - The positive value
+  - `validate:STATEMENT` - Code for value validation
+- `[Messages]` - Help messages (only used by `getoptions_help`)
 
-### `param`
+#### `param` - Define a option that take an argument
 
-Define a option that take an argument
+`param <VARIABLE | :STATEMENT> [SWITCH]... [Options]... [-- [Messages]...]`
 
-`param <VARIABLE | :CODE> [-? | +? | --* | --{no-}*]... [OPTIONS]... [-- [MESSAGE]...]`
+- Parameters
+  - `<VARIABLE | :STATEMENT>` - Variable or Action function
+  - `[SWITCH]` - Options
+- Options (`KEY-VALUE`)
+  - `export:BOOLEAN` - Export variables
+  - `hidden:BOOLEAN` - Do not display in help
+  - `init:[@unset | @none | =STRING | CODE]` - Initial value or Initializer
+  - `validate:STATEMENT` - Code for value validation
+  - `pattern:PATTERN` - Pattern to accept
+  - `var` - Variable name displayed in help
+- `[Messages]` - Help messages (only used by `getoptions_help`)
 
-- `export:BOOLEAN` - Export variables
-- `hidden:BOOLEAN` - Do not display in help
-- `init:[@unset | =STRING | CODE]` - Initial value / Initializer
-- `validate:VALIDATOR` - Code for value validation
-- `pattern:PATTERN` - Pattern to accept
-- `var` - Variable name displayed in help
+#### `option` - Define a option that take an optional argument
 
-### `option`
+`option <VARIABLE | :STATEMENT> [SWITCH]... [Options]... [-- [Messages]...]`
 
-Define a option that take an optional argument
+- Parameters
+  - `<VARIABLE | :STATEMENT>` - Variable or Action function
+  - `[SWITCH]` - Options
+- Options (`KEY-VALUE`)
+  - `default:STRING` - Value when option argument is omitted
+  - `export:BOOLEAN` - Export variables
+  - `hidden:BOOLEAN` - Do not display in help
+  - `init:[@unset | @none | =STRING | CODE]` - Initial value or Initializer
+  - `validate:STATEMENT` - Code for value validation
+  - `pattern:PATTERN` - Pattern to accept
+  - `var` - Variable name displayed in help
+- `[Messages]` - Help messages (only used by `getoptions_help`)
 
-`option <VARIABLE | :CODE> [-? | +? | --* | --{no-}*]... [OPTIONS]... [-- [MESSAGE]...]`
+#### `disp` - Define a option that display only
 
-- `default:STRING` - Value when option argument is omitted
-- `export:BOOLEAN` - Export variables
-- `hidden:BOOLEAN` - Do not display in help
-- `init:[@unset | =STRING | CODE]` - Initial value / Initializer
-- `validate:VALIDATOR` - Code for value validation
-- `pattern:PATTERN` - Pattern to accept
-- `var` - Variable name displayed in help
+`disp <VARIABLE | :STATEMENT> [SWITCH]... [Options]... [-- [Messages]...]`
 
-### `disp`
+- Parameters
+  - `<VARIABLE | :STATEMENT>` - Variable or Action function
+  - `[SWITCH]` - Options
+- Options (`KEY-VALUE`)
+  - `hidden:BOOLEAN` - Do not display in help
+- `Messages` - Help messages (only used by `getoptions_help`)
 
-Define a option that display only
+#### `msg` - Display message in help
 
-`disp [OPTIONS]... <VARIABLE | :CODE> [-? | +? | --* | --{no-}*]... [-- [MESSAGE]...]`
+`msg [Options]... [-- [Messages]...]`
 
-- `hidden:BOOLEAN` - Do not display in help
-
-### `msg`
-
-Display message in help
-
-`msg [OPTIONS]... [-- [MESSAGE]...]`
-
-- `hidden:BOOLEAN` - Do not display in help
+- Options (`KEY-VALUE`)
+  - `hidden:BOOLEAN` - Do not display in help
+- `[Messages]` - Help messages (only used by `getoptions_help`)
 
 ### Custom error handler
 
@@ -223,7 +296,7 @@ error() {
 }
 ```
 
-## Development
+## For developers
 
 Tests are executed using [shellspec](https://github.com/shellspec/shellspec).
 
@@ -237,6 +310,15 @@ shellspec
 # Run tests with other shell
 shellspec --shell bash
 ```
+
+## Changelog
+
+- 1.0.0 - 2020-08-20
+  - First release version
+- 1.1.0 - 2020-10-21
+  - Unset `OPTARG` when the option parser ends normally (#3 Cem Keylan)
+  - Reset `OPTIND` to 1 when the option parser ends normally
+  - Added `@none` as initial value
 
 ## License
 
