@@ -43,7 +43,13 @@ getoptions() {
 		esac
 	}
 
-	setup() {
+	invoke() { eval '"_$@"'; }
+	prehook() { invoke "$@"; }
+	for i in setup flag param option disp msg; do
+		eval "$i() { prehook $i \"\$@\"; }"
+	done
+
+	_setup() {
 		_rest=$1 && shift
 		for i; do [ "$i" = '--' ] && break; eval "_${i%%:*}=\${i#*:}"; done
 		for i in 0 1 2 3 4 5; do
@@ -51,11 +57,11 @@ getoptions() {
 			indent="${indent}${_indent}"
 		done
 	}
-	flag() { args : "$@"; defvar "$@"; }
-	param() { args % "$@"; defvar "$@"; }
-	option() { args % "$@"; defvar "$@"; }
-	disp() { args : "$@"; }
-	msg() { args : _ "$@"; }
+	_flag() { args : "$@"; defvar "$@"; }
+	_param() { args % "$@"; defvar "$@"; }
+	_option() { args % "$@"; defvar "$@"; }
+	_disp() { args : "$@"; }
+	_msg() { args : _ "$@"; }
 
 	"$@"
 	_0 "${_rest:?}=''"
@@ -73,7 +79,7 @@ getoptions() {
 	}
 
 	setup() { :; }
-	flag() {
+	_flag() {
 		args "$@"
 		code='$OPTARG'
 		[ "$counter" ] && on=1 off=-1 code="\$((\${$1:-0}+\${OPTARG:-0}))"
@@ -84,7 +90,7 @@ getoptions() {
 		valid "$1" "$code"
 		_4 ';;'
 	}
-	param() {
+	_param() {
 		args "$@"
 		_3 "$sw)"
 		_4 '[ $# -le 1 ] && set -- "$1" required && break'
@@ -92,7 +98,7 @@ getoptions() {
 		valid "$1" '$OPTARG'
 		_4 'shift ;;'
 	}
-	option() {
+	_option() {
 		args "$@"
 		quote default "$default"
 		_3 "$sw)"
@@ -114,13 +120,13 @@ getoptions() {
 		}
 		code "$3" _4 "${export:+export }$3=\"$4\"" "${3#:}"
 	}
-	disp() {
+	_disp() {
 		args "$@"
 		_3 "$sw)"
 		code "$1" _4 "echo \"\${$1}\"" "${1#:}"
 		_4 'exit 0 ;;'
 	}
-	msg() { :; }
+	_msg() { :; }
 
 	_0 "$2() {"
 	_1 'OPTIND=$(($#+1))'

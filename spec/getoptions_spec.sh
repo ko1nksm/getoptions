@@ -480,4 +480,27 @@ Describe "getoptions()"
 			The variable OPTION should eq "o"
 		End
 	End
+
+	Describe 'prehook'
+		It "called before helper functions is called"
+			parser_definition() {
+				prehook() { echo "$@" >&2; invoke "$@"; }
+				setup ARGS alt:true
+				flag FLAG --flag
+				param PARAM --param
+				option OPTION --option
+				msg -- 'message'
+			}
+			When call parse -flag -param p -option=o
+			The line 1 of stderr should eq "setup ARGS alt:true"
+			The line 2 of stderr should eq "flag FLAG --flag"
+			The line 3 of stderr should eq "param PARAM --param"
+			The line 4 of stderr should eq "option OPTION --option"
+			The line 5 of stderr should eq "msg -- message"
+			The line 6 of stderr should eq "flag FLAG --flag"
+			The line 7 of stderr should eq "param PARAM --param"
+			The line 8 of stderr should eq "option OPTION --option"
+			The line 9 of stderr should eq "msg -- message"
+		End
+	End
 End
