@@ -3,7 +3,7 @@
 # License: Creative Commons Zero v1.0 Universal
 # shellcheck disable=2016
 getoptions() {
-	_error='' _on=1 _off='' _export='' _plus='' _mode='' _alt='' restargs=''
+	_error='' _on=1 _off='' _export='' _plus='' _mode='' _alt='' _rest=''
 	_opts='' _no='' _equal=1 _help='' indent='' _indent='	' IFS=' '
 
 	quote() {
@@ -44,7 +44,7 @@ getoptions() {
 	}
 
 	setup() {
-		restargs=$1 && shift
+		_rest=$1 && shift
 		for i; do [ "$i" = '--' ] && break; eval "_${i%%:*}=\${i#*:}"; done
 		for i in 0 1 2 3 4 5; do
 			eval "_$i() { echo \"$indent\$*\"; }"
@@ -58,7 +58,7 @@ getoptions() {
 	msg() { args : _ "$@"; }
 
 	"$@"
-	_0 "${restargs:?}=''"
+	_0 "${_rest:?}=''"
 
 	args() {
 		sw='' validate='' pattern='' counter='' default=''
@@ -153,19 +153,19 @@ getoptions() {
 	_2 'esac'
 	_2 'case $1 in'
 	"$@"
-	restargs() {
+	rest() {
 		_3 "$1"
 		_4 'while [ $# -gt 0 ]; do'
-		_5 "$restargs=\"\${$restargs}" '\"\${$((${OPTIND:-0}-$#))}\""'
+		_5 "$_rest=\"\${$_rest}" '\"\${$((${OPTIND:-0}-$#))}\""'
 		_5 'shift'
 		_4 'done'
 		_4 'break ;;'
 	}
-	restargs '--) shift'
+	rest '--) shift'
 	_3 "[-${_plus:++}]?*)" 'set -- "$1" unknown && break ;;'
 	case $_mode in
-		+) restargs '*)' ;;
-		*) _3 "*) $restargs=\"\${$restargs}" '\"\${$((${OPTIND:-0}-$#))}\""'
+		+) rest '*)' ;;
+		*) _3 "*) $_rest=\"\${$_rest}" '\"\${$((${OPTIND:-0}-$#))}\""'
 	esac
 	_2 'esac'
 	_2 'shift'
