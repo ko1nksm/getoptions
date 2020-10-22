@@ -4,12 +4,7 @@
 # shellcheck disable=2016
 getoptions() {
 	_error='' _on=1 _off='' _export='' _plus='' _mode='' _alt='' restargs=''
-	_opts='' _no='' _equal=1 _help='' indent='' IFS=' '
-
-	for i in 0 1 2 3 4 5; do
-		eval "_$i() { echo \"$indent\$*\"; }"
-		indent="$indent	"
-	done
+	_opts='' _no='' _equal=1 _help='' indent='' _indent='	' IFS=' '
 
 	quote() {
 		q="$2'" r=''
@@ -51,6 +46,10 @@ getoptions() {
 	setup() {
 		restargs=$1 && shift
 		for i; do [ "$i" = '--' ] && break; eval "_${i%%:*}=\${i#*:}"; done
+		for i in 0 1 2 3 4 5; do
+			eval "_$i() { echo \"$indent\$*\"; }"
+			indent="${indent}${_indent}"
+		done
 	}
 	flag() { args : "$@"; defvar "$@"; }
 	param() { args % "$@"; defvar "$@"; }
