@@ -4,7 +4,7 @@
 # shellcheck disable=2016
 getoptions() {
 	_error='' _on=1 _off='' _export='' _plus='' _mode='' _alt='' _rest=''
-	_opts='' _no='' _equal=1 _help='' indent='' _indent='	' IFS=' '
+	_opts='' _no='' _equal=1 _help='' indent='' _indent='	' _init=@empty IFS=' '
 
 	quote() {
 		q="$2'" r=''
@@ -19,7 +19,7 @@ getoptions() {
 	}
 
 	args() {
-		on=$_on off=$_off export=$_export init='@empty' _hasarg=$1
+		on=$_on off=$_off export=$_export init=$_init _hasarg=$1
 		while [ $# -gt 2 ] && [ "$3" != '--' ] && shift; do
 			case $2 in
 				--no-* | --\{no-\}*) _no=1 ;;
