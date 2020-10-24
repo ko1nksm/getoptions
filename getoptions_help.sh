@@ -7,7 +7,7 @@ getoptions_help() {
 	pad() { p=$2; while [ ${#p} -lt "$3" ]; do p="$p "; done; eval "$1=\$p"; }
 
 	args() {
-		_type=$1 var=${2%% *} sw='' hidden='' _width=$width _pre='' && shift 2
+		_type=$1 var=${2%% *} sw='' label='' hidden='' _width=$width && shift 2
 		while [ $# -gt 0 ] && i=$1 && shift && [ ! "$i" = '--' ]; do
 			case $i in
 				--*) pad sw "$sw${sw:+, }" $((${plus:+4}+4)); sw="$sw$i" ;;
@@ -18,16 +18,17 @@ getoptions_help() {
 		done
 		[ "$hidden" ] && return 0
 
-		case $_type in
-			setup | msg) _pre='' _width=0 ;;
-			flag | disp) pad _pre "  $sw  " "$_width" ;;
-			param      ) pad _pre "  $sw $var  " "$_width" ;;
-			option     ) pad _pre "  $sw [$var]  " "$_width" ;;
+		[ "$label" ] || case $_type in
+			setup | msg) label='' _width=0 ;;
+			flag | disp) label="  $sw  " ;;
+			param      ) label="  $sw $var  " ;;
+			option     ) label="  $sw [$var]  " ;;
 		esac
-		[ ${#_pre} -le "$_width" ] && [ $# -gt 0 ] && _pre="$_pre$1" && shift
-		echo "$_pre"
-		pad _pre '' "$_width"
-		for i; do echo "$_pre$i"; done
+		pad label "$label" "$_width"
+		[ ${#label} -le "$_width" ] && [ $# -gt 0 ] && label="$label$1" && shift
+		echo "$label"
+		pad label '' "$_width"
+		for i; do echo "$label$i"; done
 	}
 
 	for i in 'setup :' flag param option disp 'msg :'; do
