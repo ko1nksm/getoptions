@@ -228,6 +228,7 @@ Describe "getoptions()"
 				flag FLAG_Q -q on:"a'b\""
 				flag FLAG_U -u init:@unset
 				flag FLAG_N -n init:@none
+				flag FLAG_E -n init:@export
 			}
 			When call parse -q
 			The variable FLAG_A should eq "ON"
@@ -237,6 +238,7 @@ Describe "getoptions()"
 			The variable FLAG_Q should eq "a'b\""
 			The variable FLAG_U should be undefined
 			The variable FLAG_N should eq "none"
+			The variable FLAG_E should be exported
 		End
 
 		It "can be used combined short flags"
