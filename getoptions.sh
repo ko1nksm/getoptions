@@ -86,7 +86,7 @@ getoptions() {
 		[ "$counter" ] && on=1 off=-1 code="\$((\${$1:-0}+\${OPTARG:-0}))"
 		quote on "$on" && quote off "$off"
 		_3 "$sw)"
-		_4 '[ "${OPTARG:-}" ] && set noarg "$1" && break'
+		_4 '[ "${OPTARG:-}" ] && OPTARG=${OPTARG#*\=} && set noarg "$1" && break'
 		_4 "eval '[ \${OPTARG+x} ] &&:' && OPTARG=$on || OPTARG=$off"
 		valid "$1" "$code"
 		_4 ';;'

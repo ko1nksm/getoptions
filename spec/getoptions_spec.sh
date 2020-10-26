@@ -129,6 +129,7 @@ Describe "getoptions()"
 			param PARAM --pattern pattern:'foo | bar'
 			param VALID -v validate:'valid "$1"'
 			param ARG --arg validate:arg
+			flag  FLAG --flag
 		}
 		valid() { [ "$1" = "-v" ] && return 3; }
 		arg() { false; }
@@ -138,6 +139,7 @@ Describe "getoptions()"
 				valid:3) echo "valid $2: $3"; return 30 ;;
 				pattern:'foo | bar') echo "pattern $2: $3"; return 40 ;;
 				arg:*) echo "invalid argument: $OPTARG"; return 1 ;;
+				noarg) echo "noarg: $OPTARG"; return 1 ;;
 			esac
 			[ "$3" = "-q" ] && echo "$1" && return 1
 			return 0
@@ -176,6 +178,12 @@ Describe "getoptions()"
 		It "can refer to the OPTARG variable"
 			When run parse --arg argument
 			The stderr should eq "invalid argument: argument"
+			The status should eq 1
+		End
+
+		It "can refer to the OPTARG variable"
+			When run parse --flag=argument
+			The stderr should eq "noarg: argument"
 			The status should eq 1
 		End
 
