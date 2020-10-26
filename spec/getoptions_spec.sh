@@ -389,14 +389,28 @@ Describe "getoptions()"
 		It "handles options"
 			parser_definition() {
 				setup ARGS
-				option OPTION_O -o default:"default"
-				option OPTION_P -p
 				option OPTION   --option
+				option OPTION_O -o on:"default"
+				option OPTION_P -p
+				option OPTION_N --no-option off:"omission"
 			}
-			When call parse -o -pvalue1 --option=value2
+			When call parse  --option=value1 -o -pvalue2 --no-option
+			The variable OPTION should eq "value1"
 			The variable OPTION_O should eq "default"
-			The variable OPTION_P should eq "value1"
-			The variable OPTION should eq "value2"
+			The variable OPTION_P should eq "value2"
+			The variable OPTION_N should eq "omission"
+		End
+
+		Context "when specified an argument to --no-option"
+			parser_definition() {
+				setup ARGS
+				option OPTION --no-option
+			}
+			It "displays error"
+				When run parse --no-option=value
+				The stderr should eq "Does not allow an argument: --no-option"
+				The status should be failure
+			End
 		End
 
 		It "remains initial value when not specified parameter"
@@ -422,7 +436,7 @@ Describe "getoptions()"
 			valid() { echo "$OPTARG" "$@"; }
 			parser_definition() {
 				setup ARGS
-				option OPTION_O -o validate:'valid "$1"' default:"default"
+				option OPTION_O -o validate:'valid "$1"' on:"default"
 				option OPTION_P -p validate:'valid "$1"'
 				option OPTION   --option validate:'valid "$1"'
 			}

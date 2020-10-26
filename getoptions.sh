@@ -12,11 +12,16 @@ getoptions() {
 		q="'${r%????}'" && q=${q#\'\'} && q=${q%\'\'}
 		eval "$1=\${q:-\"''\"}"
 	}
-
 	code() {
 		[ "${1#:}" = "$1" ] && c=3 || c=4
 		eval "[ ! \${$c:+x} ] || $2 \"\$$c\""
 	}
+
+	invoke() { eval '"_$@"'; }
+	prehook() { invoke "$@"; }
+	for i in setup flag param option disp msg; do
+		eval "$i() { prehook $i \"\$@\"; }"
+	done
 
 	args() {
 		on=$_on off=$_off export=$_export init=$_init _hasarg=$1
@@ -29,7 +34,6 @@ getoptions() {
 			esac
 		done
 	}
-
 	defvar() {
 		case $init in
 			@none) : ;;
@@ -43,13 +47,6 @@ getoptions() {
 				code "$1" _0 "${export:+export }$1=$init" "OPTARG=$init; ${1#:}"
 		esac
 	}
-
-	invoke() { eval '"_$@"'; }
-	prehook() { invoke "$@"; }
-	for i in setup flag param option disp msg; do
-		eval "$i() { prehook $i \"\$@\"; }"
-	done
-
 	_setup() {
 		_rest=$1 && shift
 		for i; do [ "$i" = '--' ] && break; eval "_${i%%:*}=\${i#*:}"; done
@@ -68,27 +65,24 @@ getoptions() {
 	_0 "${_rest:?}=''"
 
 	args() {
-		sw='' validate='' pattern='' counter='' default=''
-		on=$_on off=$_off export=$_export _both='--{no-}'
+		sw='' validate='' pattern='' counter='' on=$_on off=$_off export=$_export
 		while [ $# -gt 1 ] && [ "$2" != '--' ] && shift; do
 			case $1 in
-				$_both*) sw="$sw${sw:+ | }--${1#$_both} | --no-${1#$_both}" ;;
+				--\{no-\}*) sw="$sw${sw:+ | }--${1#--?no-?} | --no-${1#--?no-?}" ;;
 				[-+]? | --*) sw="$sw${sw:+ | }$1" ;;
 				*) eval "${1%%:*}=\"\${1#*:}\""
 			esac
 		done
 	}
-
 	setup() { :; }
 	_flag() {
 		args "$@"
-		code='$OPTARG'
-		[ "$counter" ] && on=1 off=-1 code="\$((\${$1:-0}+\${OPTARG:-0}))"
 		quote on "$on" && quote off "$off"
+		[ "$counter" ] && on=1 off=-1 v="\$((\${$1:-0}+\${OPTARG:-0}))" || v=''
 		_3 "$sw)"
 		_4 '[ "${OPTARG:-}" ] && OPTARG=${OPTARG#*\=} && set noarg "$1" && break'
 		_4 "eval '[ \${OPTARG+x} ] &&:' && OPTARG=$on || OPTARG=$off"
-		valid "$1" "$code"
+		valid "$1" "${v:-\$OPTARG}"
 		_4 ';;'
 	}
 	_param() {
@@ -101,17 +95,18 @@ getoptions() {
 	}
 	_option() {
 		args "$@"
-		quote default "$default"
+		quote on "$on" && quote off "$off"
 		_3 "$sw)"
-		_4 'case $OPTARG in'
-		_5 '?*) OPTARG=$2 ;;'
-		_5 " *) OPTARG=$default &&" 'set -- "$1" "$@"'
-		_4 "esac"
+		_4 'set -- "$1" "$@"'
+		_4 '[ ${OPTARG+x} ] && {'
+		_5 'case $1 in --no-*) set noarg "${1%%\=*}"; break; esac'
+		_5 '[ "${OPTARG:-}" ] && { shift; OPTARG=$2; } ||' "OPTARG=$on"
+		_4 "} || OPTARG=$off"
 		valid "$1" '$OPTARG'
 		_4 'shift ;;'
 	}
 	valid() {
-		set -- "$validate" "$pattern" "$@"
+		set -- "$validate" "$pattern" "$1" "$2"
 		[ "$1" ] && _4 "$1 || { set -- ${1%% *}:\$? \"\$1\" $1; break; }"
 		[ "$2" ] && {
 			quote pattern "$2"
@@ -189,6 +184,5 @@ getoptions() {
 	_1 'echo "$1" >&2'
 	_1 'exit 1'
 	_0 '}'
-
 	[ ! "$_help" ] || eval "shift 2; getoptions_help $1 $_help" ${3+'"$@"'}
 }
