@@ -26,7 +26,7 @@ Describe "getoptions()"
 		The status should be success
 	End
 
-	Describe 'get rest arguments'
+	Context 'when arguments exists'
 		restargs() {
 			parse "$@"
 			eval "set -- $ARGS"
@@ -46,7 +46,7 @@ Describe "getoptions()"
 		End
 
 		Context 'when scanning mode is +'
-			It "gets rest arguments"
+			It "gets rest of the arguments following a non-option"
 				parser_definition() {
 					setup ARGS mode:+ -- 'foo bar'
 					flag FLAG_A -a
@@ -91,33 +91,41 @@ Describe "getoptions()"
 		End
 	End
 
-	Describe 'displays error message'
-		Specify "when specified unknown option"
-			parser_definition() { setup ARGS; }
-			When run parse -x
-			The stderr should eq "Unrecognized option: -x"
-			The status should be failure
+	Describe 'An error message'
+		Context "when specified unknown option"
+			Specify 'to displays'
+				parser_definition() { setup ARGS; }
+				When run parse -x
+				The stderr should eq "Unrecognized option: -x"
+				The status should be failure
+			End
 		End
 
-		Specify "when specified unknown long option"
-			parser_definition() { setup ARGS; }
-			When run parse --long
-			The stderr should eq "Unrecognized option: --long"
-			The status should be failure
+		Context "when specified unknown long option"
+			Specify 'to displays'
+				parser_definition() { setup ARGS; }
+				When run parse --long
+				The stderr should eq "Unrecognized option: --long"
+				The status should be failure
+			End
 		End
 
-		Specify "when specified an argument to flag"
-			parser_definition() { setup ARGS; flag FLAG --flag; }
-			When run parse --flag=value
-			The stderr should eq "Does not allow an argument: --flag"
-			The status should be failure
+		Context "when specified an argument to flag"
+			Specify 'to displays'
+				parser_definition() { setup ARGS; flag FLAG --flag; }
+				When run parse --flag=value
+				The stderr should eq "Does not allow an argument: --flag"
+				The status should be failure
+			End
 		End
 
-		Specify "when missing an argument for parameter"
-			parser_definition() { setup ARGS; param PARAM --param; }
-			When run parse --param
-			The stderr should eq "Requires an argument: --param"
-			The status should be failure
+		Context "when missing an argument for parameter"
+			Specify 'to displays'
+				parser_definition() { setup ARGS; param PARAM --param; }
+				When run parse --param
+				The stderr should eq "Requires an argument: --param"
+				The status should be failure
+			End
 		End
 	End
 
