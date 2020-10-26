@@ -234,7 +234,7 @@ Describe "getoptions()"
 		End
 
 		It "set initial value when not specified flag"
-			BeforeCall FLAG_N=none
+			BeforeCall FLAG_N=none FLAG_E=""
 			parser_definition() {
 				setup ARGS
 				flag FLAG_A -a on:ON off:OFF init:@on
