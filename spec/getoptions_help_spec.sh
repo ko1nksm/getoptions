@@ -31,7 +31,7 @@ Describe "getoptions_help()"
 		When call usage
 		The line 1 should eq "usage"
 		The line 2 should eq "header"
-		The line 3 should eq "option              description"
+		The line 3 should eq "  option            description"
 		The line 4 should eq "  -a, +a, --{no-}flag-a"
 		The line 5 should eq "                    flag a"
 		The line 6 should eq "  -p PARAM_P        param p"

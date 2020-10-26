@@ -20,11 +20,11 @@ getoptions_help() {
 
 		[ "$label" ] || case $_type in
 			setup | msg) label='' _width=0 ;;
-			flag | disp) label="  $sw" ;;
-			param      ) label="  $sw $var" ;;
-			option     ) label="  $sw""[=$var]" ;;
+			flag | disp) label="$sw" ;;
+			param      ) label="$sw $var" ;;
+			option     ) label="$sw""[=$var]" ;;
 		esac
-		pad label "$label" "$_width"
+		pad label "${label:+  }$label" "$_width"
 		[ ${#label} -le "$_width" ] && [ $# -gt 0 ] && label="$label$1" && shift
 		echo "$label"
 		pad label '' "$_width"
