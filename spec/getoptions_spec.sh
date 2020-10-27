@@ -133,13 +133,13 @@ Describe "getoptions()"
 		valid() { [ "$1" = "-v" ] && return 3; }
 		arg() { false; }
 		myerror() {
-			case $3 in
-				unknown) echo "custom $3: $2"; return 20 ;;
-				valid:3) echo "valid $3: $2"; return 30 ;;
-				pattern:'foo | bar') echo "pattern $3: $2"; return 40 ;;
+			case $2 in
+				unknown) echo "custom $2: $3"; return 20 ;;
+				valid:3) echo "valid $2: $3"; return 30 ;;
+				pattern:'foo | bar') echo "pattern $2: $3"; return 40 ;;
 				arg:*) echo "invalid argument: $OPTARG"; return 1 ;;
 			esac
-			[ "$2" = "-q" ] && echo "$1" && return 1
+			[ "$3" = "-q" ] && echo "$1" && return 1
 			return 0
 		}
 

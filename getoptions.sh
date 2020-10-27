@@ -86,7 +86,7 @@ getoptions() {
 		[ "$counter" ] && on=1 off=-1 code="\$((\${$1:-0}+\${OPTARG:-0}))"
 		quote on "$on" && quote off "$off"
 		_3 "$sw)"
-		_4 '[ "${OPTARG:-}" ] && set -- "$1" noarg && break'
+		_4 '[ "${OPTARG:-}" ] && set noarg "$1" && break'
 		_4 "eval '[ \${OPTARG+x} ] &&:' && OPTARG=$on || OPTARG=$off"
 		valid "$1" "$code"
 		_4 ';;'
@@ -94,7 +94,7 @@ getoptions() {
 	_param() {
 		args "$@"
 		_3 "$sw)"
-		_4 '[ $# -le 1 ] && set -- "$1" required && break'
+		_4 '[ $# -le 1 ] && set required "$1" && break'
 		_4 'OPTARG=$2'
 		valid "$1" '$OPTARG'
 		_4 'shift ;;'
@@ -112,11 +112,11 @@ getoptions() {
 	}
 	valid() {
 		set -- "$validate" "$pattern" "$@"
-		[ "$1" ] && _4 "$1 || { set -- \"\$1\" ${1%% *}:\$? ${1#* }; break; }"
+		[ "$1" ] && _4 "$1 || { set -- ${1%% *}:\$? \"\$1\" $1; break; }"
 		[ "$2" ] && {
 			quote pattern "$2"
 			_4 "case \$OPTARG in $2) ;;"
-			_5 "*) set -- \"\$1\" pattern:$pattern; break"
+			_5 "*) set pattern:$pattern \"\$1\"; break"
 			_4 "esac"
 		}
 		code "$3" _4 "${export:+export }$3=\"$4\"" "${3#:}"
@@ -169,7 +169,7 @@ getoptions() {
 		_4 'break ;;'
 	}
 	rest '--) shift'
-	_3 "[-${_plus:++}]?*)" 'set -- "$1" unknown && break ;;'
+	_3 "[-${_plus:++}]?*)" 'set unknown "$1" && break ;;'
 	case $_mode in
 		+) rest '*)' ;;
 		*) _3 "*) $_rest=\"\${$_rest}" '\"\${$((${OPTIND:-0}-$#))}\""'
@@ -178,12 +178,12 @@ getoptions() {
 	_2 'shift'
 	_1 'done'
 	_1 '[ $# -eq 0 ] && { OPTIND=1; unset OPTARG; return 0; }'
-	_1 'case $2 in'
-	_2 'unknown) set "Unrecognized option: $1" "$@" ;;'
-	_2 'noarg) set "Does not allow an argument: $1" "$@" ;;'
-	_2 'required) set "Requires an argument: $1" "$@" ;;'
-	_2 'pattern:*) set "Does not match the pattern (${2#*:}): $1" "$@" ;;'
-	_2 '*) set "Validation error ($2): $1" "$@"'
+	_1 'case $1 in'
+	_2 'unknown) set "Unrecognized option: $2" "$@" ;;'
+	_2 'noarg) set "Does not allow an argument: $2" "$@" ;;'
+	_2 'required) set "Requires an argument: $2" "$@" ;;'
+	_2 'pattern:*) set "Does not match the pattern (${1#*:}): $2" "$@" ;;'
+	_2 '*) set "Validation error ($1): $2" "$@"'
 	_1 'esac'
 	[ "$_error" ] && _1 "$_error" '"$@" >&2 || exit $?'
 	_1 'echo "$1" >&2'
