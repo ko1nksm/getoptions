@@ -26,7 +26,7 @@ Describe "getoptions()"
 		The status should be success
 	End
 
-	Context 'when arguments exists'
+	Describe 'handling arguments'
 		restargs() {
 			parse "$@"
 			eval "set -- $ARGS"
@@ -34,11 +34,12 @@ Describe "getoptions()"
 		}
 
 		Context 'when scanning mode is default'
-			It "gets rest arguments"
-				parser_definition() {
-					setup ARGS -- 'foo bar'
-					flag FLAG_A -a
-				}
+			parser_definition() {
+				setup ARGS -- 'foo bar'
+				flag FLAG_A -a
+			}
+
+			Specify "treats non-options as arguments"
 				When call restargs -a 1 -a 2 -a 3 - -- -a
 				The variable FLAG_A should eq 1
 				The output should eq "1 2 3 - -a"
@@ -46,54 +47,45 @@ Describe "getoptions()"
 		End
 
 		Context 'when scanning mode is +'
-			It "gets rest of the arguments following a non-option"
-				parser_definition() {
-					setup ARGS mode:+ -- 'foo bar'
-					flag FLAG_A -a
-				}
+			parser_definition() {
+				setup ARGS mode:+ -- 'foo bar'
+				flag FLAG_A -a
+			}
+
+			Specify "treats rest following a non-option as arguments"
 				When call restargs -a 1 -a 2 -a 3 -- -a
 				The variable FLAG_A should eq 1
 				The output should eq "1 -a 2 -a 3 -- -a"
 			End
 		End
-	End
 
-	Context 'when the option parser ends normally'
-		parser_definition() {
-			setup ARGS
-			flag FLAG_A -a
-		}
-		It "resets OPTIND and OPTARG"
-			When call parse -a
-			The variable OPTIND should eq 1
-			The variable OPTARG should be undefined
+		Context 'when the plus attribute disabled (default)'
+			parser_definition() { setup ARGS; }
+
+			Specify "treats as arguments"
+				When call restargs +o
+				The output should eq "+o"
+			End
 		End
 	End
 
-	Describe '+option'
-		restargs() {
-			parse "$@"
-			eval "set -- $RESTARGS"
-			echo "$@"
-		}
-
-		It "treats as arguments by default"
-			parser_definition() { setup RESTARGS; }
-			When call restargs +o
-			The output should eq "+o"
-		End
-
-		It "treats as option when specified plus:true"
-			parser_definition() { setup RESTARGS plus:true; }
-			When run restargs +o
-			The stderr should eq "Unrecognized option: +o"
-			The status should be failure
+	Describe 'parser function'
+		Context 'when the option parser ends normally'
+			parser_definition() {
+				setup ARGS
+				flag FLAG_A -a
+			}
+			It "resets OPTIND and OPTARG"
+				When call parse -a
+				The variable OPTIND should eq 1
+				The variable OPTARG should be undefined
+			End
 		End
 	End
 
-	Describe 'An error message'
+	Describe 'Default error handler'
 		Context "when specified unknown option"
-			Specify 'to displays'
+			It "displays error"
 				parser_definition() { setup ARGS; }
 				When run parse -x
 				The stderr should eq "Unrecognized option: -x"
@@ -102,7 +94,7 @@ Describe "getoptions()"
 		End
 
 		Context "when specified unknown long option"
-			Specify 'to displays'
+			It "displays error"
 				parser_definition() { setup ARGS; }
 				When run parse --long
 				The stderr should eq "Unrecognized option: --long"
@@ -111,7 +103,7 @@ Describe "getoptions()"
 		End
 
 		Context "when specified an argument to flag"
-			Specify 'to displays'
+			It "displays error"
 				parser_definition() { setup ARGS; flag FLAG --flag; }
 				When run parse --flag=value
 				The stderr should eq "Does not allow an argument: --flag"
@@ -120,16 +112,69 @@ Describe "getoptions()"
 		End
 
 		Context "when missing an argument for parameter"
-			Specify 'to displays'
+			It "displays error"
 				parser_definition() { setup ARGS; param PARAM --param; }
 				When run parse --param
 				The stderr should eq "Requires an argument: --param"
 				The status should be failure
 			End
 		End
+
+		Context 'when the plus attribute enabled'
+			parser_definition() { setup ARGS plus:true; }
+			restargs() {
+				parse "$@"
+				eval "set -- $ARGS"
+				echo "$@"
+			}
+
+			It "displays error if unknown +option specified"
+				When run restargs +o
+				The stderr should eq "Unrecognized option: +o"
+				The status should be failure
+			End
+		End
 	End
 
-	Context 'when custom error handler defined'
+	Describe 'alternative mode'
+		It "allow long options to start with a single '-'"
+			parser_definition() {
+				setup ARGS alt:true
+				flag FLAG --flag
+				param PARAM --param
+				option OPTION --option
+			}
+			When call parse -flag -param p -option=o
+			The variable FLAG should eq 1
+			The variable PARAM should eq "p"
+			The variable OPTION should eq "o"
+		End
+	End
+
+	Describe 'prehook'
+		It "called before helper functions is called"
+			parser_definition() {
+				prehook() { echo "$@" >&2; invoke "$@"; }
+				setup ARGS alt:true
+				flag FLAG --flag
+				param PARAM --param
+				option OPTION --option
+				msg -- 'message'
+			}
+			When call parse -flag -param p -option=o
+			The line 1 of stderr should eq "setup ARGS alt:true"
+			The line 2 of stderr should eq "flag FLAG --flag"
+			The line 3 of stderr should eq "param PARAM --param"
+			The line 4 of stderr should eq "option OPTION --option"
+			The line 5 of stderr should eq "msg -- message"
+			The line 6 of stderr should eq "flag FLAG --flag"
+			The line 7 of stderr should eq "param PARAM --param"
+			The line 8 of stderr should eq "option OPTION --option"
+			The line 9 of stderr should eq "msg -- message"
+		End
+	End
+
+	Describe 'custom error handler'
 		parser_definition() {
 			setup RESTARGS error:myerror
 			param PARAM -p
@@ -202,7 +247,7 @@ Describe "getoptions()"
 		End
 	End
 
-	Describe 'flag'
+	Describe 'flag helper'
 		It "handles flags"
 			parser_definition() {
 				setup ARGS
@@ -320,7 +365,7 @@ Describe "getoptions()"
 		End
 	End
 
-	Describe 'param'
+	Describe 'param helper'
 		It "handles parameters"
 			parser_definition() {
 				setup ARGS
@@ -385,7 +430,7 @@ Describe "getoptions()"
 		End
 	End
 
-	Describe 'option'
+	Describe 'option helper'
 		It "handles options"
 			parser_definition() {
 				setup ARGS
@@ -464,7 +509,7 @@ Describe "getoptions()"
 		End
 	End
 
-	Describe 'disp'
+	Describe 'disp helper'
 		BeforeRun VERSION=1.0
 
 		It "displays the variable"
@@ -487,7 +532,7 @@ Describe "getoptions()"
 		End
 	End
 
-	Describe 'msg'
+	Describe 'msg helper'
 		It "does nothing"
 			parser_definition() {
 				setup ARGS
@@ -495,44 +540,6 @@ Describe "getoptions()"
 			}
 			When run parse
 			The output should be blank
-		End
-	End
-
-	Describe 'alternative mode'
-		It "allow long options to start with a single '-'"
-			parser_definition() {
-				setup ARGS alt:true
-				flag FLAG --flag
-				param PARAM --param
-				option OPTION --option
-			}
-			When call parse -flag -param p -option=o
-			The variable FLAG should eq 1
-			The variable PARAM should eq "p"
-			The variable OPTION should eq "o"
-		End
-	End
-
-	Describe 'prehook'
-		It "called before helper functions is called"
-			parser_definition() {
-				prehook() { echo "$@" >&2; invoke "$@"; }
-				setup ARGS alt:true
-				flag FLAG --flag
-				param PARAM --param
-				option OPTION --option
-				msg -- 'message'
-			}
-			When call parse -flag -param p -option=o
-			The line 1 of stderr should eq "setup ARGS alt:true"
-			The line 2 of stderr should eq "flag FLAG --flag"
-			The line 3 of stderr should eq "param PARAM --param"
-			The line 4 of stderr should eq "option OPTION --option"
-			The line 5 of stderr should eq "msg -- message"
-			The line 6 of stderr should eq "flag FLAG --flag"
-			The line 7 of stderr should eq "param PARAM --param"
-			The line 8 of stderr should eq "option OPTION --option"
-			The line 9 of stderr should eq "msg -- message"
 		End
 	End
 End
