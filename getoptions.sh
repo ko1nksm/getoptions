@@ -79,7 +79,7 @@ getoptions() {
 		quote on "$on" && quote off "$off"
 		[ "$counter" ] && on=1 off=-1 v="\$((\${$1:-0}+\${OPTARG:-0}))" || v=''
 		_3 "$sw)"
-		_4 '[ "${OPTARG:-}" ] && OPTARG=${OPTARG#*\=} && set noarg "$1" && break'
+		_4 '[ "${OPTARG:-}" ] && OPTARG=${OPTARG#*\=} && set -- noarg "$1" && break'
 		_4 "eval '[ \${OPTARG+x} ] &&:' && OPTARG=$on || OPTARG=$off"
 		valid "$1" "${v:-\$OPTARG}"
 		_4 ';;'
@@ -87,7 +87,7 @@ getoptions() {
 	_param() {
 		args "$@"
 		_3 "$sw)"
-		_4 '[ $# -le 1 ] && set required "$1" && break'
+		_4 '[ $# -le 1 ] && set -- required "$1" && break'
 		_4 'OPTARG=$2'
 		valid "$1" '$OPTARG'
 		_4 'shift ;;'
@@ -98,7 +98,7 @@ getoptions() {
 		_3 "$sw)"
 		_4 'set -- "$1" "$@"'
 		_4 '[ ${OPTARG+x} ] && {'
-		_5 'case $1 in --no-*) set noarg "${1%%\=*}"; break; esac'
+		_5 'case $1 in --no-*) set -- noarg "${1%%\=*}"; break; esac'
 		_5 '[ "${OPTARG:-}" ] && { shift; OPTARG=$2; } ||' "OPTARG=$on"
 		_4 "} || OPTARG=$off"
 		valid "$1" '$OPTARG'
@@ -110,7 +110,7 @@ getoptions() {
 		[ "$2" ] && {
 			quote pattern "$2"
 			_4 "case \$OPTARG in $2) ;;"
-			_5 "*) set pattern:$pattern \"\$1\"; break"
+			_5 "*) set -- pattern:$pattern \"\$1\"; break"
 			_4 "esac"
 		}
 		code "$3" _4 "${export:+export }$3=\"$4\"" "${3#:}"
@@ -161,7 +161,7 @@ getoptions() {
 		_4 'break ;;'
 	}
 	rest '--) shift'
-	_3 "[-${_plus:++}]?*)" 'set unknown "$1" && break ;;'
+	_3 "[-${_plus:++}]?*)" 'set -- unknown "$1" && break ;;'
 	case $_mode in
 		+) rest '*)' ;;
 		*) _3 "*) $_rest=\"\${$_rest}" '\"\${$((${OPTIND:-0}-$#))}\""'
@@ -171,11 +171,11 @@ getoptions() {
 	_1 'done'
 	_1 '[ $# -eq 0 ] && { OPTIND=1; unset OPTARG; return 0; }'
 	_1 'case $1 in'
-	_2 'unknown) set "Unrecognized option: $2" "$@" ;;'
-	_2 'noarg) set "Does not allow an argument: $2" "$@" ;;'
-	_2 'required) set "Requires an argument: $2" "$@" ;;'
-	_2 'pattern:*) set "Does not match the pattern (${1#*:}): $2" "$@" ;;'
-	_2 '*) set "Validation error ($1): $2" "$@"'
+	_2 'unknown) set -- "Unrecognized option: $2" "$@" ;;'
+	_2 'noarg) set -- "Does not allow an argument: $2" "$@" ;;'
+	_2 'required) set -- "Requires an argument: $2" "$@" ;;'
+	_2 'pattern:*) set -- "Does not match the pattern (${1#*:}): $2" "$@" ;;'
+	_2 '*) set -- "Validation error ($1): $2" "$@"'
 	_1 'esac'
 	[ "$_error" ] && _1 "$_error" '"$@" >&2 || exit $?'
 	_1 'echo "$1" >&2'
