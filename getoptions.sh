@@ -4,7 +4,7 @@
 # shellcheck disable=2016
 getoptions() {
 	_error='' _on=1 _off='' _export='' _plus='' _mode='' _alt='' _rest=''
-	_opts='' _no='' _help='' indent='' _indent='	' _init=@empty IFS=' '
+	_opts='' _help='' indent='' _indent='	' _init=@empty IFS=' '
 
 	quote() {
 		q="$2'" r=''
@@ -27,7 +27,6 @@ getoptions() {
 		on=$_on off=$_off export=$_export init=$_init _hasarg=$1
 		while [ $# -gt 2 ] && [ "$3" != '--' ] && shift; do
 			case $2 in
-				--no-* | --\{no-\}*) _no=1 ;;
 				-?) [ "${_hasarg#%}" ] || _opts="$_opts${2#-}" ;;
 				+*) _plus=1 ;;
 				[!-+]*) eval "${2%%:*}=\${2#*:}"
@@ -133,7 +132,7 @@ getoptions() {
 	_3 '--?*=*) OPTARG=$1; shift'
 	wa 'set -- "${OPTARG%%\=*}" "${OPTARG#*\=}" "$@"'
 	_4 ';;'
-	[ "$_no" ] && _3 '--no-*) unset OPTARG ;;'
+	_3 '--no-*) unset OPTARG ;;'
 	[ "$_alt" ] || {
 		[ "$_opts" ] && {
 			_3 "-[$_opts]?*) OPTARG=\$1; shift"
