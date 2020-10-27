@@ -27,7 +27,7 @@ getoptions() {
 		on=$_on off=$_off export=$_export init=$_init _hasarg=$1
 		while [ $# -gt 2 ] && [ "$3" != '--' ] && shift; do
 			case $2 in
-				-?) [ "${_hasarg#%}" ] || _opts="$_opts${2#-}" ;;
+				-?) [ "$_hasarg" ] || _opts="$_opts${2#-}" ;;
 				+*) _plus=1 ;;
 				[!-+]*) eval "${2%%:*}=\${2#*:}"
 			esac
@@ -55,8 +55,8 @@ getoptions() {
 		done
 	}
 	_flag() { args : "$@"; defvar "$@"; }
-	_param() { args % "$@"; defvar "$@"; }
-	_option() { args % "$@"; defvar "$@"; }
+	_param() { args '' "$@"; defvar "$@"; }
+	_option() { args '' "$@"; defvar "$@"; }
 	_disp() { args : "$@"; }
 	_msg() { args : _ "$@"; }
 
@@ -181,5 +181,6 @@ getoptions() {
 	_1 'echo "$1" >&2'
 	_1 'exit 1'
 	_0 '}'
+
 	[ ! "$_help" ] || eval "shift 2; getoptions_help $1 $_help" ${3+'"$@"'}
 }
