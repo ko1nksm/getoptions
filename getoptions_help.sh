@@ -2,7 +2,7 @@
 # URL: https://github.com/ko1nksm/getoptions (v1.1.0)
 # License: Creative Commons Zero v1.0 Universal
 getoptions_help() {
-	width=30 plus='' here='GETOPTIONS-HEREDOC' leading='  '
+	width=30 plus='' leading='  '
 
 	pad() { p=$2; while [ ${#p} -lt "$3" ]; do p="$p "; done; eval "$1=\$p"; }
 
@@ -36,8 +36,8 @@ getoptions_help() {
 	done
 
 	echo "$2() {"
-	echo "cat<<$here"
+	echo "cat<<'GETOPTIONSHERE'"
 	"$@"
-	echo "$here"
+	echo "GETOPTIONSHERE"
 	echo "}"
 }
