@@ -1,4 +1,4 @@
-# shellcheck shell=sh disable=SC2004,SC2016
+# shellcheck shell=sh disable=SC1083,SC2004,SC2016
 
 Describe "getoptions()"
 	Include ./getoptions.sh
@@ -414,14 +414,14 @@ Describe "getoptions()"
 
 		Context 'when specified pattern attribute'
 			Parameters
-				foo success stdout ""
-				baz failure stderr "Does not match the pattern (foo | bar): -p"
+				FOO success stdout ""
+				BAZ failure stderr "Does not match the pattern (FOO | BAR): -p"
 			End
 
 			It "checks if it matches the pattern"
 				parser_definition() {
 					setup ARGS
-					param PARAM -p pattern:'foo | bar'
+					param PARAM -p pattern:'FOO | BAR'
 				}
 				When run parse -p "$1"
 				The status should be "$2"

@@ -4,7 +4,7 @@ test:
 	shellspec
 
 check:
-	shellcheck getoptions.sh getoptions_help.sh sample/basic.sh sample/advanced.sh
+	shellcheck getoptions.sh getoptions_help.sh spec/getoptions_spec.sh spec/getoptions_help_spec.sh sample/basic.sh sample/advanced.sh sample/extension.sh
 
 testall:
 	shellspec -s sh

@@ -1,4 +1,4 @@
-# shellcheck shell=sh disable=SC2004,SC2016
+# shellcheck shell=sh disable=SC1083,SC2004,SC2016
 
 Describe "getoptions_help()"
 	Include ./getoptions_help.sh
