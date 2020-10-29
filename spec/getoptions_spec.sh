@@ -1,7 +1,7 @@
-# shellcheck shell=sh disable=SC2004,SC2016
+# shellcheck shell=sh disable=SC1083,SC2004,SC2016
 
 Describe "getoptions()"
-	Include ./getoptions.sh
+	Include ./lib/getoptions.sh
 
 	parse() {
 		eval "$(getoptions parser_definition _parse)"
@@ -18,7 +18,15 @@ Describe "getoptions()"
 		The status should be success
 	End
 
-	Describe 'get rest arguments'
+	It "generates option parser with help"
+		parser_definition() { setup ARGS help:usage; }
+		getoptions_help() { echo 'getoptions_help called'; }
+		When call parse
+		The output should eq 'getoptions_help called'
+		The status should be success
+	End
+
+	Describe 'handling arguments'
 		restargs() {
 			parse "$@"
 			eval "set -- $ARGS"
@@ -26,11 +34,12 @@ Describe "getoptions()"
 		}
 
 		Context 'when scanning mode is default'
-			It "gets rest arguments"
-				parser_definition() {
-					setup ARGS -- 'foo bar'
-					flag FLAG_A -a
-				}
+			parser_definition() {
+				setup ARGS -- 'foo bar'
+				flag FLAG_A -a
+			}
+
+			Specify "treats non-options as arguments"
 				When call restargs -a 1 -a 2 -a 3 - -- -a
 				The variable FLAG_A should eq 1
 				The output should eq "1 2 3 - -a"
@@ -38,106 +47,197 @@ Describe "getoptions()"
 		End
 
 		Context 'when scanning mode is +'
-			It "gets rest arguments"
-				parser_definition() {
-					setup ARGS mode:+ -- 'foo bar'
-					flag FLAG_A -a
-				}
+			parser_definition() {
+				setup ARGS mode:+ -- 'foo bar'
+				flag FLAG_A -a
+			}
+
+			Specify "treats rest following a non-option as arguments"
 				When call restargs -a 1 -a 2 -a 3 -- -a
 				The variable FLAG_A should eq 1
 				The output should eq "1 -a 2 -a 3 -- -a"
 			End
 		End
-	End
 
-	Context 'when the option parser ends normally'
-		parser_definition() {
-			setup ARGS
-			flag FLAG_A -a
-		}
-		It "resets OPTIND and OPTARG"
-			When call parse -a
-			The variable OPTIND should eq 1
-			The variable OPTARG should be undefined
-		End
-	End
-
-	Describe '+option'
-		restargs() {
-			parse "$@"
-			eval "set -- $RESTARGS"
-			echo "$@"
-		}
-
-		It "treats as arguments by default"
-			parser_definition() { setup RESTARGS; }
-			When call restargs +o
-			The output should eq "+o"
-		End
-
-		It "treats as option when specified plus:true"
-			parser_definition() { setup RESTARGS plus:true; }
-			When run restargs +o
-			The stderr should eq "unrecognized option '+o'"
-			The status should be failure
-		End
-	End
-
-	Describe 'displays error message'
-		Specify "when specified unknown option"
+		Context 'when the plus attribute disabled (default)'
 			parser_definition() { setup ARGS; }
-			When run parse -x
-			The stderr should eq "unrecognized option '-x'"
-			The status should be failure
-		End
 
-		Specify "when specified unknown long option"
-			parser_definition() { setup ARGS; }
-			When run parse --long
-			The stderr should eq "unrecognized option '--long'"
-			The status should be failure
-		End
-
-		Specify "when specified an argument to flag"
-			parser_definition() { setup ARGS; flag FLAG --flag; }
-			When run parse --flag=value
-			The stderr should eq "option '--flag' doesn't allow an argument"
-			The status should be failure
-		End
-
-		Specify "when missing an argument for parameter"
-			parser_definition() { setup ARGS; param PARAM --param; }
-			When run parse --param
-			The stderr should eq "option '--param' requires an argument"
-			The status should be failure
+			Specify "treats as arguments"
+				When call restargs +o
+				The output should eq "+o"
+			End
 		End
 	End
 
-	Context 'when custom error handler defined'
+	Describe 'parser function'
+		Context 'when the option parser ends normally'
+			parser_definition() {
+				setup ARGS
+				flag FLAG_A -a
+			}
+			It "resets OPTIND and OPTARG"
+				When call parse -a
+				The variable OPTIND should eq 1
+				The variable OPTARG should be undefined
+			End
+		End
+	End
+
+	Describe 'Default error handler'
+		Context "when specified unknown option"
+			It "displays error"
+				parser_definition() { setup ARGS; }
+				When run parse -x
+				The stderr should eq "Unrecognized option: -x"
+				The status should be failure
+			End
+		End
+
+		Context "when specified unknown long option"
+			It "displays error"
+				parser_definition() { setup ARGS; }
+				When run parse --long
+				The stderr should eq "Unrecognized option: --long"
+				The status should be failure
+			End
+		End
+
+		Context "when specified an argument to flag"
+			It "displays error"
+				parser_definition() { setup ARGS; flag FLAG --flag; }
+				When run parse --flag=value
+				The stderr should eq "Does not allow an argument: --flag"
+				The status should be failure
+			End
+		End
+
+		Context "when missing an argument for parameter"
+			It "displays error"
+				parser_definition() { setup ARGS; param PARAM --param; }
+				When run parse --param
+				The stderr should eq "Requires an argument: --param"
+				The status should be failure
+			End
+		End
+
+		Context 'when the plus attribute enabled'
+			parser_definition() { setup ARGS plus:true; }
+			restargs() {
+				parse "$@"
+				eval "set -- $ARGS"
+				echo "$@"
+			}
+
+			It "displays error if unknown +option specified"
+				When run restargs +o
+				The stderr should eq "Unrecognized option: +o"
+				The status should be failure
+			End
+		End
+	End
+
+	Describe 'alternative mode'
+		It "allow long options to start with a single '-'"
+			parser_definition() {
+				setup ARGS alt:true
+				flag FLAG --flag
+				param PARAM --param
+				option OPTION --option
+			}
+			When call parse -flag -param p -option=o
+			The variable FLAG should eq 1
+			The variable PARAM should eq "p"
+			The variable OPTION should eq "o"
+		End
+	End
+
+	Describe 'prehook'
+		It "called before helper functions is called"
+			parser_definition() {
+				prehook() { echo "$@" >&2; invoke "$@"; }
+				setup ARGS alt:true
+				flag FLAG --flag
+				param PARAM --param
+				option OPTION --option
+				msg -- 'message'
+			}
+			When call parse -flag -param p -option=o
+			The line 1 of stderr should eq "setup ARGS alt:true"
+			The line 2 of stderr should eq "flag FLAG --flag"
+			The line 3 of stderr should eq "param PARAM --param"
+			The line 4 of stderr should eq "option OPTION --option"
+			The line 5 of stderr should eq "msg -- message"
+			The line 6 of stderr should eq "flag FLAG --flag"
+			The line 7 of stderr should eq "param PARAM --param"
+			The line 8 of stderr should eq "option OPTION --option"
+			The line 9 of stderr should eq "msg -- message"
+		End
+	End
+
+	Describe 'custom error handler'
 		parser_definition() {
 			setup RESTARGS error:myerror
 			param PARAM -p
+			param PARAM -q
+			param PARAM --pattern pattern:'foo | bar'
+			param VALID -v validate:'valid "$1"'
 			param ARG --arg validate:arg
+			flag  FLAG --flag
 		}
+		valid() { [ "$1" = "-v" ] && return 3; }
 		arg() { false; }
 		myerror() {
 			case $2 in
-				unknown) echo custom "$@" ;;
-				arg) echo "invalid argument: $OPTARG" ;;
-				*) return 1 ;;
+				unknown) echo "custom $2: $3"; return 20 ;;
+				valid:3) echo "valid $2: $3"; return 30 ;;
+				pattern:'foo | bar') echo "pattern $2: $3"; return 40 ;;
+				arg:*) echo "invalid argument: $OPTARG"; return 1 ;;
+				noarg) echo "noarg: $OPTARG"; return 1 ;;
 			esac
+			[ "$3" = "-q" ] && echo "$1" && return 1
+			return 0
 		}
 
 		It "display custom error message"
 			When run parse -x
-			The stderr should eq "custom -x unknown"
-			The status should be failure
+			The stderr should eq "custom unknown: -x"
+			The status should eq 20
 		End
 
-		It "display default error message when custom error hander fails"
+		It "display default error message when custom error handler succeeded"
 			When run parse -p
-			The stderr should eq "option '-p' requires an argument"
-			The status should be failure
+			The stderr should eq "Requires an argument: -p"
+			The status should eq 1
+		End
+
+		It "receives default error message"
+			When run parse -q
+			The stderr should eq "Requires an argument: -q"
+			The status should eq 1
+		End
+
+		It "receives exit status of custom validation"
+			When run parse -v value
+			The stderr should eq "valid valid:3: -v"
+			The status should eq 30
+		End
+
+		It "receives pattern"
+			When run parse --pattern baz
+			The stderr should eq "pattern pattern:foo | bar: --pattern"
+			The status should eq 40
+		End
+
+		It "can refer to the OPTARG variable"
+			When run parse --arg argument
+			The stderr should eq "invalid argument: argument"
+			The status should eq 1
+		End
+
+		It "can refer to the OPTARG variable"
+			When run parse --flag=argument
+			The stderr should eq "noarg: argument"
+			The status should eq 1
 		End
 
 		It "can refer to the OPTARG variable"
@@ -147,7 +247,7 @@ Describe "getoptions()"
 		End
 	End
 
-	Describe 'flag'
+	Describe 'flag helper'
 		It "handles flags"
 			parser_definition() {
 				setup ARGS
@@ -179,7 +279,7 @@ Describe "getoptions()"
 		End
 
 		It "set initial value when not specified flag"
-			BeforeCall FLAG_N=none
+			BeforeCall FLAG_N=none FLAG_E=""
 			parser_definition() {
 				setup ARGS
 				flag FLAG_A -a on:ON off:OFF init:@on
@@ -189,6 +289,7 @@ Describe "getoptions()"
 				flag FLAG_Q -q on:"a'b\""
 				flag FLAG_U -u init:@unset
 				flag FLAG_N -n init:@none
+				flag FLAG_E -n init:@export
 			}
 			When call parse -q
 			The variable FLAG_A should eq "ON"
@@ -198,6 +299,7 @@ Describe "getoptions()"
 			The variable FLAG_Q should eq "a'b\""
 			The variable FLAG_U should be undefined
 			The variable FLAG_N should eq "none"
+			The variable FLAG_E should be exported
 		End
 
 		It "can be used combined short flags"
@@ -233,9 +335,9 @@ Describe "getoptions()"
 				setup ARGS
 				flag :'foo "$1"' -f on:ON
 			}
-			foo() { echo "called $OPTARG $1"; }
+			foo() { echo "set [$OPTARG] : ${*:-}"; }
 			When run parse -f
-			The output should eq "called ON -f"
+			The output should eq "set [ON] : -f"
 		End
 
 		It "calls the validator"
@@ -263,7 +365,7 @@ Describe "getoptions()"
 		End
 	End
 
-	Describe 'param'
+	Describe 'param helper'
 		It "handles parameters"
 			parser_definition() {
 				setup ARGS
@@ -291,9 +393,9 @@ Describe "getoptions()"
 				setup ARGS
 				param :'foo "$1"' -p
 			}
-			foo() { echo "called $OPTARG $1"; }
+			foo() { echo "set [$OPTARG] : ${*:-}"; }
 			When run parse -p 123
-			The output should eq "called 123 -p"
+			The output should eq "set [123] : -p"
 		End
 
 		It "calls the validator"
@@ -312,14 +414,14 @@ Describe "getoptions()"
 
 		Context 'when specified pattern attribute'
 			Parameters
-				foo success stdout ""
-				baz failure stderr "option '-p' does not match the pattern (foo | bar)"
+				FOO success stdout ""
+				BAZ failure stderr "Does not match the pattern (FOO | BAR): -p"
 			End
 
 			It "checks if it matches the pattern"
 				parser_definition() {
 					setup ARGS
-					param PARAM -p pattern:'foo | bar'
+					param PARAM -p pattern:'FOO | BAR'
 				}
 				When run parse -p "$1"
 				The status should be "$2"
@@ -328,18 +430,32 @@ Describe "getoptions()"
 		End
 	End
 
-	Describe 'option'
+	Describe 'option helper'
 		It "handles options"
 			parser_definition() {
 				setup ARGS
-				option OPTION_O -o default:"default"
-				option OPTION_P -p
 				option OPTION   --option
+				option OPTION_O -o on:"default"
+				option OPTION_P -p
+				option OPTION_N --no-option off:"omission"
 			}
-			When call parse -o -pvalue1 --option=value2
+			When call parse  --option=value1 -o -pvalue2 --no-option
+			The variable OPTION should eq "value1"
 			The variable OPTION_O should eq "default"
-			The variable OPTION_P should eq "value1"
-			The variable OPTION should eq "value2"
+			The variable OPTION_P should eq "value2"
+			The variable OPTION_N should eq "omission"
+		End
+
+		Context "when specified an argument to --no-option"
+			parser_definition() {
+				setup ARGS
+				option OPTION --no-option
+			}
+			It "displays error"
+				When run parse --no-option=value
+				The stderr should eq "Does not allow an argument: --no-option"
+				The status should be failure
+			End
 		End
 
 		It "remains initial value when not specified parameter"
@@ -356,16 +472,16 @@ Describe "getoptions()"
 				setup ARGS
 				option :'foo "$1"' -o
 			}
-			foo() { echo "called $OPTARG $1"; }
+			foo() { echo "set [$OPTARG] : ${*:-}"; }
 			When run parse -o123
-			The output should eq "called 123 -o"
+			The output should eq "set [123] : -o"
 		End
 
 		It "calls the validator"
 			valid() { echo "$OPTARG" "$@"; }
 			parser_definition() {
 				setup ARGS
-				option OPTION_O -o validate:'valid "$1"' default:"default"
+				option OPTION_O -o validate:'valid "$1"' on:"default"
 				option OPTION_P -p validate:'valid "$1"'
 				option OPTION   --option validate:'valid "$1"'
 			}
@@ -378,7 +494,7 @@ Describe "getoptions()"
 		Context 'when specified pattern attribute'
 			Parameters
 				foo success stdout ""
-				baz failure stderr "option '-o' does not match the pattern (foo | bar)"
+				baz failure stderr "Does not match the pattern (foo | bar): -o"
 			End
 
 			It "checks if it matches the pattern"
@@ -393,7 +509,7 @@ Describe "getoptions()"
 		End
 	End
 
-	Describe 'disp'
+	Describe 'disp helper'
 		BeforeRun VERSION=1.0
 
 		It "displays the variable"
@@ -416,7 +532,7 @@ Describe "getoptions()"
 		End
 	End
 
-	Describe 'msg'
+	Describe 'msg helper'
 		It "does nothing"
 			parser_definition() {
 				setup ARGS
@@ -424,21 +540,6 @@ Describe "getoptions()"
 			}
 			When run parse
 			The output should be blank
-		End
-	End
-
-	Describe 'alternative mode'
-		It "allow long options to start with a single '-'"
-			parser_definition() {
-				setup ARGS alt:true
-				flag FLAG --flag
-				param PARAM --param
-				option OPTION --option
-			}
-			When call parse -flag -param p -option=o
-			The variable FLAG should eq 1
-			The variable PARAM should eq "p"
-			The variable OPTION should eq "o"
 		End
 	End
 End

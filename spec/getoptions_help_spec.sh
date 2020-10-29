@@ -1,7 +1,7 @@
-# shellcheck shell=sh disable=SC2004,SC2016
+# shellcheck shell=sh disable=SC1083,SC2004,SC2016
 
 Describe "getoptions_help()"
-	Include ./getoptions_help.sh
+	Include ./lib/getoptions_help.sh
 
 	usage() {
 		eval "$(getoptions_help parser_definition _usage)"
@@ -20,8 +20,9 @@ Describe "getoptions_help()"
 
 	It "displays usage"
 		parser_definition() {
-			setup width:20 -- 'usage'
+			setup width:20 plus:true -- 'usage'
 			msg -- "header"
+			msg label:option -- "description"
 			flag FLAG_A -a +a --{no-}flag-a -- "flag a"
 			param PARAM_P -p -- "param p"
 			option OPTION_O -o -- "option o"
@@ -30,10 +31,11 @@ Describe "getoptions_help()"
 		When call usage
 		The line 1 should eq "usage"
 		The line 2 should eq "header"
-		The line 3 should eq "  -a, +a, --{no-}flag-a  "
-		The line 4 should eq "                    flag a"
-		The line 5 should eq "  -p PARAM_P        param p"
-		The line 6 should eq "  -o [OPTION_O]     option o"
-		The line 7 should eq "footer"
+		The line 3 should eq "  option            description"
+		The line 4 should eq "  -a, +a, --{no-}flag-a "
+		The line 5 should eq "                    flag a"
+		The line 6 should eq "  -p PARAM_P        param p"
+		The line 7 should eq "  -o[=OPTION_O]     option o"
+		The line 8 should eq "footer"
 	End
 End
