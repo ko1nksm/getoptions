@@ -4,8 +4,8 @@ set -eu
 
 VERSION=0.1
 
-. ./getoptions.sh
-. ./getoptions_help.sh
+. ./lib/getoptions.sh
+. ./lib/getoptions_help.sh
 
 # shellcheck disable=SC1083
 parser_definition() {

@@ -2,8 +2,8 @@
 
 set -eu
 
-. ./getoptions.sh
-. ./getoptions_help.sh
+. ./lib/getoptions.sh
+. ./lib/getoptions_help.sh
 
 PREFIX_VERSION=0.1
 

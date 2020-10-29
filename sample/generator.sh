@@ -5,8 +5,8 @@ set -eu
 # shellcheck disable=SC2034
 VERSION=0.1
 
-. ./getoptions.sh
-. ./getoptions_help.sh
+. ./lib/getoptions.sh
+. ./lib/getoptions_help.sh
 
 parser_definition() {
   setup   REST plus:true help:usage -- "Usage: ${2##*/} [options...] [arguments...]"
