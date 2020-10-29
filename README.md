@@ -6,9 +6,12 @@
 [![GitHub top language](https://img.shields.io/github/languages/top/ko1nksm/getoptions.svg)](https://github.com/ko1nksm/getoptions/search?l=Shell)
 [![License](https://img.shields.io/github/license/ko1nksm/getoptions.svg)](https://github.com/ko1nksm/getoptions/blob/master/LICENSE)
 
-An elegant option parser for shell scripts (sh, bash and all POSIX shells)
+An elegant option parser and generator for shell scripts (sh, bash and all POSIX shells)
 
-It's simple, easy-to-use, fast, portable, POSIX compliant, practical and no more `for/while` loop!
+It's simple, easy-to-use, fast, small, flexible, extensible, portable and POSIX compliant. No more loops needed! No more any templates needed!
+
+- [getoptions.sh](./lib/getoptions.sh) - main module
+- [getoptions_help.sh](./lib/getoptions_help.sh) - help module (add-on)
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -17,15 +20,19 @@ It's simple, easy-to-use, fast, portable, POSIX compliant, practical and no more
   - [with other implementations](#with-other-implementations)
   - [`getopt` vs `getopts` vs `getoptions`](#getopt-vs-getopts-vs-getoptions)
 - [Usage](#usage)
-  - [Basic usage](#basic-usage)
-  - [Advanced usage](#advanced-usage)
+  - [Basic](#basic)
+  - [Advanced](#advanced)
+  - [Extension](#extension)
+  - [Use as option parser generator](#use-as-option-parser-generator)
+  - [NOTE: 2.x breaking changes](#note-2x-breaking-changes)
 - [References](#references)
-  - [Data types and initial values](#data-types-and-initial-values)
   - [Global functions](#global-functions)
     - [`getoptions` - Generate a function for option parsing](#getoptions---generate-a-function-for-option-parsing)
       - [About option parser](#about-option-parser)
-    - [`getoptions_help` - Generate a function to display help (optional)](#getoptions_help---generate-a-function-to-display-help-optional)
+    - [`getoptions_help` - Generate a function to display help (add-on)](#getoptions_help---generate-a-function-to-display-help-add-on)
+      - [Attributes related to the help display](#attributes-related-to-the-help-display)
   - [Helper functions (not globally defined)](#helper-functions-not-globally-defined)
+    - [Data types & Initial values](#data-types--initial-values)
     - [`setup` - Setup global settings (mandatory)](#setup---setup-global-settings-mandatory)
     - [`flag` - Define a option that take no argument](#flag---define-a-option-that-take-no-argument)
     - [`param` - Define a option that take an argument](#param---define-a-option-that-take-an-argument)
@@ -33,6 +40,8 @@ It's simple, easy-to-use, fast, portable, POSIX compliant, practical and no more
     - [`disp` - Define a option that display only](#disp---define-a-option-that-display-only)
     - [`msg` - Display message in help](#msg---display-message-in-help)
   - [Custom error handler](#custom-error-handler)
+  - [Extension (not globally defined)](#extension-not-globally-defined)
+    - [`prehook`, `invoke`](#prehook-invoke)
 - [For developers](#for-developers)
 - [Changelog](#changelog)
 - [License](#license)
@@ -47,19 +56,22 @@ It's simple, easy-to-use, fast, portable, POSIX compliant, practical and no more
 ### with other implementations
 
 - Supports all POSIX shells (`dash`, `bash 2.0+`, `ksh 88+`, `zsh 3.1+`, etc)
-- Implemented as a shell function (~5KB and ~200 lines)
-- To use, just include the script file, no installation required
-- Fast and portable because no external commands are used
-- Only one function is defined globally
-- No global variables are used (except special variable `OPTARG` and `OPTIND`)
-- Support for POSIX and GNU compatible option syntaxes
+- High portability, fast and small (only ~5KB and ~200 lines)
+- It is just a shell function, no external commands and other tools required
+- Only one function is defined globally and no global variables are used
+  - except the special variables `OPTARG` and `OPTIND`
+- Support for [POSIX][POSIX] and [GNU][GNU] compatible option syntax
   - `-a`, `-abc`, `-s`, `+s`, `-s VALUE`, `-sVALUE`, `-vvv`
   - `--flag`, `--no-flag`, `--param VALUE`, `--param=VALUE`, `--option[=VALUE]`
   - Stop option parsing with `--`, Treat `-` as an argument
 - Can be invoked action function instead of storing to variable
 - Support for validation and custom error messages
-- Support for automatic help generation (optional, additional ~1.2KB and ~50 lines required)
+- Support for automatic help generation (add-on)
+  - additional one function, ~1.2KB and ~50 lines required
 - Can be removed a library by using it as a **generator**
+
+[POSIX]: https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap12.html
+[GNU]: https://www.gnu.org/prep/standards/html_node/Command_002dLine-Interfaces.html
 
 ### `getopt` vs `getopts` vs `getoptions`
 
@@ -80,11 +92,11 @@ It's simple, easy-to-use, fast, portable, POSIX compliant, practical and no more
 | Validation by pattern matching    | ❌                | ❌                     | ✔️               |
 | Custom validation                 | ❌                | ❌                     | ✔️               |
 | Custom error message              | ❌                | ✔️                     | ✔️ more flexible |
-| Automatic help generation         | ❌                | ❌                     | ✔️               |
+| Automatic help generation         | ❌                | ❌                     | ✔️ add-on        |
 
 ## Usage
 
-### Basic usage
+### Basic
 
 [basic.sh](./sample/basic.sh)
 
@@ -92,11 +104,11 @@ It's simple, easy-to-use, fast, portable, POSIX compliant, practical and no more
 #!/bin/sh
 VERSION=0.1
 
-. ./getoptions.sh # or paste it into your script
-. ./getoptions_help.sh # if you need automatic help generation
+. ./lib/getoptions.sh # or paste it into your script
+. ./lib/getoptions_help.sh # if you need automatic help generation
 
 parser_definition() {
-  setup   REST plus:true -- "Usage: ${2##*/} [options...] [arguments...]"
+  setup   REST plus:true help:usage -- "Usage: ${2##*/} [options...] [arguments...]"
   msg -- '' 'getoptions sample' ''
   msg -- 'Options:'
   flag    FLAG_A  -a                                        -- "message a"
@@ -105,7 +117,7 @@ parser_definition() {
   flag    VERBOSE -v    --verbose   counter:true init:=0    -- "e.g. -vvv is verbose level 3"
   param   PARAM   -p    --param     pattern:"foo | bar"     -- "accepts --param value / --param=value"
   param   NUMBER  -n    --number    validate:number         -- "accepts only a number value"
-  option  OPTION  -o    --option    default:"default"       -- "accepts -ovalue / --option=value"
+  option  OPTION  -o    --option    on:"default"            -- "accepts -ovalue / --option=value"
   disp    :usage  -h    --help
   disp    VERSION       --version
 }
@@ -114,9 +126,6 @@ number() { case $OPTARG in (*[!0-9]*) return 1; esac; }
 
 # Define the parse function for option parsing
 eval "$(getoptions parser_definition parse "$0")"
-# Define the usage function for displaying help (optional)
-eval "$(getoptions_help parser_definition usage "$0")"
-
 parse "$@"          # Option parsing
 eval "set -- $REST" # Exclude options from arguments
 
@@ -130,38 +139,157 @@ Parses the following options.
 ./sample/basic.sh -ab -f +f --flag --no-flag -vvv -p value -ovalue --option=value 1 2 -- 3 -f
 ```
 
-### Advanced usage
+### Advanced
 
 See [advanced.sh](./sample/advanced.sh)
 
+getoptions was originally developed to improve the maintainability and testability for [ShellSpec][shellspec]
+which has number of options. [ShellSpec usage][shellspec_usage] is another good example of how to use getoptions.
+
+[shellspec]: https://shellspec.info/
+[shellspec_usage]: https://github.com/shellspec/shellspec/tree/master/lib/libexec/optparser.sh
+
+### Extension
+
+Custom helper function definitions and hooks make it possible to write parser
+definitions more simply. For example, if you want to prefix all variables,
+you can use hooks.
+
+See [extension.sh](./sample/extension.sh)
+
+### Use as option parser generator
+
+See [generator.sh](./sample/generator.sh)
+
+<details>
+<summary>Generated code</summary>
+
+```sh
+FLAG=''
+VERBOSE='0'
+PARAM=''
+OPTION=''
+REST=''
+parse() {
+  OPTIND=$(($#+1))
+  while OPTARG= && [ $# -gt 0 ]; do
+    case $1 in
+      --?*=*) OPTARG=$1; shift
+        eval 'set -- "${OPTARG%%\=*}" "${OPTARG#*\=}"' ${1+'"$@"'}
+        ;;
+      --no-*) unset OPTARG ;;
+      -[po]?*) OPTARG=$1; shift
+        eval 'set -- "${OPTARG%"${OPTARG#??}"}" "${OPTARG#??}"' ${1+'"$@"'}
+        ;;
+      -[!-]?*) OPTARG=$1; shift
+        eval 'set -- "${OPTARG%"${OPTARG#??}"}" "-${OPTARG#??}"' ${1+'"$@"'}
+        OPTARG= ;;
+      +??*) OPTARG=$1; shift
+        eval 'set -- "${OPTARG%"${OPTARG#??}"}" "+${OPTARG#??}"' ${1+'"$@"'}
+        unset OPTARG ;;
+      +*) unset OPTARG ;;
+    esac
+    case $1 in
+      -f | +f | --flag | --no-flag)
+        [ "${OPTARG:-}" ] && OPTARG=${OPTARG#*\=} && set -- noarg "$1" && break
+        eval '[ ${OPTARG+x} ] &&:' && OPTARG='1' || OPTARG=''
+        FLAG="$OPTARG"
+        ;;
+      -v | --verbose)
+        [ "${OPTARG:-}" ] && OPTARG=${OPTARG#*\=} && set -- noarg "$1" && break
+        eval '[ ${OPTARG+x} ] &&:' && OPTARG=1 || OPTARG=-1
+        VERBOSE="$((${VERBOSE:-0}+${OPTARG:-0}))"
+        ;;
+      -p | --param)
+        [ $# -le 1 ] && set -- required "$1" && break
+        OPTARG=$2
+        case $OPTARG in foo | bar) ;;
+          *) set -- pattern:'foo | bar' "$1"; break
+        esac
+        PARAM="$OPTARG"
+        shift ;;
+      -o | --option)
+        set -- "$1" "$@"
+        [ ${OPTARG+x} ] && {
+          case $1 in --no-*) set -- noarg "${1%%\=*}"; break; esac
+          [ "${OPTARG:-}" ] && { shift; OPTARG=$2; } || OPTARG='default'
+        } || OPTARG=''
+        OPTION="$OPTARG"
+        shift ;;
+      -h | --help)
+        usage
+        exit 0 ;;
+      --version)
+        echo "${VERSION}"
+        exit 0 ;;
+      --) shift
+        while [ $# -gt 0 ]; do
+          REST="${REST} \"\${$((${OPTIND:-0}-$#))}\""
+          shift
+        done
+        break ;;
+      [-+]?*) set -- unknown "$1" && break ;;
+      *) REST="${REST} \"\${$((${OPTIND:-0}-$#))}\""
+    esac
+    shift
+  done
+  [ $# -eq 0 ] && { OPTIND=1; unset OPTARG; return 0; }
+  case $1 in
+    unknown) set -- "Unrecognized option: $2" "$@" ;;
+    noarg) set -- "Does not allow an argument: $2" "$@" ;;
+    required) set -- "Requires an argument: $2" "$@" ;;
+    pattern:*) set -- "Does not match the pattern (${1#*:}): $2" "$@" ;;
+    *) set -- "Validation error ($1): $2" "$@"
+  esac
+  echo "$1" >&2
+  exit 1
+}
+usage() {
+cat<<'GETOPTIONSHERE'
+Usage: generator.sh [options...] [arguments...]
+
+getoptions sample
+
+Options:
+  -f, +f, --{no-}flag         expands to --flag and --no-flag
+  -v,     --verbose           e.g. -vvv is verbose level 3
+  -p,     --param PARAM       accepts --param value / --param=value
+  -o,     --option[=OPTION]   accepts -ovalue / --option=value
+  -h,     --help
+          --version
+GETOPTIONSHERE
+}
+```
+
+</details>
+
+### NOTE: 2.x breaking changes
+
+- Calling `getoptions_help` is no longer needed (see `help` attribute)
+- Changed the `default` attribute of the `option` helper function to the `on` attribute
+- Improved the custom error handler and changed the arguments
+- Disable expansion variables in the help display
+
 ## References
-
-### Data types and initial values
-
-| name      | description                                                                       |
-| --------- | --------------------------------------------------------------------------------- |
-| SWITCH    | `-?`, `+?`, `--*`, `--{no-}*` (expand to `--flag` and `--no-flag`)                |
-| BOOLEAN   | Boolean (true: not zero-length string, false: zero-length string)                 |
-| STRING    | String                                                                            |
-| NUMBER    | Number                                                                            |
-| STATEMENT | Function name (arguments can be added) - e.g. `foo`, `foo 1 2 3`                  |
-| CODE      | Shell script code - e.g `foo; bar`                                                |
-| KEY-VALUE | `key:value` style arguments - If `:value` is omitted, it is the same as `key:key` |
-| `@on`     | Positive value [default: `1`]                                                     |
-| `@off`    | Negative value [default: empty]                                                   |
-| `@unset`  | Unset variable                                                                    |
-| `@none`   | As is (do not initialize)                                                         |
 
 ### Global functions
 
 #### `getoptions` - Generate a function for option parsing
 
-`getoptions <parser_definition> <parser_name> [extra]...`
+`getoptions <parser_definition> <parser_name> [arguments]...`
 
-- Parameters
-  - `parser_definition` - Option parser definition
-  - `parser_name` - Functin name for option parser
-  - `extra` - Passed to the parser definition function
+- parser_definition - Option parser definition
+- parser_name - Functin name for option parser
+- arguments - Passed to the parser definition function
+
+```sh
+# Use as generator: Generate a option parser code (`parse` shell function)
+getoptions parser_definition parse
+
+# Use as parser: Define `parse` function
+eval "$(getoptions parser_definition parse)"
+parse "$@" # Option parsing
+```
 
 ##### About option parser
 
@@ -170,17 +298,47 @@ for a different purpose than `getopts`. When the option parsing is
 successfully completed, `OPTIND` is reset to 1 and `OPTARG` is unset.
 When option parsing fails, `OPTARG` is set to the value of the failed option.
 
-If you want to use as **option parser generator**, call it without `eval`.
-You can also only use the generated code without including `getoptions.sh`.
+If you want to use `getoptions` as **option parser generator**, call it without `eval`.
+There is no need to include `getoptions.sh` if you use the generated code.
 
-#### `getoptions_help` - Generate a function to display help (optional)
+#### `getoptions_help` - Generate a function to display help (add-on)
 
-`getoptions_help <parser_definition> <parser_name> [extra]...`
+`getoptions_help <parser_definition> <parser_name> [arguments]...`
 
-- Parameters
-  - `parser_definition` - Option parser definition
-  - `parser_name` - Functin name for display help
-  - `extra` - Passed to the parser definition function
+- parser_definition - Option parser definition
+- parser_name - Functin name for option parser
+- arguments - Passed to the parser definition function
+
+```sh
+# Use as generator: Generate a help code (`usage` shell function)
+getoptions_help parser_definition usage
+
+# Display help: Define `usage` function
+eval "$(getoptions_help parser_definition usage)"
+usage # Display help
+```
+
+This function is called automatically by `getoptions` with the `help` attribute,
+but can also be called manually.
+
+##### Attributes related to the help display
+
+```text
+
++--------------------------- message ---------------------------+
+:                                                               :
++--------- label ---------+                                     :
+:   width [default: 30]   :                                     :
+:                         :                                     :
+  -f, +f, --flag           message for --flag
+  -l, +l, --long-long-option-name
+                           message for --long-long-option-name
+  -o, +o, --option VAR     message for --option
+|     |            |
+|     |            +-- var
+|     +-- plus (visible if specified)
++-- leading [default: "  " (two spaces)]
+```
 
 NOTE: If you don't like the output, feel free to change it.
 
@@ -189,110 +347,201 @@ NOTE: If you don't like the output, feel free to change it.
 Helper functions are not defined globally.
 They are available only in the `getoptions` and `getoptions_help` functions.
 
+#### Data types & Initial values
+
+| name       | description                                                                       |
+| ---------- | --------------------------------------------------------------------------------- |
+| SWITCH     | `-?`, `+?`, `--*`, `--{no-}*` (expand to `--flag` and `--no-flag`)                |
+| BOOLEAN    | Boolean (true: not zero-length string, false: **zero-length string**)             |
+| STRING     | String                                                                            |
+| NUMBER     | Number                                                                            |
+| STATEMENT  | Function name (arguments can be added) - e.g. `foo`, `foo 1 2 3`                  |
+| CODE       | Statement or multiple statements - e.g `foo; bar`                                 |
+| KEY-VALUE  | `key:value` style arguments - If `:value` is omitted, it is the same as `key:key` |
+| INIT-VALUE | Initial value (`@on`, `@off`, `@unset`, `@none`, `@export`)                       |
+
+| name      | description                                                                  |
+| --------- | ---------------------------------------------------------------------------- |
+| `@on`     | Set the variable to a positive value. [default: `1`]                         |
+| `@off`    | Set the variable to a negative value. [default: empty]                       |
+| `@unset`  | Unset the variable                                                           |
+| `@none`   | Do not initialization (Use the current value as it is)                       |
+| `@export` | Add only export flag without initialization (Use the current value as it is) |
+
 #### `setup` - Setup global settings (mandatory)
 
-`setup <restargs> [Options]... [-- [Messages]...]`
+`setup <restargs> [settings]... [default attributes]... [-- [messages]...]`
 
-- Parameters
-  - `restargs` - The variable name for getting rest arguments
-- Options (`KEY-VALUE`)
-  - `equal:BOOLEAN` - Support `--long=VALUE` style [default: `1`]
-  - `error:STATEMENT` - Custom error handler
-  - `export:BOOLEAN` - Export variables [default: empty]
-  - `hidden:BOOLEAN` - Do not display in help [default: empty]
-  - `mode:STRING` - Scanning modes (only `+` supported) [default: empty]
-  - `off:STRING` - The default negative value for the flag [default: empty]
-  - `on:STRING` - The default positive value for the flag [default: `1`]
-  - `plus:BOOLEAN` - Those start with `+` are treated as options [default: auto]
-  - `width:NUMBER` - Width of optional part of help [default: 30]
-- `[Messages]` - Help messages (only used by `getoptions_help`)
+- resrargs (VARIABLE)
+  - The variable name for getting rest arguments
+  - Specify an empty string when only setting
+- settings (KEY-VALUE)
+  - `alt`:BOOLEAN - allow long options starting with single `-` (alternative)
+    - Unlike `getopt`, the syntax `-abc` and `-sVALUE` cannot be used when enabled.
+  - `error`:STATEMENT - Custom error handler
+  - `help`:STATEMENT - Define help function (requires `getoptions_help`)
+  - `leading`:STRING - Leading characters in the option part of the help [default: "  " (two spaces)]
+  - `mode`:STRING - Scanning modes (see `man getopt`) [default: empty]
+    - Unlike `getopt`, only `+` supported
+  - `plus`:BOOLEAN - Those start with `+` are treated as options [default: auto]
+  - `width`:NUMBER - The width of the option part of the help [default: 30]
+- default attributes (KEY-VALUE)
+  - `export`:BOOLEAN - Export variables [default: empty]
+  - `hidden`:BOOLEAN - Do not display in help [default: empty]
+  - `init`:[@INIT-VALUE | =STRING | CODE] - Initial value
+  - `off`:STRING - The negative value [default: empty]
+  - `on`:STRING - The positive value [default: `1`]
+- message (STRING)
+  - Help messages
 
 #### `flag` - Define a option that take no argument
 
-`flag <VARIABLE | :STATEMENT> [SWITCH]... [Options]... [-- [Messages]...]`
+`flag <varname | :action> [switches]... [attributes]... [-- [messages]...]`
 
-- Parameters
-  - `<VARIABLE | :STATEMENT>` - Variable or Action function
-  - `[SWITCH]` - Options
-- Options (`KEY-VALUE`)
-  - `alt:BOOLEAN` - allow long options starting with single
-    - Unlike `getopt`, the syntaxes `-abc` and `-s123` cannot be used when enabled.
-  - `counter:BOOLEAN` - Counts the number of flags
-  - `export:BOOLEAN` - Export variables
-  - `hidden:BOOLEAN` - Do not display in help
-  - `init:[@on | @off | @unset | @none | =STRING | CODE]` - Initial value or Initializer
-  - `off:STRING` - The negative value
-  - `on:STRING` - The positive value
-  - `validate:STATEMENT` - Code for value validation
-- `[Messages]` - Help messages (only used by `getoptions_help`)
+- varname (VARIABLE) or action (STATEMENT)
+  - Variable name or Action function
+- switches (SWITCH)
+  - Options
+- attributes (KEY-VALUE)
+  - `counter`:BOOLEAN - Counts the number of flags
+  - `export`:BOOLEAN - Export variables
+  - `hidden`:BOOLEAN - Do not display in help
+  - `init`:[@INIT-VALUE | =STRING | CODE] - Initial value
+  - `label`:STRING - The option part of the help
+  - `off`:STRING - The negative value
+  - `on`:STRING - The positive value
+  - `pattern`:PATTERN - Pattern to accept
+  - `validate`:STATEMENT - Code for value validation
+- message (STRING)
+  - Help messages
 
 #### `param` - Define a option that take an argument
 
-`param <VARIABLE | :STATEMENT> [SWITCH]... [Options]... [-- [Messages]...]`
+`param <varname | :action> [switches]... [attributes]... [-- [messages]...]`
 
-- Parameters
-  - `<VARIABLE | :STATEMENT>` - Variable or Action function
-  - `[SWITCH]` - Options
-- Options (`KEY-VALUE`)
-  - `export:BOOLEAN` - Export variables
-  - `hidden:BOOLEAN` - Do not display in help
-  - `init:[@unset | @none | =STRING | CODE]` - Initial value or Initializer
-  - `validate:STATEMENT` - Code for value validation
-  - `pattern:PATTERN` - Pattern to accept
-  - `var` - Variable name displayed in help
-- `[Messages]` - Help messages (only used by `getoptions_help`)
+- varname (VARIABLE) or action (STATEMENT)
+  - Variable name or Action function
+- switches (SWITCH)
+  - Options
+- attributes (KEY-VALUE)
+  - `export`:BOOLEAN - Export variables
+  - `hidden`:BOOLEAN - Do not display in help
+  - `init`:[@INIT-VALUE | =STRING | CODE] - Initial value
+  - `label`:STRING - Option part of help message
+  - `pattern`:PATTERN - Pattern to accept
+  - `validate`:STATEMENT - Code for value validation
+  - `var`:STRING - Variable name displayed in help
+- message (STRING)
+  - Help messages
 
 #### `option` - Define a option that take an optional argument
 
-`option <VARIABLE | :STATEMENT> [SWITCH]... [Options]... [-- [Messages]...]`
+`option <varname | :action> [switches]... [attributes]... [-- [messages]...]`
 
-- Parameters
-  - `<VARIABLE | :STATEMENT>` - Variable or Action function
-  - `[SWITCH]` - Options
-- Options (`KEY-VALUE`)
-  - `default:STRING` - Value when option argument is omitted
-  - `export:BOOLEAN` - Export variables
-  - `hidden:BOOLEAN` - Do not display in help
-  - `init:[@unset | @none | =STRING | CODE]` - Initial value or Initializer
-  - `validate:STATEMENT` - Code for value validation
-  - `pattern:PATTERN` - Pattern to accept
-  - `var` - Variable name displayed in help
-- `[Messages]` - Help messages (only used by `getoptions_help`)
+- varname (VARIABLE) or action (STATEMENT)
+  - Variable name or Action function
+- switches (SWITCH)
+  - Options
+- attributes (KEY-VALUE)
+  - `export`:BOOLEAN - Export variables
+  - `hidden`:BOOLEAN - Do not display in help
+  - `init`:[@INIT-VALUE | =STRING | CODE] - Initial value
+  - `label`:STRING - Option part of help message
+  - `off`:STRING - The negative value
+  - `on`:STRING - The positive value
+  - `pattern`:PATTERN - Pattern to accept
+  - `validate`:STATEMENT - Code for value validation
+  - `var`:STRING - Variable name displayed in help
+- message (STRING)
+  - Help messages
 
 #### `disp` - Define a option that display only
 
-`disp <VARIABLE | :STATEMENT> [SWITCH]... [Options]... [-- [Messages]...]`
+`disp <varname | :action> [switches]... [attributes]... [-- [messages]...]`
 
-- Parameters
-  - `<VARIABLE | :STATEMENT>` - Variable or Action function
-  - `[SWITCH]` - Options
-- Options (`KEY-VALUE`)
-  - `hidden:BOOLEAN` - Do not display in help
-- `Messages` - Help messages (only used by `getoptions_help`)
+- varname (VARIABLE) or action (STATEMENT)
+  - Variable name or Action function
+- switches (SWITCH)
+  - Options
+- attributes (KEY-VALUE)
+  - `hidden`:BOOLEAN - Do not display in help
+  - `label`:STRING - Option part of help message
+- message (STRING)
+  - Help messages
 
 #### `msg` - Display message in help
 
-`msg [Options]... [-- [Messages]...]`
+`msg [attributes]... [-- [messages]...]`
 
-- Options (`KEY-VALUE`)
-  - `hidden:BOOLEAN` - Do not display in help
-- `[Messages]` - Help messages (only used by `getoptions_help`)
+- attributes (KEY-VALUE)
+  - `hidden`:BOOLEAN - Do not display in help
+  - `label`:STRING - Option part of help message
+- message (STRING)
+  - Help messages
 
 ### Custom error handler
 
 Example
 
 ```sh
-# $1: Option
-# $2: Validation name (unknown, noarg, required, pattern or validator name)
-# $3-: Validation arguments
+# Validators
+number() { case $OPTARG in (*[!0-9]*) return 1; esac; }
+range() {
+  number || return 1
+  [ "$1" -le "$OPTARG" ] && [ "$OPTARG" -le "$2" ] && return 0
+  return 2
+}
+
+# Custom error handler
+#   $1: Default error message
+#   $2: Error name
+#     - `unknown` (Unrecognized option)
+#     - `noarg` (Does not allow an argument)
+#     - `required` (Requires an argument)
+#     - `pattern:<PATTERN>` (Does not match the pattern)
+#     - `validator_name:<STATUS>` (Validation error)
+#   $3: Option
+#   $4-: Validator name and arguments
+#   return: exit status
 error() {
   case $2 in
-    unknown) echo "unrecognized option '$1'" ;;
-    number) echo "option '$1' is not a number" ;;
-    range) echo "option '$1' is not a number or out of range ($3 - $4)" ;;
-    *) return 1 ;; # Display default error
+    unknown) echo "Unrecognized option: $3" ;;
+    number:*) echo "Not a number: $3" ;;
+    range:1) echo "Not a number: $3" ;;
+    range:2) echo "Out of range ($4 - $5): $3"; return 2 ;;
+    *) return 0 ;; # Display default error
   esac
+  return 1
+}
+```
+
+### Extension (not globally defined)
+
+#### `prehook`, `invoke`
+
+If you define a `prehook` function in the parser definition,
+the `prehook` function will be called before helper functions is called.
+Use `invoke` to call the original function from within a `prehook` function.
+
+NOTE: The `prehook` function is not called in the help.
+
+```sh
+extension() {
+  # The prehook is called before helper functions is called.
+  prehook() {
+    helper=$1 varname_or_action=$2
+    shift 2
+
+    # Do something
+
+    invoke "$helper" "$varname_or_action" "$@"
+  }
+}
+
+parser_definition() {
+  extension
+  setup   REST
+  flag    FLAG -f  --flag
 }
 ```
 
@@ -316,9 +565,29 @@ shellspec --shell bash
 - 1.0.0 - 2020-08-20
   - First release version
 - 1.1.0 - 2020-10-21
-  - Unset `OPTARG` when the option parser ends normally (#3 Cem Keylan)
-  - Reset `OPTIND` to 1 when the option parser ends normally
-  - Added `@none` as initial value
+  - Unset `OPTARG` when the option parser ends normally. (#3 Cem Keylan)
+  - Reset `OPTIND` to 1 when the option parser ends normally.
+  - Added `@none` as initial value.
+- 2.0.0 - 2020-10-29
+  - Improved the custom error handler. [**breaking change**]
+    - The default error message is passed as the first argument, and changed the order of the arguments.
+    - Adds `:<PATTERN>` to the validator name "pattern" for flexible customization of error message.
+    - Adds `:<STATUS>` to the custom validator name for flexible customization of error message.
+    - Changed the return value of custom error handler to be used as the exit status.
+  - Invoke validator before pattern matching. [**breaking change**]
+  - Added extension features (`prehook` and `invoke`).
+  - `setup` helper function.
+    - Added `help` and `leading` attributes.
+      - **Calling `getoptions_help` is no longer needed.** [**breaking change**]
+    - Remove `equal` attribute.
+  - `option` helper function.
+    - Changed the `default` attribute to the `on` attribute. [**breaking change**]
+    - Added support `--no-option` syntax and the `off` attribute.
+  - `flag`, `param`, `option`, `disp` and `msg` helper function.
+    - Added `label` attribute.
+  - `setup`, `flag`, `param` and `option` helper function.
+    - Added `@export` as initial value.
+  - Disable expansion variables in the help display. [**breaking change**]
 
 ## License
 
