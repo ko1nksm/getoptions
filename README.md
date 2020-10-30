@@ -588,6 +588,8 @@ shellspec --shell bash
   - `setup`, `flag`, `param` and `option` helper function.
     - Added `@export` as initial value.
   - Disable expansion variables in the help display. [**breaking change**]
+- 2.0.1 - 2020-10-30
+  - Add workaround for ksh88 (fixed only the test).
 
 ## License
 
