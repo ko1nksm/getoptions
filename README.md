@@ -508,7 +508,7 @@ error() {
     unknown) echo "Unrecognized option: $3" ;;
     number:*) echo "Not a number: $3" ;;
     range:1) echo "Not a number: $3" ;;
-    range:2) echo "Out of range ($4 - $5): $3"; return 2 ;;
+    range:2) echo "Out of range ($5 - $6): $3"; return 2 ;;
     *) return 0 ;; # Display default error
   esac
   return 1
