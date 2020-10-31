@@ -1,10 +1,12 @@
-SHELL=bash
+libs = lib/getoptions.sh lib/getoptions_help.sh
+specfiles = spec/getoptions_spec.sh spec/getoptions_help_spec.sh
+samples = sample/basic.sh sample/advanced.sh sample/extension.sh
 
 test:
 	shellspec
 
 check:
-	shellcheck getoptions.sh getoptions_help.sh spec/getoptions_spec.sh spec/getoptions_help_spec.sh sample/basic.sh sample/advanced.sh sample/extension.sh
+	shellcheck $(libs) $(specfiles) $(samples)
 
 testall:
 	shellspec -s sh
