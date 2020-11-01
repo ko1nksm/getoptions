@@ -10,7 +10,8 @@ An elegant option parser and generator for shell scripts (sh, bash and all POSIX
 
 It's simple, easy-to-use, fast, small, flexible, extensible, portable and POSIX compliant. No more loops needed! No more any templates needed!
 
-- [getoptions.sh](./lib/getoptions.sh) - main module
+- [getoptions.sh](./lib/getoptions.sh) - base module
+- [getoptions_abbr.sh](./lib/getoptions_abbr.sh) - abbreviation module (add-on)
 - [getoptions_help.sh](./lib/getoptions_help.sh) - help module (add-on)
 
 ## Table of Contents <!-- omit in toc -->
@@ -29,6 +30,7 @@ It's simple, easy-to-use, fast, small, flexible, extensible, portable and POSIX 
   - [Global functions](#global-functions)
     - [`getoptions` - Generate a function for option parsing](#getoptions---generate-a-function-for-option-parsing)
       - [About option parser](#about-option-parser)
+    - [`getoptions_abbr` - Handle abbreviated long options (add-on)](#getoptions_abbr---handle-abbreviated-long-options-add-on)
     - [`getoptions_help` - Generate a function to display help (add-on)](#getoptions_help---generate-a-function-to-display-help-add-on)
       - [Attributes related to the help display](#attributes-related-to-the-help-display)
   - [Helper functions (not globally defined)](#helper-functions-not-globally-defined)
@@ -61,11 +63,13 @@ It's simple, easy-to-use, fast, small, flexible, extensible, portable and POSIX 
 - Only one function is defined globally and no global variables are used
   - except the special variables `OPTARG` and `OPTIND`
 - Support for [POSIX][POSIX] and [GNU][GNU] compatible option syntax
-  - `-a`, `-abc`, `-s`, `+s`, `-s VALUE`, `-sVALUE`, `-vvv`
-  - `--flag`, `--no-flag`, `--param VALUE`, `--param=VALUE`, `--option[=VALUE]`
+  - `-a`, `-abc`, `-s`, `+s`, `-vvv`, `-s VALUE`, `-sVALUE`
+  - `--flag`, `--no-flag`, `--param VALUE`, `--param=VALUE`, `--option[=VALUE]`, `--no-option`
   - Stop option parsing with `--`, Treat `-` as an argument
 - Can be invoked action function instead of storing to variable
 - Support for validation and custom error messages
+- Support for abbreviation option (add-on)
+  - additional one function, ~1.4KB and ~60 lines required
 - Support for automatic help generation (add-on)
   - additional one function, ~1.2KB and ~50 lines required
 - Can be removed a library by using it as a **generator**
@@ -84,7 +88,7 @@ It's simple, easy-to-use, fast, small, flexible, extensible, portable and POSIX 
 | Combining short options           | ✔️                | ✔️                     | ✔️               |
 | Long option beginning with `--`   | ⚠ GNU only       | ❌                     | ✔️               |
 | Long option beginning with `-`    | ⚠ GNU only       | ❌                     | ✔️ limited       |
-| Abbreviating long options         | ⚠ GNU only       | ❌                     | ❌               |
+| Abbreviating long options         | ⚠ GNU only       | ❌                     | ✔️ add-on        |
 | Optional argument                 | ⚠ GNU only       | ❌                     | ✔️               |
 | Option after arguments            | ⚠ GNU only       | ❌                     | ✔️               |
 | Stop option parsing with `--`     | ⚠ GNU only       | ❌                     | ✔️               |
@@ -173,17 +177,60 @@ REST=''
 parse() {
   OPTIND=$(($#+1))
   while OPTARG= && [ $# -gt 0 ]; do
+    set -- "${1%%\=*}" "${1#*\=}" "$@"
+    case $1 in -[!-]?*) set -- "-$@"; esac
+    while [ ${#1} -gt 2 ]; do
+      case $1 in (*[!a-zA-Z0-9_-]*) break; esac
+      case --flag in
+        $1) OPTARG=; break ;;
+        $1*) OPTARG="$OPTARG${OPTARG:+ }--flag"
+      esac
+      case --no-flag in
+        $1) OPTARG=; break ;;
+        $1*) OPTARG="$OPTARG${OPTARG:+ }--no-flag"
+      esac
+      case --verbose in
+        $1) OPTARG=; break ;;
+        $1*) OPTARG="$OPTARG${OPTARG:+ }--verbose"
+      esac
+      case --param in
+        $1) OPTARG=; break ;;
+        $1*) OPTARG="$OPTARG${OPTARG:+ }--param"
+      esac
+      case --option in
+        $1) OPTARG=; break ;;
+        $1*) OPTARG="$OPTARG${OPTARG:+ }--option"
+      esac
+      case --help in
+        $1) OPTARG=; break ;;
+        $1*) OPTARG="$OPTARG${OPTARG:+ }--help"
+      esac
+      case --version in
+        $1) OPTARG=; break ;;
+        $1*) OPTARG="$OPTARG${OPTARG:+ }--version"
+      esac
+      break
+    done
+    case $OPTARG in
+      *\ *)
+        eval "set -- $OPTARG $1 $OPTARG"
+        OPTIND=$((($#+1)/2)) OPTARG=$1; shift
+        while [ $# -gt "$OPTIND" ]; do OPTARG="$OPTARG, $1"; shift; done
+        set "Ambiguous option: $1 (could be $OPTARG)" ambiguous "$@"
+        error "$@" >&2 || exit $?
+        echo "$1" >&2
+        exit 1 ;;
+      ?*)
+        [ "$2" = "$3" ] || OPTARG="$OPTARG=$2"
+        shift 3; eval 'set -- "$OPTARG"' ${1+'"$@"'}; OPTARG= ;;
+      *) shift 2
+    esac
+    case $1 in -[!-]?*) set -- "-$@"; esac
     case $1 in
       --?*=*) OPTARG=$1; shift
         eval 'set -- "${OPTARG%%\=*}" "${OPTARG#*\=}"' ${1+'"$@"'}
         ;;
       --no-*) unset OPTARG ;;
-      -[po]?*) OPTARG=$1; shift
-        eval 'set -- "${OPTARG%"${OPTARG#??}"}" "${OPTARG#??}"' ${1+'"$@"'}
-        ;;
-      -[!-]?*) OPTARG=$1; shift
-        eval 'set -- "${OPTARG%"${OPTARG#??}"}" "-${OPTARG#??}"' ${1+'"$@"'}
-        OPTARG= ;;
       +??*) OPTARG=$1; shift
         eval 'set -- "${OPTARG%"${OPTARG#??}"}" "+${OPTARG#??}"' ${1+'"$@"'}
         unset OPTARG ;;
@@ -191,27 +238,27 @@ parse() {
     esac
     case $1 in
       -f | +f | --flag | --no-flag)
-        [ "${OPTARG:-}" ] && OPTARG=${OPTARG#*\=} && set -- noarg "$1" && break
+        [ "${OPTARG:-}" ] && OPTARG=${OPTARG#*\=} && set "noarg" "$1" && break
         eval '[ ${OPTARG+x} ] &&:' && OPTARG='1' || OPTARG=''
         FLAG="$OPTARG"
         ;;
       -v | --verbose)
-        [ "${OPTARG:-}" ] && OPTARG=${OPTARG#*\=} && set -- noarg "$1" && break
+        [ "${OPTARG:-}" ] && OPTARG=${OPTARG#*\=} && set "noarg" "$1" && break
         eval '[ ${OPTARG+x} ] &&:' && OPTARG=1 || OPTARG=-1
         VERBOSE="$((${VERBOSE:-0}+${OPTARG:-0}))"
         ;;
       -p | --param)
-        [ $# -le 1 ] && set -- required "$1" && break
+        [ $# -le 1 ] && set "required" "$1" && break
         OPTARG=$2
         case $OPTARG in foo | bar) ;;
-          *) set -- pattern:'foo | bar' "$1"; break
+          *) set "pattern:foo | bar" "$1"; break
         esac
         PARAM="$OPTARG"
         shift ;;
       -o | --option)
         set -- "$1" "$@"
         [ ${OPTARG+x} ] && {
-          case $1 in --no-*) set -- noarg "${1%%\=*}"; break; esac
+          case $1 in --no-*) set "noarg" "${1%%\=*}"; break; esac
           [ "${OPTARG:-}" ] && { shift; OPTARG=$2; } || OPTARG='default'
         } || OPTARG=''
         OPTION="$OPTARG"
@@ -228,19 +275,20 @@ parse() {
           shift
         done
         break ;;
-      [-+]?*) set -- unknown "$1" && break ;;
+      [-+]?*) set "unknown" "$1" && break ;;
       *) REST="${REST} \"\${$((${OPTIND:-0}-$#))}\""
     esac
     shift
   done
   [ $# -eq 0 ] && { OPTIND=1; unset OPTARG; return 0; }
   case $1 in
-    unknown) set -- "Unrecognized option: $2" "$@" ;;
-    noarg) set -- "Does not allow an argument: $2" "$@" ;;
-    required) set -- "Requires an argument: $2" "$@" ;;
-    pattern:*) set -- "Does not match the pattern (${1#*:}): $2" "$@" ;;
-    *) set -- "Validation error ($1): $2" "$@"
+    unknown) set "Unrecognized option: $2" "$@" ;;
+    noarg) set "Does not allow an argument: $2" "$@" ;;
+    required) set "Requires an argument: $2" "$@" ;;
+    pattern:*) set "Does not match the pattern (${1#*:}): $2" "$@" ;;
+    *) set "Validation error ($1): $2" "$@"
   esac
+  error "$@" >&2 || exit $?
   echo "$1" >&2
   exit 1
 }
@@ -300,6 +348,11 @@ When option parsing fails, `OPTARG` is set to the value of the failed option.
 
 If you want to use `getoptions` as **option parser generator**, call it without `eval`.
 There is no need to include `getoptions.sh` if you use the generated code.
+
+#### `getoptions_abbr` - Handle abbreviated long options (add-on)
+
+This function is called automatically by `getoptions` with the `abbr` attribute,
+Do not call it manually.
 
 #### `getoptions_help` - Generate a function to display help (add-on)
 
@@ -376,8 +429,9 @@ They are available only in the `getoptions` and `getoptions_help` functions.
   - The variable name for getting rest arguments
   - Specify an empty string when only setting
 - settings (KEY-VALUE)
+  - `abbr`:BOOLEAN - Handle abbreviated long options (requires `getoptions_abbr`)
   - `alt`:BOOLEAN - allow long options starting with single `-` (alternative)
-    - Unlike `getopt`, the syntax `-abc` and `-sVALUE` cannot be used when enabled.
+    - Unlike `getopt`, the syntax `-abc` and `-sVALUE` cannot be used when enabled
   - `error`:STATEMENT - Custom error handler
   - `help`:STATEMENT - Define help function (requires `getoptions_help`)
   - `leading`:STRING - Leading characters in the option part of the help [default: "  " (two spaces)]
@@ -500,8 +554,10 @@ range() {
 #     - `required` (Requires an argument)
 #     - `pattern:<PATTERN>` (Does not match the pattern)
 #     - `validator_name:<STATUS>` (Validation error)
+#     - `ambiguous` (Ambiguous option)
 #   $3: Option
-#   $4-: Validator name and arguments
+#   $4-: Validator name and arguments (if $2 is validator_name)
+#   $4-: Candidate options (if $2 is ambiguous)
 #   return: exit status
 error() {
   case $2 in
@@ -514,6 +570,10 @@ error() {
   return 1
 }
 ```
+
+The value of the option that caused the error is stored in the `OPTARG` variable.
+If the cause of the error is `ambiguous`, the `OPTARG` is stored candidate
+options splited by `, `.
 
 ### Extension (not globally defined)
 
@@ -590,6 +650,8 @@ shellspec --shell bash
   - Disable expansion variables in the help display. [**breaking change**]
 - 2.0.1 - 2020-10-30
   - Add workaround for ksh88 (fixed only the test).
+- 2.1.0 - 2020-11-??
+  - Support for abbreviating long options.
 
 ## License
 

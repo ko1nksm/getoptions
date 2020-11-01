@@ -4,6 +4,7 @@ set -eu
 
 . ./lib/getoptions.sh
 . ./lib/getoptions_help.sh
+. ./lib/getoptions_abbr.sh
 
 VERSION=0.1
 BLOOD_TYPES='A | B | O | AB'
@@ -13,7 +14,7 @@ BLOOD_TYPES='A | B | O | AB'
 # shellcheck disable=SC1083,SC2016,SC2145
 parser_definition() {
 	array() { param ":push $@"; } # custom helper function
-	setup   REST error:error on:1 off: export:true plus:true width:35 help:usage \
+	setup   REST error:error on:1 off: export:true plus:true width:35 help:usage abbr:true \
 		-- "Usage: ${2##*/} [options...] [arguments...]" '' 'getoptions sample' ''
 	msg     label:"OPTION" -- "DESCRIPTION"
 	flag    FLAG_A    -a --flag-a on:1 off: init:= export:

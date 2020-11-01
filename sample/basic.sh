@@ -6,10 +6,11 @@ VERSION=0.1
 
 . ./lib/getoptions.sh
 . ./lib/getoptions_help.sh
+. ./lib/getoptions_abbr.sh
 
 # shellcheck disable=SC1083
 parser_definition() {
-	setup   REST plus:true help:usage -- "Usage: ${2##*/} [options...] [arguments...]"
+	setup   REST plus:true help:usage abbr:true -- "Usage: ${2##*/} [options...] [arguments...]"
 	msg -- '' 'getoptions sample' ''
 	msg -- 'Options:'
 	flag    FLAG_A  -a                                        -- "message a"
