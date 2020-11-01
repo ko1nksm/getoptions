@@ -13,7 +13,7 @@ jobs:
         sudo apt-get install -y bash busybox ksh mksh posh yash zsh kcov
     - name: Install shellspec
       run: |
-        echo "::add-path::${HOME}/.local/bin"
+        echo "${HOME}/.local/bin" >> "$GITHUB_PATH"
         curl -fsSL https://git.io/shellspec | sh -s master -y
         echo "--color" > $HOME/.shellspec
     - name: Run tests
