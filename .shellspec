@@ -1,5 +1,5 @@
 --require spec_helper
---kcov-options "--include-pattern=getoptions.sh,getoptions_help.sh"
+--kcov-options "--include-pattern=lib/"
 
 ## Default kcov (coverage) options
 # --kcov-options "--include-path=. --path-strip-level=1"

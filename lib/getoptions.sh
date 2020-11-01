@@ -4,7 +4,7 @@
 # shellcheck disable=SC2016
 getoptions() {
 	_error='' _on=1 _off='' _export='' _plus='' _mode='' _alt='' _rest=''
-	_opts='' _help='' _indent='' _init=@empty IFS=' '
+	_opts='' _help='' _abbr='' _indent='' _init=@empty IFS=' '
 
 	for i in 0 1 2 3 4 5; do
 		eval "_$i() { echo \"$_indent\$@\"; }"
@@ -63,6 +63,11 @@ getoptions() {
 
 	"$@"
 	_0 "${_rest:?}=''"
+
+	_0 "$2() {"
+	_1 'OPTIND=$(($#+1))'
+	_1 'while OPTARG= && [ $# -gt 0 ]; do'
+	[ "$_abbr" ] && getoptions_abbr "$@"
 
 	args() {
 		sw='' validate='' pattern='' counter='' on=$_on off=$_off export=$_export
@@ -123,9 +128,6 @@ getoptions() {
 	}
 	_msg() { :; }
 
-	_0 "$2() {"
-	_1 'OPTIND=$(($#+1))'
-	_1 'while OPTARG= && [ $# -gt 0 ]; do'
 	[ "$_alt" ] && _2 'case $1 in -[!-]?*) set -- "-$@"; esac'
 	_2 'case $1 in'
 	wa() { _4 "eval '${1% *}' \${1+'\"\$@\"'}"; }
