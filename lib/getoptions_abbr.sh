@@ -10,7 +10,7 @@ getoptions_abbr() {
 		_3 'esac'
 	}
 	args() {
-		hidden=''
+		abbr=1
 		shift
 		for i; do
 			case $i in
@@ -18,7 +18,7 @@ getoptions_abbr() {
 				[!-+]*) eval "${i%%:*}=\${i#*:}"
 			esac
 		done
-		[ "$hidden" ] && return 0
+		[ "$abbr" ] || return 0
 
 		for i; do
 			case $i in

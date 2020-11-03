@@ -457,6 +457,7 @@ They are available only in the `getoptions` and `getoptions_help` functions.
 - switches (SWITCH)
   - Options
 - attributes (KEY-VALUE)
+  - `abbr`:BOOLEAN - Enable the abbreviated option
   - `counter`:BOOLEAN - Counts the number of flags
   - `export`:BOOLEAN - Export variables
   - `hidden`:BOOLEAN - Do not display in help
@@ -478,6 +479,7 @@ They are available only in the `getoptions` and `getoptions_help` functions.
 - switches (SWITCH)
   - Options
 - attributes (KEY-VALUE)
+  - `abbr`:BOOLEAN - Enable the abbreviated option
   - `export`:BOOLEAN - Export variables
   - `hidden`:BOOLEAN - Do not display in help
   - `init`:[@INIT-VALUE | =STRING | CODE] - Initial value
@@ -497,6 +499,7 @@ They are available only in the `getoptions` and `getoptions_help` functions.
 - switches (SWITCH)
   - Options
 - attributes (KEY-VALUE)
+  - `abbr`:BOOLEAN - Enable the abbreviated option
   - `export`:BOOLEAN - Export variables
   - `hidden`:BOOLEAN - Do not display in help
   - `init`:[@INIT-VALUE | =STRING | CODE] - Initial value
@@ -518,6 +521,7 @@ They are available only in the `getoptions` and `getoptions_help` functions.
 - switches (SWITCH)
   - Options
 - attributes (KEY-VALUE)
+  - `abbr`:BOOLEAN - Enable the abbreviated option
   - `hidden`:BOOLEAN - Do not display in help
   - `label`:STRING - Option part of help message
 - message (STRING)
