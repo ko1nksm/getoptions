@@ -11,7 +11,7 @@ An elegant option parser and generator for shell scripts (sh, bash and all POSIX
 It's simple, easy-to-use, fast, small, flexible, extensible, portable and POSIX compliant. No more loops needed! No more any templates needed!
 
 - [getoptions.sh](./lib/getoptions.sh) - base module
-- [getoptions_abbr.sh](./lib/getoptions_abbr.sh) - abbreviation module (add-on)
+- [getoptions_abbr.sh](./lib/getoptions_abbr.sh) - abbreviation option module (add-on)
 - [getoptions_help.sh](./lib/getoptions_help.sh) - help module (add-on)
 
 ## Table of Contents <!-- omit in toc -->
@@ -110,9 +110,10 @@ VERSION=0.1
 
 . ./lib/getoptions.sh # or paste it into your script
 . ./lib/getoptions_help.sh # if you need automatic help generation
+. ./lib/getoptions_abbr.sh # if you need abbreviation option
 
 parser_definition() {
-  setup   REST plus:true help:usage -- "Usage: ${2##*/} [options...] [arguments...]"
+  setup   REST plus:true help:usage abbr:true -- "Usage: ${2##*/} [options...] [arguments...]"
   msg -- '' 'getoptions sample' ''
   msg -- 'Options:'
   flag    FLAG_A  -a                                        -- "message a"
@@ -457,7 +458,7 @@ They are available only in the `getoptions` and `getoptions_help` functions.
 - switches (SWITCH)
   - Options
 - attributes (KEY-VALUE)
-  - `abbr`:BOOLEAN - Enable the abbreviated option
+  - `abbr`:BOOLEAN - Set empty to disable individually [default: `1` if abbreviation option is enabled]
   - `counter`:BOOLEAN - Counts the number of flags
   - `export`:BOOLEAN - Export variables
   - `hidden`:BOOLEAN - Do not display in help
@@ -479,7 +480,7 @@ They are available only in the `getoptions` and `getoptions_help` functions.
 - switches (SWITCH)
   - Options
 - attributes (KEY-VALUE)
-  - `abbr`:BOOLEAN - Enable the abbreviated option
+  - `abbr`:BOOLEAN - Set empty to disable individually [default: `1` if abbreviation option is enabled]
   - `export`:BOOLEAN - Export variables
   - `hidden`:BOOLEAN - Do not display in help
   - `init`:[@INIT-VALUE | =STRING | CODE] - Initial value
@@ -499,7 +500,7 @@ They are available only in the `getoptions` and `getoptions_help` functions.
 - switches (SWITCH)
   - Options
 - attributes (KEY-VALUE)
-  - `abbr`:BOOLEAN - Enable the abbreviated option
+  - `abbr`:BOOLEAN - Set empty to disable individually [default: `1` if abbreviation option is enabled]
   - `export`:BOOLEAN - Export variables
   - `hidden`:BOOLEAN - Do not display in help
   - `init`:[@INIT-VALUE | =STRING | CODE] - Initial value
@@ -521,7 +522,7 @@ They are available only in the `getoptions` and `getoptions_help` functions.
 - switches (SWITCH)
   - Options
 - attributes (KEY-VALUE)
-  - `abbr`:BOOLEAN - Enable the abbreviated option
+  - `abbr`:BOOLEAN - Set empty to disable individually [default: `1` if abbreviation option is enabled]
   - `hidden`:BOOLEAN - Do not display in help
   - `label`:STRING - Option part of help message
 - message (STRING)
@@ -654,7 +655,7 @@ shellspec --shell bash
   - Disable expansion variables in the help display. [**breaking change**]
 - 2.0.1 - 2020-10-30
   - Add workaround for ksh88 (fixed only the test).
-- 2.1.0 - 2020-11-??
+- 2.1.0 - 2020-11-03
   - Support for abbreviating long options.
 
 ## License
