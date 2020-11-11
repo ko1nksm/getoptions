@@ -4,7 +4,7 @@
 # shellcheck disable=SC2016
 getoptions() {
 	_error='' _on=1 _off='' _export='' _plus='' _mode='' _alt='' _rest=''
-	_opts='' _help='' _abbr='' _init=@empty IFS=' '
+	_opts='' _help='' _abbr='' _cmds='' _init=@empty IFS=' '
 
 	_0() { echo "$@"; }
 	for i in 1 2 3 4 5; do eval "_$i() { _$((${i-}-1)) \"	\$@\"; }"; done
@@ -61,7 +61,9 @@ getoptions() {
 	_disp() { args : "$@"; }
 	_msg() { args : _ "$@"; }
 
+	cmd() { _mode=@ _cmds="$_cmds|$1"; }
 	"$@"
+	cmd() { :; }
 	_0 "${_rest:?}=''"
 
 	_0 "$2() {"
@@ -163,11 +165,16 @@ getoptions() {
 		_4 'break ;;'
 	}
 	_3 '--)'
-	_4 'shift'
+	[ "$_cmds" ] || _4 'shift'
 	rest
 	_3 "[-${_plus:++}]?*)" 'set "unknown" "$1"; break ;;'
 	_3 '*)'
 	case $_mode in
+		@)
+			_4 "case \$1 in ${_cmds#?}) ;;"
+			_5 '*) set "notcmd" "$1"; break'
+			_4 'esac'
+			rest ;;
 		+) rest ;;
 		*) _4 "$_rest=\"\${$_rest}" '\"\${$(($OPTIND-$#))}\""'
 	esac
@@ -180,6 +187,7 @@ getoptions() {
 	_2 'noarg) set "Does not allow an argument: $2" "$@" ;;'
 	_2 'required) set "Requires an argument: $2" "$@" ;;'
 	_2 'pattern:*) set "Does not match the pattern (${1#*:}): $2" "$@" ;;'
+	_2 'notcmd) set "Not a command: $2" "$@" ;;'
 	_2 '*) set "Validation error ($1): $2" "$@"'
 	_1 'esac'
 	[ "$_error" ] && _1 "$_error" '"$@" >&2 || exit $?'

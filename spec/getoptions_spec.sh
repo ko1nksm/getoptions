@@ -533,4 +533,44 @@ Describe "getoptions()"
 			The output should be blank
 		End
 	End
+
+	Describe 'subcommand'
+		parser_definition() {
+			setup ARGS
+			flag FLAG -f
+			cmd list
+		}
+
+		Context "when specify a subcommand that exists"
+			Specify "treat subcommands and the rest as arguments"
+				When call restargs -f list -g 1 2
+				The output should eq "list -g 1 2"
+				The variable FLAG should eq "1"
+			End
+		End
+
+		Context "when not specify a subcommand"
+			Specify "parse global options only"
+				When call restargs -f
+				The output should eq ""
+				The variable FLAG should eq "1"
+			End
+		End
+
+		Context "when no subcommand and only arguments are passed"
+			Specify "the first argument is --"
+				When call restargs -f -- list 1 2
+				The output should eq "-- list 1 2"
+				The variable FLAG should eq "1"
+			End
+		End
+
+		Context "when specify a subcommand that not exists"
+			Specify "displays error"
+				When run restargs -f unknown -g 1 2
+				The error should eq "Not a command: unknown"
+				The status should be failure
+			End
+		End
+	End
 End

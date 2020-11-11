@@ -2,7 +2,7 @@
 # URL: https://github.com/ko1nksm/getoptions (v2.2.0-dev)
 # License: Creative Commons Zero v1.0 Universal
 getoptions_help() {
-	_width=30 _plus='' _leading='  '
+	_width='30,12' _plus='' _leading='  '
 
 	pad() { p=$2; while [ ${#p} -lt "$3" ]; do p="$p "; done; eval "$1=\$p"; }
 	kv() { eval "${1%%:*}=\${1#*:}"; }
@@ -18,14 +18,15 @@ getoptions_help() {
 				*) [ "$_type" = setup ] && kv "_$i"; kv "$i"
 			esac
 		done
-		[ "$hidden" ] && return 0 || len=$_width
+		[ "$hidden" ] && return 0 || len=${_width%,*}
 
 		[ "$label" ] || case $_type in
 			setup | msg) label='' len=0 ;;
 			flag | disp) label="$sw " ;;
 			param) label="$sw $var " ;;
-			option) label="${sw}[=$var] " ;;
+			option) label="${sw}[=$var] "
 		esac
+		[ "$_type" = cmd ] && label=${label:-$var } len=${_width#*,}
 		pad label "${label:+$_leading}$label" "$len"
 		[ ${#label} -le "$len" ] && [ $# -gt 0 ] && label="$label$1" && shift
 		echo "$label"
@@ -33,7 +34,7 @@ getoptions_help() {
 		for i; do echo "$label$i"; done
 	}
 
-	for i in setup flag param option disp 'msg -'; do
+	for i in setup flag param option disp 'msg -' cmd; do
 		eval "${i% *}() { args $i \"\$@\"; }"
 	done
 
