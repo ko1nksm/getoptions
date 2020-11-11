@@ -24,7 +24,7 @@ getoptions_help() {
 			setup | msg) label='' len=0 ;;
 			flag | disp) label="$sw " ;;
 			param) label="$sw $var " ;;
-			option) label="${sw}[=$var] "
+			option) label="${sw}[=$var] " ;;
 		esac
 		pad label "${label:+$_leading}$label" "$len"
 		[ ${#label} -le "$len" ] && [ $# -gt 0 ] && label="$label$1" && shift
