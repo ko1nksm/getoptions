@@ -1,5 +1,5 @@
 # shellcheck shell=sh
-# URL: https://github.com/ko1nksm/getoptions (v2.1.0)
+# URL: https://github.com/ko1nksm/getoptions (v2.2.0-dev)
 # License: Creative Commons Zero v1.0 Universal
 # shellcheck disable=SC2016
 getoptions() {
@@ -52,7 +52,7 @@ getoptions() {
 		esac
 	}
 	_setup() {
-		[ $# -gt 0 ] && { [ "$1" ] && _rest=$1; shift; }
+		[ $# -gt 0 ] && { [ "${1#-}" ] && _rest=$1; shift; }
 		for i; do [ "$i" = '--' ] && break; eval "_${i%%:*}=\${i#*:}"; done
 	}
 	_flag() { args : "$@"; defvar "$@"; }
