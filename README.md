@@ -452,7 +452,7 @@ They are available only in the `getoptions` and `getoptions_help` functions.
 
 - resrargs (VARIABLE)
   - The variable name for getting rest arguments
-  - Specify an empty string when only setting
+  - Specify `-` if you want to omit the restargs
 - settings (KEY-VALUE)
   - `abbr`:BOOLEAN - Handle abbreviated long options (requires `getoptions_abbr`)
   - `alt`:BOOLEAN - allow long options starting with single `-` (alternative)
