@@ -22,6 +22,7 @@ It's simple, easy-to-use, fast, small, flexible, extensible, portable and POSIX 
   - [`getopt` vs `getopts` vs `getoptions`](#getopt-vs-getopts-vs-getoptions)
 - [Usage](#usage)
   - [Basic](#basic)
+  - [Subcommand](#subcommand)
   - [Advanced](#advanced)
   - [Extension](#extension)
   - [Use as option parser generator](#use-as-option-parser-generator)
@@ -36,11 +37,12 @@ It's simple, easy-to-use, fast, small, flexible, extensible, portable and POSIX 
   - [Helper functions (not globally defined)](#helper-functions-not-globally-defined)
     - [Data types & Initial values](#data-types--initial-values)
     - [`setup` - Setup global settings (mandatory)](#setup---setup-global-settings-mandatory)
-    - [`flag` - Define a option that take no argument](#flag---define-a-option-that-take-no-argument)
-    - [`param` - Define a option that take an argument](#param---define-a-option-that-take-an-argument)
-    - [`option` - Define a option that take an optional argument](#option---define-a-option-that-take-an-optional-argument)
-    - [`disp` - Define a option that display only](#disp---define-a-option-that-display-only)
+    - [`flag` - Define an option that take no argument](#flag---define-an-option-that-take-no-argument)
+    - [`param` - Define an option that take an argument](#param---define-an-option-that-take-an-argument)
+    - [`option` - Define an option that take an optional argument](#option---define-an-option-that-take-an-optional-argument)
+    - [`disp` - Define an option that display only](#disp---define-an-option-that-display-only)
     - [`msg` - Display message in help](#msg---display-message-in-help)
+    - [`cmd` - Define a subcommand](#cmd---define-a-subcommand)
   - [Custom error handler](#custom-error-handler)
   - [Extension (not globally defined)](#extension-not-globally-defined)
     - [`prehook`, `invoke`](#prehook-invoke)
@@ -71,7 +73,7 @@ It's simple, easy-to-use, fast, small, flexible, extensible, portable and POSIX 
 - Support for abbreviation option (add-on)
   - additional one function, ~1.4KB and ~60 lines required
 - Support for automatic help generation (add-on)
-  - additional one function, ~1.2KB and ~50 lines required
+  - additional one function, ~1.3KB and ~50 lines required
 - Can be removed a library by using it as a **generator**
 
 [POSIX]: https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap12.html
@@ -93,6 +95,7 @@ It's simple, easy-to-use, fast, small, flexible, extensible, portable and POSIX 
 | Option after arguments            | ⚠ GNU only       | ❌                     | ✔️               |
 | Stop option parsing with `--`     | ⚠ GNU only       | ❌                     | ✔️               |
 | Scanning modes (see `man getopt`) | ⚠ GNU only       | ❌                     | ✔️ `+` only      |
+| Subcommand                        | ❌                | ❌                     | ✔️               |
 | Validation by pattern matching    | ❌                | ❌                     | ✔️               |
 | Custom validation                 | ❌                | ❌                     | ✔️               |
 | Custom error message              | ❌                | ✔️                     | ✔️ more flexible |
@@ -144,6 +147,10 @@ Parses the following options.
 ./sample/basic.sh -ab -f +f --flag --no-flag -vvv -p value -ovalue --option=value 1 2 -- 3 -f
 ```
 
+### Subcommand
+
+See [subcmd.sh](./sample/subcmd.sh)
+
 ### Advanced
 
 See [advanced.sh](./sample/advanced.sh)
@@ -182,48 +189,48 @@ parse() {
     case $1 in -[!-]?*) set -- "-$@"; esac
     while [ ${#1} -gt 2 ]; do
       case $1 in (*[!a-zA-Z0-9_-]*) break; esac
-      case --flag in
+      case '--flag' in
         $1) OPTARG=; break ;;
-        $1*) OPTARG="$OPTARG${OPTARG:+ }--flag"
+        $1*) OPTARG="$OPTARG --flag"
       esac
-      case --no-flag in
+      case '--no-flag' in
         $1) OPTARG=; break ;;
-        $1*) OPTARG="$OPTARG${OPTARG:+ }--no-flag"
+        $1*) OPTARG="$OPTARG --no-flag"
       esac
-      case --verbose in
+      case '--verbose' in
         $1) OPTARG=; break ;;
-        $1*) OPTARG="$OPTARG${OPTARG:+ }--verbose"
+        $1*) OPTARG="$OPTARG --verbose"
       esac
-      case --param in
+      case '--param' in
         $1) OPTARG=; break ;;
-        $1*) OPTARG="$OPTARG${OPTARG:+ }--param"
+        $1*) OPTARG="$OPTARG --param"
       esac
-      case --option in
+      case '--option' in
         $1) OPTARG=; break ;;
-        $1*) OPTARG="$OPTARG${OPTARG:+ }--option"
+        $1*) OPTARG="$OPTARG --option"
       esac
-      case --help in
+      case '--help' in
         $1) OPTARG=; break ;;
-        $1*) OPTARG="$OPTARG${OPTARG:+ }--help"
+        $1*) OPTARG="$OPTARG --help"
       esac
-      case --version in
+      case '--version' in
         $1) OPTARG=; break ;;
-        $1*) OPTARG="$OPTARG${OPTARG:+ }--version"
+        $1*) OPTARG="$OPTARG --version"
       esac
       break
     done
-    case $OPTARG in
+    case ${OPTARG# } in
       *\ *)
         eval "set -- $OPTARG $1 $OPTARG"
         OPTIND=$((($#+1)/2)) OPTARG=$1; shift
         while [ $# -gt "$OPTIND" ]; do OPTARG="$OPTARG, $1"; shift; done
         set "Ambiguous option: $1 (could be $OPTARG)" ambiguous "$@"
-        error "$@" >&2 || exit $?
+        _error "$@" >&2 || exit $?
         echo "$1" >&2
         exit 1 ;;
       ?*)
         [ "$2" = "$3" ] || OPTARG="$OPTARG=$2"
-        shift 3; eval 'set -- "$OPTARG"' ${1+'"$@"'}; OPTARG= ;;
+        shift 3; eval 'set -- "${OPTARG# }"' ${1+'"$@"'}; OPTARG= ;;
       *) shift 2
     esac
     case $1 in -[!-]?*) set -- "-$@"; esac
@@ -233,22 +240,22 @@ parse() {
         ;;
       --no-*) unset OPTARG ;;
       +??*) OPTARG=$1; shift
-        eval 'set -- "${OPTARG%"${OPTARG#??}"}" "+${OPTARG#??}"' ${1+'"$@"'}
+        eval 'set -- "${OPTARG%"${OPTARG#??}"}" +"${OPTARG#??}"' ${1+'"$@"'}
         unset OPTARG ;;
       +*) unset OPTARG ;;
     esac
     case $1 in
-      -f | +f | --flag | --no-flag)
+      '-f'|'+f'|'--flag'|'--no-flag')
         [ "${OPTARG:-}" ] && OPTARG=${OPTARG#*\=} && set "noarg" "$1" && break
         eval '[ ${OPTARG+x} ] &&:' && OPTARG='1' || OPTARG=''
         FLAG="$OPTARG"
         ;;
-      -v | --verbose)
+      '-v'|'--verbose')
         [ "${OPTARG:-}" ] && OPTARG=${OPTARG#*\=} && set "noarg" "$1" && break
         eval '[ ${OPTARG+x} ] &&:' && OPTARG=1 || OPTARG=-1
-        VERBOSE="$((${VERBOSE:-0}+${OPTARG:-0}))"
+        VERBOSE="$((${VERBOSE:-0}+$OPTARG))"
         ;;
-      -p | --param)
+      '-p'|'--param')
         [ $# -le 1 ] && set "required" "$1" && break
         OPTARG=$2
         case $OPTARG in foo | bar) ;;
@@ -256,7 +263,7 @@ parse() {
         esac
         PARAM="$OPTARG"
         shift ;;
-      -o | --option)
+      '-o'|'--option')
         set -- "$1" "$@"
         [ ${OPTARG+x} ] && {
           case $1 in --no-*) set "noarg" "${1%%\=*}"; break; esac
@@ -264,20 +271,22 @@ parse() {
         } || OPTARG=''
         OPTION="$OPTARG"
         shift ;;
-      -h | --help)
+      '-h'|'--help')
         usage
         exit 0 ;;
-      --version)
+      '--version')
         echo "${VERSION}"
         exit 0 ;;
-      --) shift
+      --)
+        shift
         while [ $# -gt 0 ]; do
-          REST="${REST} \"\${$((${OPTIND:-0}-$#))}\""
+          REST="${REST} \"\${$(($OPTIND-$#))}\""
           shift
         done
         break ;;
-      [-+]?*) set "unknown" "$1" && break ;;
-      *) REST="${REST} \"\${$((${OPTIND:-0}-$#))}\""
+      [-+]?*) set "unknown" "$1"; break ;;
+      *)
+        REST="${REST} \"\${$(($OPTIND-$#))}\""
     esac
     shift
   done
@@ -287,9 +296,10 @@ parse() {
     noarg) set "Does not allow an argument: $2" "$@" ;;
     required) set "Requires an argument: $2" "$@" ;;
     pattern:*) set "Does not match the pattern (${1#*:}): $2" "$@" ;;
+    notcmd) set "Not a command: $2" "$@" ;;
     *) set "Validation error ($1): $2" "$@"
   esac
-  error "$@" >&2 || exit $?
+  _error "$@" >&2 || exit $?
   echo "$1" >&2
   exit 1
 }
@@ -332,7 +342,7 @@ GETOPTIONSHERE
 - arguments - Passed to the parser definition function
 
 ```sh
-# Use as generator: Generate a option parser code (`parse` shell function)
+# Use as generator: Generate an option parser code (`parse` shell function)
 getoptions parser_definition parse
 
 # Use as parser: Define `parse` function
@@ -377,20 +387,34 @@ but can also be called manually.
 
 ##### Attributes related to the help display
 
-```text
+```console
+$ script.sh ---help
 
-+--------------------------- message ---------------------------+
-:                                                               :
-+--------- label ---------+                                     :
-:   width [default: 30]   :                                     :
-:                         :                                     :
-  -f, +f, --flag           message for --flag
+Options:
++----------------------------- message -----------------------------+
+:                                                                   :
++----------- label -----------+                                     :
+:   width [default: 30]       :                                     :
+:                             :                                     :
+  -f, +f, --flag              message for --flag
   -l, +l, --long-long-option-name
-                           message for --long-long-option-name
-  -o, +o, --option VAR     message for --option
+                              message for --long-long-option-name
+  -o, +o, --option VAR        message for --option
 |     |            |
 |     |            +-- var
 |     +-- plus (visible if specified)
++-- leading [default: "  " (two spaces)]
+
+Commands:
++---------------- message ----------------+
+:                                         :
++-- label --+                             :
+: width [12]:                             :
+:           :                             :
+  cmd1      subcommand1
+  cmd2      subcommand2
+  cmd3      subcommand3
+|
 +-- leading [default: "  " (two spaces)]
 ```
 
@@ -435,11 +459,11 @@ They are available only in the `getoptions` and `getoptions_help` functions.
     - Unlike `getopt`, the syntax `-abc` and `-sVALUE` cannot be used when enabled
   - `error`:STATEMENT - Custom error handler
   - `help`:STATEMENT - Define help function (requires `getoptions_help`)
-  - `leading`:STRING - Leading characters in the option part of the help [default: "  " (two spaces)]
+  - `leading`:STRING - Leading characters in the option part of the help [default: `"  "` (two spaces)]
   - `mode`:STRING - Scanning modes (see `man getopt`) [default: empty]
     - Unlike `getopt`, only `+` supported
   - `plus`:BOOLEAN - Those start with `+` are treated as options [default: auto]
-  - `width`:NUMBER - The width of the option part of the help [default: 30]
+  - `width`:NUMBER - The width of the option or subcommand part of the help [default: `"30,12"`]
 - default attributes (KEY-VALUE)
   - `export`:BOOLEAN - Export variables [default: empty]
   - `hidden`:BOOLEAN - Do not display in help [default: empty]
@@ -449,7 +473,7 @@ They are available only in the `getoptions` and `getoptions_help` functions.
 - message (STRING)
   - Help messages
 
-#### `flag` - Define a option that take no argument
+#### `flag` - Define an option that take no argument
 
 `flag <varname | :action> [switches]... [attributes]... [-- [messages]...]`
 
@@ -471,7 +495,7 @@ They are available only in the `getoptions` and `getoptions_help` functions.
 - message (STRING)
   - Help messages
 
-#### `param` - Define a option that take an argument
+#### `param` - Define an option that take an argument
 
 `param <varname | :action> [switches]... [attributes]... [-- [messages]...]`
 
@@ -491,7 +515,7 @@ They are available only in the `getoptions` and `getoptions_help` functions.
 - message (STRING)
   - Help messages
 
-#### `option` - Define a option that take an optional argument
+#### `option` - Define an option that take an optional argument
 
 `option <varname | :action> [switches]... [attributes]... [-- [messages]...]`
 
@@ -513,7 +537,7 @@ They are available only in the `getoptions` and `getoptions_help` functions.
 - message (STRING)
   - Help messages
 
-#### `disp` - Define a option that display only
+#### `disp` - Define an option that display only
 
 `disp <varname | :action> [switches]... [attributes]... [-- [messages]...]`
 
@@ -535,6 +559,16 @@ They are available only in the `getoptions` and `getoptions_help` functions.
 - attributes (KEY-VALUE)
   - `hidden`:BOOLEAN - Do not display in help
   - `label`:STRING - Option part of help message
+- message (STRING)
+  - Help messages
+
+#### `cmd` - Define a subcommand
+
+`cmd [subcommand]... [-- [messages]...]`
+
+- attributes (KEY-VALUE)
+  - `hidden`:BOOLEAN - Do not display in help
+  - `label`:STRING - Command part of help message
 - message (STRING)
   - Help messages
 
@@ -657,6 +691,8 @@ shellspec --shell bash
   - Add workaround for ksh88 (fixed only the test).
 - 2.1.0 - 2020-11-03
   - Support for abbreviating long options.
+- 2.2.0 - 2020-11-14
+  - Support for subcommands.
 
 ## License
 
