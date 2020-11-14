@@ -1,10 +1,10 @@
 # shellcheck shell=sh
-# URL: https://github.com/ko1nksm/getoptions (v2.1.0)
+# URL: https://github.com/ko1nksm/getoptions (v2.2.0-dev)
 # License: Creative Commons Zero v1.0 Universal
 # shellcheck disable=SC2016,SC2154
 getoptions_abbr() {
 	abbr() {
-		_3 "case $1 in"
+		_3 "case '$1' in"
 		_4 '$1) OPTARG=; break ;;'
 		_4 '$1*) OPTARG="$OPTARG${OPTARG:+ }'"$1"'"'
 		_3 'esac'

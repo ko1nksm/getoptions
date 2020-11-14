@@ -61,7 +61,7 @@ getoptions() {
 	_disp() { args : "$@"; }
 	_msg() { args : _ "$@"; }
 
-	cmd() { _mode=@ _cmds="$_cmds|$1"; }
+	cmd() { _mode=@ _cmds="$_cmds|'$1'"; }
 	"$@"
 	cmd() { :; }
 	_0 "${_rest:?}=''"
@@ -75,8 +75,8 @@ getoptions() {
 		sw='' validate='' pattern='' counter='' on=$_on off=$_off export=$_export
 		while loop "$@" && shift; do
 			case $1 in
-				--\{no-\}*) i=${1#--?no-?}; sw="$sw${sw:+ | }--$i | --no-$i" ;;
-				[-+]? | --*) sw="$sw${sw:+ | }$1" ;;
+				--\{no-\}*) i=${1#--?no-?}; sw="$sw${sw:+|}'--$i'|'--no-$i'" ;;
+				[-+]? | --*) sw="$sw${sw:+|}'$1'" ;;
 				*) kv "$1"
 			esac
 		done
