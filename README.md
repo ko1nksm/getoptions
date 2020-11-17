@@ -8,7 +8,8 @@
 
 An elegant option parser and generator for shell scripts (sh, bash and all POSIX shells)
 
-It's simple, easy-to-use, fast, small, flexible, extensible, portable and POSIX compliant. No more loops needed! No more any templates needed!
+getoptions is a new option parser and generator released in 2020.
+It's simple, easy-to-use, fast, small, flexible, extensible, portable and POSIX compliant. No more any loops and templates needed!
 
 - [getoptions.sh](./lib/getoptions.sh) - base module
 - [getoptions_abbr.sh](./lib/getoptions_abbr.sh) - abbreviation option module (add-on)
@@ -20,13 +21,14 @@ It's simple, easy-to-use, fast, small, flexible, extensible, portable and POSIX 
 - [Comparison](#comparison)
   - [with other implementations](#with-other-implementations)
   - [`getopt` vs `getopts` vs `getoptions`](#getopt-vs-getopts-vs-getoptions)
+- [Installation](#installation)
 - [Usage](#usage)
   - [Basic](#basic)
   - [Subcommand](#subcommand)
   - [Advanced](#advanced)
   - [Extension](#extension)
-  - [Use as option parser generator](#use-as-option-parser-generator)
-  - [NOTE: 2.x breaking changes](#note-2x-breaking-changes)
+  - [getoptions CLI (Use as a option parser generator)](#getoptions-cli-use-as-a-option-parser-generator)
+- [NOTE: 2.x breaking changes](#note-2x-breaking-changes)
 - [References](#references)
   - [Global functions](#global-functions)
     - [`getoptions` - Generate a function for option parsing](#getoptions---generate-a-function-for-option-parsing)
@@ -59,25 +61,40 @@ It's simple, easy-to-use, fast, small, flexible, extensible, portable and POSIX 
 
 ### with other implementations
 
-- Supports all POSIX shells (`dash`, `bash 2.0+`, `ksh 88+`, `zsh 3.1+`, etc)
-- High portability, fast and small (only ~5KB and ~200 lines)
-- It is just a shell function, no external commands and other tools required
-- Only one function is defined globally and no global variables are used
-  - except the special variables `OPTARG` and `OPTIND`
-- Support for [POSIX][POSIX] and [GNU][GNU] compatible option syntax
+- High portability, supports all POSIX shells (`dash`, `bash 2.0+`, `ksh 88+`, `zsh 3.1+`, etc)
+- Most simple and intuitive and low learning curve
+- Minimalistic implementation to meet standards
+- Support for POSIX [[1]][POSIX] and GNU [[2]][GNU1] [[3]][GNU2] compatible option syntax
   - `-a`, `-abc`, `-s`, `+s`, `-vvv`, `-s VALUE`, `-sVALUE`
   - `--flag`, `--no-flag`, `--param VALUE`, `--param=VALUE`, `--option[=VALUE]`, `--no-option`
-  - Stop option parsing with `--`, Treat `-` as an argument
-- Can be invoked action function instead of storing to variable
-- Support for validation and custom error messages
-- Support for abbreviation option (add-on)
-  - additional one function, ~1.4KB and ~60 lines required
-- Support for automatic help generation (add-on)
-  - additional one function, ~1.3KB and ~50 lines required
-- Can be removed a library by using it as a **generator**
+  - Stop option parsing with `--` and treat `-` as an argument
+  - Support for **subcommands**
+- It is a **pure shell function**, no code generation and no other tools required
+- No global variables are used (except the special variables `OPTARG` and `OPTIND`)
+- Fast and small, only ~5KB and ~200 lines (base module)
+  - Only one shell function is defined globally
+  - No external commands required
+  - Can be invoked action function and can be extended by shell scripts
+  - Support for validation and custom error messages
+- Support for **abbreviation option** (add-on)
+  - For example, you can specify `--version` by `--ver` (as long as it's not ambiguous)
+  - Additional one shell function, ~1.4KB and ~60 lines required
+  - No external commands required
+- Support for **automatic help generation** (add-on)
+  - Additional one shell function, ~1.3KB and ~50 lines required
+  - Only the `cat` command is required.
+- No worry about license, it's public domain (Creative Commons Zero v1.0 Universal)
+
+Don't want to add `getoptions.sh` to your project?
+
+- Can be used as a **option parser generator**
+- Only one function is generated (or one more for automatic help generation)
+- No global variables are used (except the special variables `OPTARG` and `OPTIND`)
+- Pre-generates the option parser makes more faster
 
 [POSIX]: https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap12.html
-[GNU]: https://www.gnu.org/prep/standards/html_node/Command_002dLine-Interfaces.html
+[GNU1]: https://www.gnu.org/prep/standards/html_node/Command_002dLine-Interfaces.html
+[GNU2]: https://www.gnu.org/software/libc/manual/html_node/Argument-Syntax.html
 
 ### `getopt` vs `getopts` vs `getoptions`
 
@@ -101,11 +118,28 @@ It's simple, easy-to-use, fast, small, flexible, extensible, portable and POSIX 
 | Custom error message              | ❌                | ✔️                     | ✔️ more flexible |
 | Automatic help generation         | ❌                | ❌                     | ✔️ add-on        |
 
+## Installation
+
+Download from [releases](https://github.com/ko1nksm/getoptions/releases)
+and extract it or just do a `git clone`.
+
+```sh
+git clone https://github.com/ko1nksm/getoptions.git
+```
+
+Copy the necessary files under the [lib](lib) directory to your project or
+use the code generated by the `bin/getoptions` command in your project.
+
 ## Usage
 
 ### Basic
 
-[basic.sh](./sample/basic.sh)
+```sh
+# Try to run it
+sample/basic --help
+```
+
+[basic.sh](sample/basic.sh)
 
 ```sh
 #!/bin/sh
@@ -144,16 +178,26 @@ printf '%s\n' "$@"
 Parses the following options.
 
 ```sh
-./sample/basic.sh -ab -f +f --flag --no-flag -vvv -p value -ovalue --option=value 1 2 -- 3 -f
+sample/basic.sh -ab -f +f --flag --no-flag -vvv -p value -ovalue --option=value 1 2 -- 3 -f
 ```
 
 ### Subcommand
 
-See [subcmd.sh](./sample/subcmd.sh)
+```sh
+# Try to run it
+sample/subcmd.sh --help
+```
+
+See [subcmd.sh](sample/subcmd.sh)
 
 ### Advanced
 
-See [advanced.sh](./sample/advanced.sh)
+```sh
+# Try to run it
+sample/advanced.sh --help
+```
+
+See [advanced.sh](sample/advanced.sh)
 
 getoptions was originally developed to improve the maintainability and testability for [ShellSpec][shellspec]
 which has number of options. [ShellSpec usage][shellspec_usage] is another good example of how to use getoptions.
@@ -167,22 +211,50 @@ Custom helper function definitions and hooks make it possible to write parser
 definitions more simply. For example, if you want to prefix all variables,
 you can use hooks.
 
-See [extension.sh](./sample/extension.sh)
+See [extension.sh](sample/extension.sh)
 
-### Use as option parser generator
+### getoptions CLI (Use as a option parser generator)
 
-See [generator.sh](./sample/generator.sh)
+When used as a generator, option parser code can be generated in advance.
+This eliminates the need to include a library in the script and makes it even faster.
 
-<details>
-<summary>Generated code</summary>
+[bin/getoptions](bin/getoptions)
+
+```console
+$ bin/getoptions --help
+Usage: getoptions [options...] <path> <parser> [arguments...]
+
+Options:
+  -d, --definition NAME Specify the parser definition name
+                          (default: filename without extensions)
+  -i, --indent[=N]      Use N (default: 2) spaces instead of tabs for indentation
+      --shellcheck[=DIRECTIVES]
+                        Embed the shellcheck directives
+                          (default: 'shell=sh disable=SC2004,SC2145,SC2194')
+      --no-comments     Do not embed comments
+  -h, --help            Display this help and exit
+  -v, --version         Display the version and exit
+```
 
 ```sh
+# Try to run it
+bin/getoptions --indent=2 --shellcheck sample/parser_definition.sh parser prog
+```
+
+<details>
+<summary>generated code</summary>
+
+```
+# shellcheck shell=sh
+# Generated by getoptions (BEGIN)
+# URL: https://github.com/ko1nksm/getoptions (2.3.0)
 FLAG=''
 VERBOSE='0'
 PARAM=''
 OPTION=''
 REST=''
-parse() {
+# shellcheck disable=SC2004,SC2145,SC2194
+parser() {
   OPTIND=$(($#+1))
   while OPTARG= && [ $# -gt 0 ]; do
     set -- "${1%%\=*}" "${1#*\=}" "$@"
@@ -190,31 +262,31 @@ parse() {
     while [ ${#1} -gt 2 ]; do
       case $1 in (*[!a-zA-Z0-9_-]*) break; esac
       case '--flag' in
-        $1) OPTARG=; break ;;
+        "$1") OPTARG=; break ;;
         $1*) OPTARG="$OPTARG --flag"
       esac
       case '--no-flag' in
-        $1) OPTARG=; break ;;
+        "$1") OPTARG=; break ;;
         $1*) OPTARG="$OPTARG --no-flag"
       esac
       case '--verbose' in
-        $1) OPTARG=; break ;;
+        "$1") OPTARG=; break ;;
         $1*) OPTARG="$OPTARG --verbose"
       esac
       case '--param' in
-        $1) OPTARG=; break ;;
+        "$1") OPTARG=; break ;;
         $1*) OPTARG="$OPTARG --param"
       esac
       case '--option' in
-        $1) OPTARG=; break ;;
+        "$1") OPTARG=; break ;;
         $1*) OPTARG="$OPTARG --option"
       esac
       case '--help' in
-        $1) OPTARG=; break ;;
+        "$1") OPTARG=; break ;;
         $1*) OPTARG="$OPTARG --help"
       esac
       case '--version' in
-        $1) OPTARG=; break ;;
+        "$1") OPTARG=; break ;;
         $1*) OPTARG="$OPTARG --version"
       esac
       break
@@ -225,7 +297,7 @@ parse() {
         OPTIND=$((($#+1)/2)) OPTARG=$1; shift
         while [ $# -gt "$OPTIND" ]; do OPTARG="$OPTARG, $1"; shift; done
         set "Ambiguous option: $1 (could be $OPTARG)" ambiguous "$@"
-        _error "$@" >&2 || exit $?
+        error "$@" >&2 || exit $?
         echo "$1" >&2
         exit 1 ;;
       ?*)
@@ -299,13 +371,13 @@ parse() {
     notcmd) set "Not a command: $2" "$@" ;;
     *) set "Validation error ($1): $2" "$@"
   esac
-  _error "$@" >&2 || exit $?
+  error "$@" >&2 || exit $?
   echo "$1" >&2
   exit 1
 }
 usage() {
 cat<<'GETOPTIONSHERE'
-Usage: generator.sh [options...] [arguments...]
+Usage: prog [options...] [arguments...]
 
 getoptions sample
 
@@ -318,11 +390,11 @@ Options:
           --version
 GETOPTIONSHERE
 }
+# Generated by getoptions (END)
 ```
-
 </details>
 
-### NOTE: 2.x breaking changes
+## NOTE: 2.x breaking changes
 
 - Calling `getoptions_help` is no longer needed (see `help` attribute)
 - Changed the `default` attribute of the `option` helper function to the `on` attribute
@@ -693,6 +765,9 @@ shellspec --shell bash
   - Support for abbreviating long options.
 - 2.2.0 - 2020-11-14
   - Support for subcommands.
+- 2.3.0 - 2020-11-17
+  - Added getoptions CLI (generator).
+  - Fixed a bug that omitting the value of key-value would be an incorrect value.
 
 ## License
 

@@ -1,17 +1,9 @@
-#!/bin/sh
-
-set -eu
-
-# shellcheck disable=SC2034
-VERSION=0.1
-
-. ./lib/getoptions.sh
-. ./lib/getoptions_help.sh
-. ./lib/getoptions_abbr.sh
+# shellcheck shell=sh disable=SC1083
 
 parser_definition() {
+	prog=${2:?The program name is not set}
 	setup   REST plus:true help:usage abbr:true error alt:true \
-		-- "Usage: ${2##*/} [options...] [arguments...]"
+		-- "Usage: ${prog##*/} [options...] [arguments...]"
 	msg -- '' 'getoptions sample' ''
 	msg -- 'Options:'
 	flag    FLAG    -f +f --{no-}flag                         -- "expands to --flag and --no-flag"
@@ -21,7 +13,3 @@ parser_definition() {
 	disp    :usage  -h    --help
 	disp    VERSION       --version
 }
-
-number() { case $OPTARG in (*[!0-9]*) return 1; esac; }
-
-getoptions parser_definition parse "$0"
