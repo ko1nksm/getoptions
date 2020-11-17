@@ -203,7 +203,7 @@ getoptions was originally developed to improve the maintainability and testabili
 which has number of options. [ShellSpec usage][shellspec_usage] is another good example of how to use getoptions.
 
 [shellspec]: https://shellspec.info/
-[shellspec_usage]: https://github.com/shellspec/shellspec/tree/master/lib/libexec/optparser.sh
+[shellspec_usage]: https://github.com/shellspec/shellspec/tree/master/lib/libexec/optparser
 
 ### Extension
 
