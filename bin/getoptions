@@ -3,7 +3,7 @@
 
 set -euf
 
-GETOPTIONS_VERSION="2.3.0-dev"
+GETOPTIONS_VERSION="2.3.0"
 SHELLCHECK="shell=sh disable=SC2004,SC2145,SC2194"
 
 [ "${ZSH_VERSION:-}" ] && setopt shwordsplit
