@@ -6,11 +6,10 @@
 [![GitHub top language](https://img.shields.io/github/languages/top/ko1nksm/getoptions.svg)](https://github.com/ko1nksm/getoptions/search?l=Shell)
 [![License](https://img.shields.io/github/license/ko1nksm/getoptions.svg)](https://github.com/ko1nksm/getoptions/blob/master/LICENSE)
 
-An elegant option parser and generator for shell scripts (sh, bash and all POSIX shells)
+An elegant option parser for shell scripts (sh, bash and all POSIX shells)
 
-getoptions is a new option parser and generator released in 2020.
-It's simple, easy-to-use, fast, small, flexible, extensible, portable and POSIX compliant.
-No more any loops and templates needed!
+**getoptions** is a new option parser (generator) written in POSIX-compliant shell script released in 2020.
+It's most simple, fast, small, extensible, portable. No more any loops and templates needed!
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -54,14 +53,13 @@ No more any loops and templates needed!
 ### with other implementations
 
 - High portability, supports all POSIX shells (`dash`, `bash 2.0+`, `ksh 88+`, `zsh 3.1+`, etc)
-- Most simple and intuitive and low learning curve
-- Minimalistic implementation to meet standards
+- Full support for minimal POSIX shells, no limitations, no bashism
+- This is a **pure shell function**, so just include and call it, no other tools required
 - Support for POSIX [[1]][POSIX] and GNU [[2]][GNU1] [[3]][GNU2] compatible option syntax
   - `-a`, `-abc`, `-s`, `+s`, `-vvv`, `-s VALUE`, `-sVALUE`
   - `--flag`, `--no-flag`, `--param VALUE`, `--param=VALUE`, `--option[=VALUE]`, `--no-option`
   - Stop option parsing with `--` and treat `-` as an argument
   - Support for **subcommands**
-- It is a **pure shell function**, no code generation and no other tools required
 - No global variables are used (except the special variables `OPTARG` and `OPTIND`)
 - Fast and small, only ~5KB and ~200 lines (base module)
   - Only one shell function is defined globally
@@ -81,7 +79,6 @@ Don't want to add `getoptions.sh` to your project?
 
 - Can be used as a **option parser generator**
 - Only one function is generated (or one more for automatic help generation)
-- No global variables are used (except the special variables `OPTARG` and `OPTIND`)
 - Pre-generates the option parser makes more faster
 
 [POSIX]: https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap12.html
