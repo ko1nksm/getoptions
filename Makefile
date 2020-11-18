@@ -1,14 +1,10 @@
 SHELL=bash
-bins = bin/getoptions
-libs = lib/getoptions.sh lib/getoptions_help.sh lib/getoptions_abbr.sh
-specfiles = spec/getoptions_spec.sh spec/getoptions_help_spec.sh
-samples = sample/basic.sh sample/advanced.sh sample/extension.sh sample/parser_definition.sh
 
 test:
 	shellspec
 
 check:
-	shellcheck $(bins) $(libs) $(specfiles) $(samples)
+	shellcheck bin/* lib/*.sh spec/*.sh sample/*.sh
 
 testall:
 	shellspec -s sh
