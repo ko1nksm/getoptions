@@ -25,4 +25,5 @@ parser_definition() {
 
 number() { case $OPTARG in (*[!0-9]*) return 1; esac; }
 
-getoptions parser_definition parse "$0"
+# This subshell is necessary to not let helper functions be defined globally
+( getoptions parser_definition parse "$0" )
