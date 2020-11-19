@@ -105,7 +105,7 @@ Don't want to add `getoptions.sh` to your project?
 | Abbreviating long options         | ⚠ GNU only       | ❌                     | ✔️ add-on        |
 | Optional argument                 | ⚠ GNU only       | ❌                     | ✔️               |
 | Option after arguments            | ⚠ GNU only       | ❌                     | ✔️               |
-| Stop option parsing with `--`     | ⚠ GNU only       | ❌                     | ✔️               |
+| Stop option parsing with `--`     | ✔️                | ✔️                     | ✔️               |
 | Scanning modes (see `man getopt`) | ⚠ GNU only       | ❌                     | ✔️ `+` only      |
 | Subcommand                        | ❌                | ❌                     | ✔️               |
 | Validation by pattern matching    | ❌                | ❌                     | ✔️               |
