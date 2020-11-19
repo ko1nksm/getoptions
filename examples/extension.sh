@@ -26,8 +26,9 @@ extension() {
 
 parser_definition() {
 	extension "$3"
-	setup   REST help:usage \
-		-- "Usage: ${2##*/} [options...] [arguments...]" '' 'getoptions sample' ''
+	setup   REST help:usage -- \
+		"Usage: ${2##*/} [options...] [arguments...]" '' \
+		'getoptions extension example' ''
 	flag    FLAG      -f  --flag
 	param   PARAM     -p  --param
 	multi   MULTIPLE  -m  --multiple init:"${3}_MULTIPLE=''"

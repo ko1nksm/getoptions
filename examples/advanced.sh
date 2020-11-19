@@ -14,8 +14,9 @@ BLOOD_TYPES='A | B | O | AB'
 # shellcheck disable=SC1083,SC2016,SC2145
 parser_definition() {
 	array() { param ":push $@"; } # custom helper function
-	setup   REST error:error on:1 off: export:true plus:true width:35 help:usage abbr:true \
-		-- "Usage: ${2##*/} [options...] [arguments...]" '' 'getoptions sample' ''
+	setup   REST error:error on:1 off: export:true plus:true width:35 help:usage abbr:true -- \
+		"Usage: ${2##*/} [options...] [arguments...]" '' \
+		'getoptions advanced example' ''
 	msg     label:"OPTION" -- "DESCRIPTION"
 	flag    FLAG_A    -a --flag-a on:1 off: init:= export:
 	flag    FLAG_B    -b +b --{no-}flag-b on:ON off:OFF init:@off

@@ -13,7 +13,7 @@ VERSION=0.1
 parser_definition() {
 	setup   REST help:usage abbr:true -- \
 		"Usage: ${2##*/} [global options...] [command] [options...] [arguments...]"
-	msg -- '' 'subcommand sample' ''
+	msg -- '' 'getoptions subcommand example' ''
 	msg -- 'Options:'
 	flag    GLOBAL  -g --global    -- "global flag"
 	disp    :usage  -h --help
@@ -29,7 +29,7 @@ parser_definition() {
 parser_definition_cmd1() {
 	setup   REST help:usage abbr:true -- \
 		"Usage: ${2##*/} cmd1 [options...] [arguments...]"
-	msg -- '' 'subcommand sample' ''
+	msg -- '' 'getoptions subcommand example' ''
 	msg -- 'Options:'
 	flag    FLAG_A  -a --flag-a
 	disp    :usage  -h --help
@@ -39,7 +39,7 @@ parser_definition_cmd1() {
 parser_definition_cmd2() {
 	setup   REST help:usage abbr:true -- \
 		"Usage: ${2##*/} cmd2 [options...] [arguments...]"
-	msg -- '' 'sub subcommand sample' ''
+	msg -- '' 'getoptions subcommand example' ''
 	msg -- 'Options:'
 	flag    FLAG_B  -b --flag-b
 	disp    :usage  -h --help
@@ -49,7 +49,7 @@ parser_definition_cmd2() {
 parser_definition_cmd3() {
 	setup   REST help:usage abbr:true -- \
 		"Usage: ${2##*/} cmd3 [options...] [arguments...]"
-	msg -- '' 'sub subcommand sample' ''
+	msg -- '' 'getoptions subcommand example' ''
 	msg -- 'Options:'
 	flag    FLAG_C  -c --flag-c
 	disp    :usage  -h --help

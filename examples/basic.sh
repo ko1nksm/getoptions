@@ -10,8 +10,9 @@ VERSION=0.1
 
 # shellcheck disable=SC1083
 parser_definition() {
-	setup   REST plus:true help:usage abbr:true -- "Usage: ${2##*/} [options...] [arguments...]"
-	msg -- '' 'getoptions sample' ''
+	setup   REST plus:true help:usage abbr:true -- \
+		"Usage: ${2##*/} [options...] [arguments...]" ''
+	msg -- 'getoptions basic example' ''
 	msg -- 'Options:'
 	flag    FLAG_A  -a                                        -- "message a"
 	flag    FLAG_B  -b                                        -- "message b"

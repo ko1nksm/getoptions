@@ -11,9 +11,9 @@ VERSION=0.1
 
 # shellcheck disable=SC1083
 parser_definition() {
-	setup   REST plus:true help:usage abbr:true error alt:true \
-		-- "Usage: ${2##*/} [options...] [arguments...]"
-	msg -- '' 'getoptions sample' ''
+	setup   REST plus:true help:usage abbr:true error alt:true -- \
+		"Usage: ${2##*/} [options...] [arguments...]"
+	msg -- '' 'getoptions generator example' ''
 	msg -- 'Options:'
 	flag    FLAG    -f +f --{no-}flag                         -- "expands to --flag and --no-flag"
 	flag    VERBOSE -v    --verbose   counter:true init:=0    -- "e.g. -vvv is verbose level 3"
