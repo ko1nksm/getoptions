@@ -134,7 +134,7 @@ By the way, if you use `getoptions` as an external shell script library,
 It is useful to use `readlinkf` to loading from the execution script path
 that resolved the symlink.
 
-- `readlinkf` - [POSIX compliant readlink -f implementation for POSIX shell scripts][readlinkf]
+- [`readlinkf` - POSIX compliant readlink -f implementation for POSIX shell scripts][readlinkf]
 
 [readlinkf]: https://github.com/ko1nksm/readlinkf
 
