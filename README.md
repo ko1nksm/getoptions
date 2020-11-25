@@ -876,41 +876,7 @@ shellspec --shell bash
 
 ## Changelog
 
-- 1.0.0 - 2020-08-20
-  - First release version
-- 1.1.0 - 2020-10-21
-  - Unset `OPTARG` when the option parser ends normally. (#3 Cem Keylan)
-  - Reset `OPTIND` to 1 when the option parser ends normally.
-  - Added `@none` as initial value.
-- 2.0.0 - 2020-10-29
-  - Improved the custom error handler. [**breaking change**]
-    - The default error message is passed as the first argument, and changed the order of the arguments.
-    - Adds `:<PATTERN>` to the validator name "pattern" for flexible customization of error message.
-    - Adds `:<STATUS>` to the custom validator name for flexible customization of error message.
-    - Changed the return value of custom error handler to be used as the exit status.
-  - Invoke validator before pattern matching. [**breaking change**]
-  - Added extension features (`prehook` and `invoke`).
-  - `setup` helper function.
-    - Added `help` and `leading` attributes.
-      - **Calling `getoptions_help` is no longer needed.** [**breaking change**]
-    - Remove `equal` attribute.
-  - `option` helper function.
-    - Changed the `default` attribute to the `on` attribute. [**breaking change**]
-    - Added support `--no-option` syntax and the `off` attribute.
-  - `flag`, `param`, `option`, `disp` and `msg` helper function.
-    - Added `label` attribute.
-  - `setup`, `flag`, `param` and `option` helper function.
-    - Added `@export` as initial value.
-  - Disable expansion variables in the help display. [**breaking change**]
-- 2.0.1 - 2020-10-30
-  - Add workaround for ksh88 (fixed only the test).
-- 2.1.0 - 2020-11-03
-  - Support for abbreviating long options.
-- 2.2.0 - 2020-11-14
-  - Support for subcommands.
-- 2.3.0 - 2020-11-17
-  - Added getoptions CLI (generator).
-  - Fixed a bug that omitting the value of key-value would be an incorrect value.
+[CHANGELOG.md](CHANGELOG.md)
 
 ## License
 
