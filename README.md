@@ -143,26 +143,7 @@ that resolved the symlink.
 
 ## Quickstart
 
-```console
-$ examples/basic --help
-
-Usage: basic.sh [options...] [arguments...]
-
-getoptions example
-
-Options:
-  -a                          message a
-  -b                          message b
-  -f, +f, --{no-}flag         expands to --flag and --no-flag
-  -v,     --verbose           e.g. -vvv is verbose level 3
-  -p,     --param PARAM       accepts --param value / --param=value
-  -n,     --number NUMBER     accepts only a number value
-  -o,     --option[=OPTION]   accepts -ovalue / --option=value
-  -h,     --help
-          --version
-```
-
-See [basic.sh](examples/basic.sh)
+[basic.sh](examples/basic.sh)
 
 ```sh
 #!/bin/sh
@@ -203,6 +184,25 @@ It's parses the following options.
 
 ```sh
 examples/basic.sh -ab -f +f --flag --no-flag -vvv -p value -ovalue --option=value 1 2 -- 3 -f
+```
+
+```console
+$ examples/basic --help
+
+Usage: basic.sh [options...] [arguments...]
+
+getoptions example
+
+Options:
+  -a                          message a
+  -b                          message b
+  -f, +f, --{no-}flag         expands to --flag and --no-flag
+  -v,     --verbose           e.g. -vvv is verbose level 3
+  -p,     --param PARAM       accepts --param value / --param=value
+  -n,     --number NUMBER     accepts only a number value
+  -o,     --option[=OPTION]   accepts -ovalue / --option=value
+  -h,     --help
+          --version
 ```
 
 ## Usage
