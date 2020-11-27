@@ -143,8 +143,6 @@ that resolved the symlink.
 
 ## Quickstart
 
-[basic.sh](examples/basic.sh)
-
 ```sh
 #!/bin/sh
 VERSION=0.1
@@ -171,14 +169,15 @@ parser_definition() {
 
 number() { case $OPTARG in (*[!0-9]*) return 1; esac; }
 
-# Define the parse function for option parsing
-eval "$(getoptions parser_definition parse "$0")"
-parse "$@"          # Option parsing
-eval "set -- $REST" # Exclude options from arguments
+eval "$(getoptions parser_definition parse "$0")" # Define the parse function for option parsing
+parse "$@"                                        # Option parsing
+eval "set -- $REST"                               # Exclude options from arguments
 
 echo "$FLAG_A"
 printf '%s\n' "$@"
 ```
+
+[basic.sh](examples/basic.sh)
 
 It's parses the following options.
 
