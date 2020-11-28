@@ -71,7 +71,7 @@ Most simple, fast, small, extensible and portable. No more any loops and templat
   - Stop option parsing with `--` and treat `-` as an argument
   - Support for **subcommands**
 - No global variables are used (except the special variables `OPTARG` and `OPTIND`)
-- Fast and small, only ~5KB and ~200 lines (base module)
+- Fast and small, Typically **less than 50ms overhead and only ~5KB and ~200 lines** (base module)
   - Only one shell function is defined globally
   - No external commands required
   - Can be invoked action function and can be extended by shell scripts
@@ -208,12 +208,13 @@ Options:
 
 |      | external command | library | option parser generator |
 | ---- | ---------------- | ------- | ----------------------- |
-| easy | ★★★              | ★★☆     | ★☆☆                     |
-| fast | ★☆☆              | ★★☆     | ★★★                     |
+| easy | ⭐⭐⭐              | ⭐⭐☆     | ⭐☆☆                     |
+| fast | ⭐☆☆              | ⭐⭐☆     | ⭐⭐⭐                     |
 
 ### Use as external command (`getoptions`)
 
-It is easy to use `getoptions` as an external command, but its execution speed is slow.
+It is easy to use `getoptions` as an external command,
+but its execution speed is slightly slow (takes about 25ms longer).
 It is suitable for use with personal scripts.
 
 - [bin/getoptions.sh](./bin/getoptions)
@@ -232,7 +233,7 @@ eval "set -- $REST"
 
 ### Use as library (`getoptions.sh`, `getoptions_abbr.sh`, `getoptions_help.sh`)
 
-It is suitable for inclusion in distribution scripts.
+It is suitable for inclusion in distribution scripts. (Recommendation)
 
 - [lib/getoptions.sh](./lib/getoptions.sh) - Base module
 - [lib/getoptions_abbr.sh](./lib/getoptions_abbr.sh) - Abbreviation option module (add-on)
