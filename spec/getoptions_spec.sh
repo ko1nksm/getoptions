@@ -57,6 +57,30 @@ Describe "getoptions()"
 				The variable FLAG_A should eq 1
 				The output should eq "1 -a 2 -a 3 -- -a"
 			End
+
+			Specify "treats -- as not arguments"
+				When call restargs -a -- -a
+				The variable FLAG_A should eq 1
+				The output should eq "-a"
+			End
+		End
+
+		Context "when scanning mode is '@'"
+			parser_definition() {
+				setup ARGS mode:'@'
+				flag FLAG_A -a
+			}
+			Specify "treats rest following a non-option as arguments"
+				When call restargs -a 1 -a 2 -a 3 -- -a
+				The variable FLAG_A should eq 1
+				The output should eq "1 -a 2 -a 3 -- -a"
+			End
+
+			Specify "treats -- as arguments"
+				When call restargs -a -- -a
+				The variable FLAG_A should eq 1
+				The output should eq "-- -a"
+			End
 		End
 
 		Context "when scanning mode is '='"
