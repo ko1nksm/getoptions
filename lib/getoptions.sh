@@ -165,7 +165,8 @@ getoptions() {
 	_3 '--)'
 	[ "$_cmds" ] || _4 'shift'
 	rest
-	_3 "[-${_plus:++}]?*)" 'set "unknown" "$1"; break ;;'
+	_3 "[-${_plus:++}]?*)"
+	case $_mode in =) rest ;; *) _4 'set "unknown" "$1"; break ;;'; esac
 	_3 '*)'
 	case $_mode in
 		@)
