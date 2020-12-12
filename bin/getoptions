@@ -2,6 +2,10 @@
 
 set -eu
 
+VERSION="v2.4.0"
+URL="https://github.com/ko1nksm/getoptions"
+LICENSE="Creative Commons Zero v1.0 Universal"
+
 # https://github.com/ko1nksm/readlinkf
 readlinkf() {
 	[ "${1:-}" ] || return 1
@@ -45,10 +49,73 @@ quote() {
 	eval "$1=\${q:-\"''\"}"
 }
 
+# shellcheck disable=SC2004
+tab2space() {
+	[ ! "${1:-}" ] && cat && return 0
+	TAB=$(printf '\t')
+
+	prefix='' i=0
+	while [ "$i" -lt "$1" ] && i=$(($i + 1)); do
+		prefix="$prefix "
+	done
+	i=0
+
+	while IFS= read -r line; do
+		while [ "$line" ]; do
+			case $line in ([!${TAB}]*) break; esac
+			i=$(($i + 1)) line=${line#?}
+		done
+		while [ "$i" -gt 0 ] && i=$(($i - 1)); do
+			line="${prefix}${line}"
+		done
+		printf '%s\n' "$line"
+	done
+}
+
 self=$(readlinkf "$0")
+[ "${self##*/}" = "getoptions" ] || return 0
 lib="${self%/*/*}/lib"
 
-cat "$lib/getoptions.sh" "$lib/getoptions_abbr.sh" "$lib/getoptions_help.sh"
+INDENT='' BASE=1 ABBR=1 HELP=1
+
+while [ $# -gt 0 ]; do
+	case $1 in
+		-[0-9]) INDENT=${1#?}; shift ;;
+		--no-base) BASE=''; shift ;;
+		--no-abbr) ABBR=''; shift ;;
+		--no-help) HELP=''; shift ;;
+		-v | --version) echo "$VERSION"; exit ;;
+		-h | --help)
+			# shellcheck disable=SC2016
+			echo 'Usage: eval "$(getoptions <parser_definition> <parser_name> [arguments...])"'
+			echo 'Usage: getoptions [ -<N> (N=0-9) ] [ --no-base ] [ --no-abbr ] [ --no-help ]'
+			echo 'Usage: getoptions [ -h | --help | -v | --version ]'
+			echo ''
+			echo "URL: $URL"
+			echo "License: $LICENSE"
+			exit
+			;;
+		*) break
+	esac
+done
+
+outlibs() {
+	set -- cat
+	[ "$BASE" ] && set -- "$@" "$lib/getoptions.sh"
+	[ "$ABBR" ] && set -- "$@" "$lib/getoptions_abbr.sh"
+	[ "$HELP" ] && set -- "$@" "$lib/getoptions_help.sh"
+
+	if [ "$INDENT" ]; then
+		"$@" | tab2space "$INDENT"
+	else
+		"$@"
+	fi
+}
+
+echo "# ========================================================================"
+echo "# getoptions: $URL ($VERSION)"
+outlibs
+echo "# ========================================================================"
 
 for i; do
 	quote i "$i"
@@ -56,4 +123,6 @@ for i; do
 	shift
 done
 
-echo "eval \"\$(getoptions $*)\""
+if [ $# -gt 0 ]; then
+	echo "eval \"\$(getoptions $*)\""
+fi
