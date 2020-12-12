@@ -39,6 +39,7 @@ Most simple, fast, small, extensible and portable. No more any loops and templat
   - [Helper functions (not globally defined)](#helper-functions-not-globally-defined)
     - [Data types & Initial values](#data-types--initial-values)
     - [`setup` - Setup global settings (mandatory)](#setup---setup-global-settings-mandatory)
+      - [Scanning modes](#scanning-modes)
     - [`flag` - Define an option that take no argument](#flag---define-an-option-that-take-no-argument)
     - [`param` - Define an option that take an argument](#param---define-an-option-that-take-an-argument)
     - [`option` - Define an option that take an optional argument](#option---define-an-option-that-take-an-optional-argument)
@@ -71,7 +72,7 @@ Most simple, fast, small, extensible and portable. No more any loops and templat
   - Stop option parsing with `--` and treat `-` as an argument
   - Support for **subcommands**
 - No global variables are used (except the special variables `OPTARG` and `OPTIND`)
-- Fast and small, Typically **less than 50ms overhead and only ~5KB and ~200 lines** (base module)
+- Fast and small, Typically **less than 100ms overhead and only ~5KB and ~200 lines** (base module)
   - Only one shell function is defined globally
   - No external commands required
   - Can be invoked action function and can be extended by shell scripts
@@ -97,25 +98,25 @@ Don't want to add `getoptions.sh` to your project?
 
 ### `getopt` vs `getopts` vs `getoptions`
 
-|                                   | getopt           | getopts               | getoptions      |
-| --------------------------------- | ---------------- | --------------------- | --------------- |
-| Implementation                    | External command | Shell builtin command | Shell function  |
-| Portability                       | No               | Yes                   | Yes             |
-| Short option beginning with `-`   | ✔️                | ✔️                     | ✔️               |
-| Short option beginning with `+`   | ❌                | ⚠ zsh, ksh, mksh only | ✔️               |
-| Combining short options           | ✔️                | ✔️                     | ✔️               |
-| Long option beginning with `--`   | ⚠ GNU only       | ❌                     | ✔️               |
-| Long option beginning with `-`    | ⚠ GNU only       | ❌                     | ✔️ limited       |
-| Abbreviating long options         | ⚠ GNU only       | ❌                     | ✔️ add-on        |
-| Optional argument                 | ⚠ GNU only       | ❌                     | ✔️               |
-| Option after arguments            | ⚠ GNU only       | ❌                     | ✔️               |
-| Stop option parsing with `--`     | ✔️                | ✔️                     | ✔️               |
-| Scanning modes (see `man getopt`) | ⚠ GNU only       | ❌                     | ✔️ `+` only      |
-| Subcommand                        | ❌                | ❌                     | ✔️               |
-| Validation by pattern matching    | ❌                | ❌                     | ✔️               |
-| Custom validation                 | ❌                | ❌                     | ✔️               |
-| Custom error message              | ❌                | ✔️                     | ✔️ more flexible |
-| Automatic help generation         | ❌                | ❌                     | ✔️ add-on        |
+|                                   | getopt           | getopts               | getoptions            |
+| --------------------------------- | ---------------- | --------------------- | --------------------- |
+| Implementation                    | External command | Shell builtin command | Shell function        |
+| Portability                       | No               | Yes                   | Yes                   |
+| Short option beginning with `-`   | ✔️                | ✔️                     | ✔️                     |
+| Short option beginning with `+`   | ❌                | ⚠ zsh, ksh, mksh only | ✔️                     |
+| Combining short options           | ✔️                | ✔️                     | ✔️                     |
+| Long option beginning with `--`   | ⚠ GNU only       | ❌                     | ✔️                     |
+| Long option beginning with `-`    | ⚠ GNU only       | ❌                     | ✔️ limited             |
+| Abbreviating long options         | ⚠ GNU only       | ❌                     | ✔️ add-on              |
+| Optional argument                 | ⚠ GNU only       | ❌                     | ✔️                     |
+| Option after arguments            | ⚠ GNU only       | ❌                     | ✔️                     |
+| Stop option parsing with `--`     | ✔️                | ✔️                     | ✔️                     |
+| Scanning modes (see `man getopt`) | ⚠ GNU only       | ❌                     | ✔️ `+` and enhancement |
+| Subcommand                        | ❌                | ❌                     | ✔️                     |
+| Validation by pattern matching    | ❌                | ❌                     | ✔️                     |
+| Custom validation                 | ❌                | ❌                     | ✔️                     |
+| Custom error message              | ❌                | ✔️                     | ✔️ more flexible       |
+| Automatic help generation         | ❌                | ❌                     | ✔️ add-on              |
 
 ## Installation
 
@@ -208,8 +209,8 @@ Options:
 
 |      | external command | library | option parser generator |
 | ---- | ---------------- | ------- | ----------------------- |
-| easy | ⭐⭐⭐              | ⭐⭐☆     | ⭐☆☆                     |
-| fast | ⭐☆☆              | ⭐⭐☆     | ⭐⭐⭐                     |
+| easy | ★★★              | ★★☆     | ★☆☆                     |
+| fast | ★☆☆              | ★★☆     | ★★★                     |
 
 ### Use as external command (`getoptions`)
 
@@ -218,6 +219,18 @@ but its execution speed is slightly slow (takes about 25ms longer).
 It is suitable for use with personal scripts.
 
 - [bin/getoptions.sh](./bin/getoptions)
+
+```console
+$ bin/getoptions --help
+
+Usage: eval "$(getoptions <parser_definition> <parser_name> [arguments...])"
+Usage: getoptions [ -<N> (N=0-9) ] [ --no-base ] [ --no-abbr ] [ --no-help ]
+Usage: getoptions [ -h | --help | -v | --version ]
+```
+
+The second usage outputs the all getoptions libraries to the stdout.
+The `-<N>` allows you to change the number of spaces used for indentation,
+which is useful for embedding libraries in your scripts.
 
 ```sh
 #!/bin/sh
@@ -238,6 +251,8 @@ It is suitable for inclusion in distribution scripts. (Recommendation)
 - [lib/getoptions.sh](./lib/getoptions.sh) - Base module
 - [lib/getoptions_abbr.sh](./lib/getoptions_abbr.sh) - Abbreviation option module (add-on)
 - [lib/getoptions_help.sh](./lib/getoptions_help.sh) - Automatic help generation module (add-on)
+
+NOTE: If you want the libraries combined into one, run `bin/getoptions`.
 
 ```sh
 #!/bin/sh
@@ -291,7 +306,7 @@ bin/getoptions-cli --indent=2 --shellcheck examples/parser_definition.sh parser 
 ```sh
 # shellcheck shell=sh
 # Generated by getoptions (BEGIN)
-# URL: https://github.com/ko1nksm/getoptions (2.3.0)
+# URL: https://github.com/ko1nksm/getoptions (v2.5.0)
 FLAG=''
 VERBOSE='0'
 PARAM=''
@@ -400,7 +415,8 @@ parser() {
           shift
         done
         break ;;
-      [-+]?*) set "unknown" "$1"; break ;;
+      [-+]?*)
+        set "unknown" "$1"; break ;;
       *)
         REST="${REST} \"\${$(($OPTIND-$#))}\""
     esac
@@ -423,7 +439,7 @@ usage() {
 cat<<'GETOPTIONSHERE'
 Usage: prog [options...] [arguments...]
 
-getoptions example
+getoptions parser_definition example
 
 Options:
   -f, +f, --{no-}flag         expands to --flag and --no-flag
@@ -534,7 +550,7 @@ See [extension.sh](examples/extension.sh)
 This function is, to be exact, an option parser generator.
 An option parser is defined by `eval` the generated code.
 
-`getoptions <parser_definition> <parser_name> [arguments]...`
+`getoptions <parser_definition> <parser_name> [arguments...]`
 
 - parser_definition - Option parser definition
 - parser_name - Function name for option parser
@@ -578,7 +594,7 @@ Do not call it manually.
 This function is called automatically by `getoptions` with the `help` attribute,
 but can also be called manually.
 
-`getoptions_help <parser_definition> <help_name> [arguments]...`
+`getoptions_help <parser_definition> <help_name> [arguments...]`
 
 - parser_definition - Option parser definition
 - help_name - Function name for help display
@@ -656,7 +672,7 @@ They are available only in the `getoptions` and `getoptions_help` functions.
 
 #### `setup` - Setup global settings (mandatory)
 
-`setup <restargs> [settings]... [default attributes]... [-- [messages]...]`
+`setup <restargs> [settings...] [default attributes...] [-- [messages...]]`
 
 - resrargs (VARIABLE)
   - The variable name for getting rest arguments
@@ -668,8 +684,7 @@ They are available only in the `getoptions` and `getoptions_help` functions.
   - `error`:STATEMENT - Custom error handler
   - `help`:STATEMENT - Define help function (requires `getoptions_help`)
   - `leading`:STRING - Leading characters in the option part of the help [default: `"  "` (two spaces)]
-  - `mode`:STRING - Scanning modes (see `man getopt`) [default: empty]
-    - Unlike `getopt`, only `+` supported
+  - `mode`:STRING - Scanning modes (See below or `man getopt`) [default: empty]
   - `plus`:BOOLEAN - Those start with `+` are treated as options [default: auto]
   - `width`:NUMBER - The width of the option or subcommand part of the help [default: `"30,12"`]
 - default attributes (KEY-VALUE)
@@ -681,9 +696,19 @@ They are available only in the `getoptions` and `getoptions_help` functions.
 - message (STRING)
   - Help messages
 
+##### Scanning modes
+
+| mode | `getopt`      | `getoptions`                                                                |
+| ---- | ------------- | --------------------------------------------------------------------------- |
+| `+`  | Supported     | Stop parsing when an argument (not an option) is found                      |
+| `-`  | Supported     | Not supported (No point in supporting it)                                   |
+| `=`  | Not supported | Stop parsing when an unknown option is found                                |
+| `#`  | Not supported | Stop parsing when an argument (not an option) or an unknown option is found |
+| `@`  | Not supported | Similar to mode `+` but leaves `--` (AKA, subcommands mode)                 |
+
 #### `flag` - Define an option that take no argument
 
-`flag <varname | :action> [switches]... [attributes]... [-- [messages]...]`
+`flag <varname | :action> [switches...] [attributes...] [-- [messages...]]`
 
 - varname (VARIABLE) or action (STATEMENT)
   - Variable name or Action function
@@ -705,7 +730,7 @@ They are available only in the `getoptions` and `getoptions_help` functions.
 
 #### `param` - Define an option that take an argument
 
-`param <varname | :action> [switches]... [attributes]... [-- [messages]...]`
+`param <varname | :action> [switches...] [attributes...] [-- [messages...]]`
 
 - varname (VARIABLE) or action (STATEMENT)
   - Variable name or Action function
@@ -725,7 +750,7 @@ They are available only in the `getoptions` and `getoptions_help` functions.
 
 #### `option` - Define an option that take an optional argument
 
-`option <varname | :action> [switches]... [attributes]... [-- [messages]...]`
+`option <varname | :action> [switches...] [attributes...] [-- [messages...]]`
 
 - varname (VARIABLE) or action (STATEMENT)
   - Variable name or Action function
@@ -747,7 +772,7 @@ They are available only in the `getoptions` and `getoptions_help` functions.
 
 #### `disp` - Define an option that display only
 
-`disp <varname | :action> [switches]... [attributes]... [-- [messages]...]`
+`disp <varname | :action> [switches...] [attributes...] [-- [messages...]]`
 
 - varname (VARIABLE) or action (STATEMENT)
   - Variable name or Action function
@@ -762,7 +787,7 @@ They are available only in the `getoptions` and `getoptions_help` functions.
 
 #### `msg` - Display message in help
 
-`msg [attributes]... [-- [messages]...]`
+`msg [attributes...] [-- [messages...]]`
 
 - attributes (KEY-VALUE)
   - `hidden`:BOOLEAN - Do not display in help
@@ -772,13 +797,15 @@ They are available only in the `getoptions` and `getoptions_help` functions.
 
 #### `cmd` - Define a subcommand
 
-`cmd [subcommand]... [-- [messages]...]`
+`cmd [subcommand] [-- [messages...]]`
 
 - attributes (KEY-VALUE)
   - `hidden`:BOOLEAN - Do not display in help
   - `label`:STRING - Command part of help message
 - message (STRING)
   - Help messages
+
+NOTE: Defining a subcommand will change the scanning mode to `@` (subcommands mode).
 
 ### Custom error handler
 
