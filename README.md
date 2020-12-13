@@ -98,25 +98,25 @@ Don't want to add `getoptions.sh` to your project?
 
 ### `getopt` vs `getopts` vs `getoptions`
 
-|                                   | getopt           | getopts               | getoptions            |
-| --------------------------------- | ---------------- | --------------------- | --------------------- |
-| Implementation                    | External command | Shell builtin command | Shell function        |
-| Portability                       | No               | Yes                   | Yes                   |
-| Short option beginning with `-`   | ✔️                | ✔️                     | ✔️                     |
-| Short option beginning with `+`   | ❌                | ⚠ zsh, ksh, mksh only | ✔️                     |
-| Combining short options           | ✔️                | ✔️                     | ✔️                     |
-| Long option beginning with `--`   | ⚠ GNU only       | ❌                     | ✔️                     |
-| Long option beginning with `-`    | ⚠ GNU only       | ❌                     | ✔️ limited             |
-| Abbreviating long options         | ⚠ GNU only       | ❌                     | ✔️ add-on              |
-| Optional argument                 | ⚠ GNU only       | ❌                     | ✔️                     |
-| Option after arguments            | ⚠ GNU only       | ❌                     | ✔️                     |
-| Stop option parsing with `--`     | ✔️                | ✔️                     | ✔️                     |
-| Scanning modes (see `man getopt`) | ⚠ GNU only       | ❌                     | ✔️ `+` and enhancement |
-| Subcommand                        | ❌                | ❌                     | ✔️                     |
-| Validation by pattern matching    | ❌                | ❌                     | ✔️                     |
-| Custom validation                 | ❌                | ❌                     | ✔️                     |
-| Custom error message              | ❌                | ✔️                     | ✔️ more flexible       |
-| Automatic help generation         | ❌                | ❌                     | ✔️ add-on              |
+|                                 | getopt           | getopts               | getoptions            |
+| ------------------------------- | ---------------- | --------------------- | --------------------- |
+| Implementation                  | External command | Shell builtin command | Shell function        |
+| Portability                     | No               | Yes                   | Yes                   |
+| Short option beginning with `-` | ✔️                | ✔️                     | ✔️                     |
+| Short option beginning with `+` | ❌                | ⚠ zsh, ksh, mksh only | ✔️                     |
+| Combining short options         | ✔️                | ✔️                     | ✔️                     |
+| Long option beginning with `--` | ⚠ GNU only       | ❌                     | ✔️                     |
+| Long option beginning with `-`  | ⚠ GNU only       | ❌                     | ✔️ limited             |
+| Abbreviating long options       | ⚠ GNU only       | ❌                     | ✔️ add-on              |
+| Optional argument               | ⚠ GNU only       | ❌                     | ✔️                     |
+| Option after arguments          | ⚠ GNU only       | ❌                     | ✔️                     |
+| Stop option parsing with `--`   | ✔️                | ✔️                     | ✔️                     |
+| Scanning modes                  | ⚠ GNU only       | ❌                     | ✔️ `+` and enhancement |
+| Subcommand                      | ❌                | ❌                     | ✔️                     |
+| Validation by pattern matching  | ❌                | ❌                     | ✔️                     |
+| Custom validation               | ❌                | ❌                     | ✔️                     |
+| Custom error message            | ❌                | ✔️                     | ✔️ more flexible       |
+| Automatic help generation       | ❌                | ❌                     | ✔️ add-on              |
 
 ## Installation
 
