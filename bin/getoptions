@@ -2,7 +2,7 @@
 
 set -eu
 
-VERSION="v2.4.0"
+VERSION="v2.5.0"
 URL="https://github.com/ko1nksm/getoptions"
 LICENSE="Creative Commons Zero v1.0 Universal"
 
