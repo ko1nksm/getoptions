@@ -2,7 +2,7 @@
 
 set -euf
 
-SHELLCHECK="shell=sh disable=SC2004,SC2145,SC2194"
+SHELLCHECK="shell=sh disable=SC2004,SC2034,SC2145,SC2194"
 
 [ "${ZSH_VERSION:-}" ] && setopt shwordsplit
 
