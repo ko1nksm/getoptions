@@ -131,29 +131,21 @@ getoptions() {
 	[ "$_alt" ] && _2 'case $1 in -[!-]?*) set -- "-$@"; esac'
 	_2 'case $1 in'
 	_wa() { _4 "eval 'set -- $1' \${1+'\"\$@\"'}"; }
-	_op() { _wa '"${OPTARG%"${OPTARG#??}"}" '"$1"'"${OPTARG#??}"'; }
+	_op() {
+		_3 "$1) OPTARG=\$1; shift"
+		_wa '"${OPTARG%"${OPTARG#??}"}" '"$2"'"${OPTARG#??}"'
+		_4 "$3"
+	}
 	_3 '--?*=*) OPTARG=$1; shift'
 	_wa '"${OPTARG%%\=*}" "${OPTARG#*\=}"'
 	_4 ';;'
 	_3 '--no-*) unset OPTARG ;;'
 	[ "$_alt" ] || {
-		[ "$_opts" ] && {
-			_3 "-[$_opts]?*) OPTARG=\$1; shift"
-			_op ''
-			_4 ';;'
-		}
-		[ "$_flags" ] && {
-			_3 "-[$_flags]?*) OPTARG=\$1; shift"
-			_op -
-			_4 'OPTARG= ;;'
-		}
+		[ "$_opts" ] && _op "-[$_opts]?*" '' ';;'
+		[ ! "$_flags" ] || _op "-[$_flags]?*" - 'OPTARG= ;;'
 	}
 	[ "$_plus" ] && {
-		[ "$_nflags" ] && {
-			_3 "+[$_nflags]?*) OPTARG=\$1; shift"
-			_op +
-			_4 'unset OPTARG ;;'
-		}
+		[ "$_nflags" ] && _op "+[$_nflags]?*" + 'unset OPTARG ;;'
 		_3 '+*) unset OPTARG ;;'
 	}
 	_2 'esac'
