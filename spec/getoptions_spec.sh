@@ -78,7 +78,7 @@ Describe "getoptions()"
 			End
 
 			Specify "treats rest following a non-option or an unknown option as arguments"
-				When call restargs -a -a -x 2 -a 3 -- -a
+				When call restargs -a -a -aa -x 2 -a 3 -- -a
 				The variable FLAG_A should eq 1
 				The output should eq "-x 2 -a 3 -- -a"
 			End
