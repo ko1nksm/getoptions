@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.5.1] - 2021-01-10
+
+### Changed
+
+- Add SC2034 to shellcheck directive in generated code
+
 ### Fixed
 
 - Fixed a bug that omitting the value of key-value would be an incorrect value.
