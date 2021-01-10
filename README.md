@@ -72,7 +72,7 @@ Most simple, fast, small, extensible and portable. No more any loops and templat
   - Stop option parsing with `--` and treat `-` as an argument
   - Support for **subcommands**
 - No global variables are used (except the special variables `OPTARG` and `OPTIND`)
-- Fast and small, Typically **less than 100ms overhead and only ~5KB and ~200 lines** (base module)
+- Fast and small, Typically **less than 100ms overhead and only ~5.1KB and ~200 lines** (base module)
   - Only one shell function is defined globally
   - No external commands required
   - Can be invoked action function and can be extended by shell scripts

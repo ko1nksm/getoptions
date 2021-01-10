@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed a bug that omitting the value of key-value would be an incorrect value.
+- Fix handling of unknown short options in mode `=` and `#`.
+
 ## [2.5.0] - 2020-12-13
 
 ### Added
