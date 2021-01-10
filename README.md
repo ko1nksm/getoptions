@@ -702,9 +702,15 @@ They are available only in the `getoptions` and `getoptions_help` functions.
 | ---- | ------------- | --------------------------------------------------------------------------- |
 | `+`  | Supported     | Stop parsing when an argument (not an option) is found                      |
 | `-`  | Supported     | Not supported (No point in supporting it)                                   |
+| `@`  | Not supported | Similar to mode `+` but leaves `--` (AKA, subcommands mode)                 |
+
+NOTE: The following scanning modes are currently not implemented correctly and will be removed in the next version,
+as fixing them would increase the amount of code significantly. Please do not use them.
+
+| mode | `getopt`      | `getoptions`                                                                |
+| ---- | ------------- | --------------------------------------------------------------------------- |
 | `=`  | Not supported | Stop parsing when an unknown option is found                                |
 | `#`  | Not supported | Stop parsing when an argument (not an option) or an unknown option is found |
-| `@`  | Not supported | Similar to mode `+` but leaves `--` (AKA, subcommands mode)                 |
 
 #### `flag` - Define an option that take no argument
 
