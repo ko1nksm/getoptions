@@ -142,14 +142,18 @@ getoptions() {
 			_op ''
 			_4 ';;'
 		}
-		_3 "-[$_flags]?*) OPTARG=\$1; shift"
-		_op -
-		_4 'OPTARG= ;;'
+		[ "$_flags" ] && {
+			_3 "-[$_flags]?*) OPTARG=\$1; shift"
+			_op -
+			_4 'OPTARG= ;;'
+		}
 	}
 	[ "$_plus" ] && {
-		_3 "+[$_nflags]?*) OPTARG=\$1; shift"
-		_op +
-		_4 'unset OPTARG ;;'
+		[ "$_nflags" ] && {
+			_3 "+[$_nflags]?*) OPTARG=\$1; shift"
+			_op +
+			_4 'unset OPTARG ;;'
+		}
 		_3 '+*) unset OPTARG ;;'
 	}
 	_2 'esac'
