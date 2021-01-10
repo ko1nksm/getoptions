@@ -12,8 +12,8 @@ getoptions_help() {
 		while [ $# -gt 0 ] && i=$1 && shift && [ "$i" != -- ]; do
 			case $i in
 				--*) sw $((${_plus:+4}+4)) "$i" ;;
-				-?) sw 0 "$i" ;;
-				+?) [ ! "$_plus" ] || sw 4 "$i" ;;
+				-*) sw 0 "$i" ;;
+				+*) [ ! "$_plus" ] || sw 4 "$i" ;;
 				*) [ "$_type" = setup ] && kv "$i" _; kv "$i"
 			esac
 		done

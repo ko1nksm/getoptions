@@ -22,7 +22,7 @@ getoptions_abbr() {
 			case $i in
 				--) break ;;
 				--\{no-\}*) abbr "--${i#--\{no-\}}"; abbr "--no-${i#--\{no-\}}" ;;
-				--*) abbr "$i"
+				-??*) abbr "$i"
 			esac
 		done
 	}
@@ -33,7 +33,7 @@ getoptions_abbr() {
 	msg() { :; }
 	_2 'set -- "${1%%\=*}" "${1#*\=}" "$@"'
 	[ "$_alt" ] && _2 'case $1 in -[!-]?*) set -- "-$@"; esac'
-	_2 'while [ ${#1} -gt 2 ]; do'
+	_2 'while [ ${#1} -gt 1 ]; do'
 	_3 'case $1 in (*[!a-zA-Z0-9_-]*) break; esac'
 	"$@"
 	_3 'break'

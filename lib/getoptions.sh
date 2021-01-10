@@ -74,7 +74,7 @@ getoptions() {
 		while loop "$@" && shift; do
 			case $1 in
 				--\{no-\}*) i=${1#--?no-?}; sw="$sw${sw:+|}'--$i'|'--no-$i'" ;;
-				[-+]? | --*) sw="$sw${sw:+|}'$1'" ;;
+				[-+]* | --*) sw="$sw${sw:+|}'$1'" ;;
 				*) kv "$1"
 			esac
 		done
