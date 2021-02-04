@@ -328,14 +328,20 @@ Describe "getoptions()"
 				flag FLAG_D --{no-}flag-d
 				flag FLAG_E --no-flag-e
 				flag FLAG_F --{no-}flag-f
+				flag FLAG_G --with{out}-flag-g
+				flag FLAG_H --without-flag-h
+				flag FLAG_I --with{out}-flag-i
 			}
-			When call parse -a +b --flag-c --flag-d --no-flag-e --no-flag-f
+			When call parse -a +b --flag-c --flag-d --no-flag-e --no-flag-f --with-flag-g --without-flag-h --without-flag-i
 			The variable FLAG_A should eq 1
 			The variable FLAG_B should eq ""
 			The variable FLAG_C should eq 1
 			The variable FLAG_D should eq 1
 			The variable FLAG_E should eq ""
 			The variable FLAG_F should eq ""
+			The variable FLAG_G should eq 1
+			The variable FLAG_H should eq ""
+			The variable FLAG_I should eq ""
 		End
 
 		It "can change the set value"
@@ -525,6 +531,18 @@ Describe "getoptions()"
 			It "displays error"
 				When run parse --no-option=value
 				The stderr should eq "Does not allow an argument: --no-option"
+				The status should be failure
+			End
+		End
+
+		Context "when specified an argument to --without-option"
+		    parser_definition() {
+				setup ARGS
+				option OPTION --without-option
+		    }
+			It "displays error"
+			    When run parse --without-option=value
+				The stderr should eq "Does not allow an argument: --without-option"
 				The status should be failure
 			End
 		End
