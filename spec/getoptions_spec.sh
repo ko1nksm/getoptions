@@ -83,27 +83,6 @@ Describe "getoptions()"
 			End
 		End
 
-		Context "when scanning mode is '='"
-			parser_definition() {
-				setup ARGS mode:'=' plus:true
-				flag FLAG -f
-				param PARAM -p
-			}
-			Specify "treats rest following an unknown option as arguments"
-				When call restargs -p 1 -f a -p 2 b -x -p 3
-				The variable PARAM should eq 2
-				The output should eq "a b -x -p 3"
-			End
-
-			Describe "leaves unknown options as is:"
-				Parameters:value -xx +xx
-				Specify "$1"
-					When call restargs "$1"
-					The output should eq "$1"
-				End
-			End
-		End
-
 		Context 'when the plus attribute disabled (default)'
 			parser_definition() { setup ARGS; }
 			Specify "treats as arguments"
