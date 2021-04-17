@@ -163,7 +163,7 @@ getoptions() {
 	[ "$_mode" = @ ] || _4 'shift'
 	rest
 	_3 "[-${_plus:++}]?*)"
-	case $_mode in [=#]) rest ;; *) _4 'set "unknown" "$1"; break ;;'; esac
+	case $_mode in =) rest ;; *) _4 'set "unknown" "$1"; break ;;'; esac
 	_3 '*)'
 	case $_mode in
 		@)
@@ -171,7 +171,7 @@ getoptions() {
 			_5 '*) set "notcmd" "$1"; break'
 			_4 'esac'
 			rest ;;
-		[+#]) rest ;;
+		+) rest ;;
 		*) _4 "$_rest=\"\${$_rest}" '\"\${$(($OPTIND-$#))}\""'
 	esac
 	_2 'esac'
