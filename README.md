@@ -660,12 +660,12 @@ They are available only in the `getoptions` and `getoptions_help` functions.
 | STATEMENT  | Function name (arguments can be added) - e.g. `foo`, `foo 1 2 3`                  |
 | CODE       | Statement or multiple statements - e.g `foo; bar`                                 |
 | KEY-VALUE  | `key:value` style arguments - If `:value` is omitted, it is the same as `key:key` |
-| INIT-VALUE | Initial value (`@on`, `@off`, `@unset`, `@none`, `@export`)                       |
+| INIT-VALUE | Initial value (`@on`, `@no`, `@unset`, `@none`, `@export`)                        |
 
 | name      | description                                                                  |
 | --------- | ---------------------------------------------------------------------------- |
 | `@on`     | Set the variable to a positive value. [default: `1`]                         |
-| `@off`    | Set the variable to a negative value. [default: empty]                       |
+| `@no`     | Set the variable to a negative value. [default: empty]                       |
 | `@unset`  | Unset the variable                                                           |
 | `@none`   | Do not initialization (Use the current value as it is)                       |
 | `@export` | Add only export flag without initialization (Use the current value as it is) |
@@ -719,8 +719,8 @@ They are available only in the `getoptions` and `getoptions_help` functions.
   - `hidden`:BOOLEAN - Do not display in help
   - `init`:[@INIT-VALUE | =STRING | CODE] - Initial value
   - `label`:STRING - The option part of the help
-  - `off`:STRING - The negative value
   - `on`:STRING - The positive value
+  - `no`:STRING - The negative value
   - `pattern`:PATTERN - Pattern to accept
   - `validate`:STATEMENT - Code for value validation
 - message (STRING)
@@ -760,8 +760,8 @@ They are available only in the `getoptions` and `getoptions_help` functions.
   - `hidden`:BOOLEAN - Do not display in help
   - `init`:[@INIT-VALUE | =STRING | CODE] - Initial value
   - `label`:STRING - Option part of help message
-  - `off`:STRING - The negative value
   - `on`:STRING - The positive value
+  - `no`:STRING - The negative value
   - `pattern`:PATTERN - Pattern to accept
   - `validate`:STATEMENT - Code for value validation
   - `var`:STRING - Variable name displayed in help

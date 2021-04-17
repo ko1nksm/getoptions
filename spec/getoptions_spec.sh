@@ -291,22 +291,22 @@ Describe "getoptions()"
 		It "can change the set value"
 			parser_definition() {
 				setup ARGS
-				flag FLAG_A -a on:ON off:OFF
-				flag FLAG_B +b on:ON off:OFF
+				flag FLAG_A -a on:ON no:NO
+				flag FLAG_B +b on:ON no:NO
 			}
 			When call parse -a +b
 			The variable FLAG_A should eq "ON"
-			The variable FLAG_B should eq "OFF"
+			The variable FLAG_B should eq "NO"
 		End
 
 		It "set initial value when not specified flag"
 			BeforeCall FLAG_N=none FLAG_E=""
 			parser_definition() {
 				setup ARGS
-				flag FLAG_A -a on:ON off:OFF init:@on
-				flag FLAG_B -b on:ON off:OFF init:@off
-				flag FLAG_C -c on:ON off:OFF init:'FLAG_C=func'
-				flag FLAG_D -d on:ON off:OFF
+				flag FLAG_A -a on:ON no:NO init:@on
+				flag FLAG_B -b on:ON no:NO init:@no
+				flag FLAG_C -c on:ON no:NO init:'FLAG_C=func'
+				flag FLAG_D -d on:ON no:NO
 				flag FLAG_Q -q on:"a'b\""
 				flag FLAG_U -u init:@unset
 				flag FLAG_N -n init:@none
@@ -314,7 +314,7 @@ Describe "getoptions()"
 			}
 			When call parse -q
 			The variable FLAG_A should eq "ON"
-			The variable FLAG_B should eq "OFF"
+			The variable FLAG_B should eq "NO"
 			The variable FLAG_C should eq "func"
 			The variable FLAG_D should eq ""
 			The variable FLAG_Q should eq "a'b\""
@@ -365,23 +365,23 @@ Describe "getoptions()"
 			valid() { echo "$OPTARG" "$@"; }
 			parser_definition() {
 				setup ARGS
-				flag FLAG -f +f on:ON off:OFF validate:'valid "$1"'
+				flag FLAG -f +f on:ON no:NO validate:'valid "$1"'
 			}
 			When call parse -f +f
 			The line 1 should eq "ON -f"
-			The line 2 should eq "OFF +f"
+			The line 2 should eq "NO +f"
 		End
 
 		Context 'when common flag value is specified'
 			parser_definition() {
-				setup ARGS on:ON off:OFF
+				setup ARGS on:ON no:NO
 				flag FLAG_A -a
 				flag FLAG_B +b
 			}
 			It "can change the set value"
 				When call parse -a +b
 				The variable FLAG_A should eq "ON"
-				The variable FLAG_B should eq "OFF"
+				The variable FLAG_B should eq "NO"
 			End
 		End
 	End
@@ -458,7 +458,7 @@ Describe "getoptions()"
 				option OPTION   --option
 				option OPTION_O -o on:"default"
 				option OPTION_P -p
-				option OPTION_N --no-option off:"omission"
+				option OPTION_N --no-option no:"omission"
 			}
 			When call parse  --option=value1 -o -pvalue2 --no-option
 			The variable OPTION should eq "value1"

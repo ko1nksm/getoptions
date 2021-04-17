@@ -14,13 +14,13 @@ BLOOD_TYPES='A | B | O | AB'
 # shellcheck disable=SC1083,SC2016,SC2145
 parser_definition() {
 	array() { param ":push $@"; } # custom helper function
-	setup   REST error:error on:1 off: export:true plus:true width:35 help:usage abbr:true -- \
+	setup   REST error:error on:1 no: export:true plus:true width:35 help:usage abbr:true -- \
 		"Usage: ${2##*/} [options...] [arguments...]" '' \
 		'getoptions advanced example' ''
 	msg     label:"OPTION" -- "DESCRIPTION"
-	flag    FLAG_A    -a --flag-a on:1 off: init:= export:
-	flag    FLAG_B    -b +b --{no-}flag-b on:ON off:OFF init:@off
-	flag    FLAG_C    -c +c --{no-}flag-c on:1 off:0 init:@unset
+	flag    FLAG_A    -a --flag-a on:1 no: init:= export:
+	flag    FLAG_B    -b +b --{no-}flag-b on:ON no:NO init:@no
+	flag    FLAG_C    -c +c --{no-}flag-c on:1 no:0 init:@unset
 	flag    VERBOSE   -v +v --{no-}verbose counter:true init:=0
 	param   PARAM     -p    --param init:="default"
 	param   LANG            --lang init:@none # or init:="$LANG" for using current value
@@ -36,7 +36,7 @@ parser_definition() {
 	param   :multiple       --multiple init:'MULTIPLE=""' var:MULTIPLE
 	array   ARRAY           --append init:'ARRAY=""' var:ARRAY
 	param   :'action "$1" p1 p2' --act1 --act2 var:param
-	option  OPTION    -o +o --{no-}option on:"on value" off:"off value"
+	option  OPTION    -o +o --{no-}option on:"on value" no:"no value"
 	disp    :"getoptions parser_definition parse ''" --generate \
 		-- 'Display parser code'
 	disp    :usage -h --help

@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Changed Attribute `off` to `no`. [**breaking change**]
+- Changed initial value `@off` to `no`. [**breaking change**]
+
 ### Removed
 
 - Removed incomplete scanning modes `=`, `#`. [**breaking change**]
