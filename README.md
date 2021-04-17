@@ -691,26 +691,18 @@ They are available only in the `getoptions` and `getoptions_help` functions.
   - `export`:BOOLEAN - Export variables [default: empty]
   - `hidden`:BOOLEAN - Do not display in help [default: empty]
   - `init`:[@INIT-VALUE | =STRING | CODE] - Initial value
-  - `off`:STRING - The negative value [default: empty]
   - `on`:STRING - The positive value [default: `1`]
+  - `no`:STRING - The negative value [default: empty]
 - message (STRING)
   - Help messages
 
 ##### Scanning modes
 
-| mode | `getopt`      | `getoptions`                                                                |
-| ---- | ------------- | --------------------------------------------------------------------------- |
-| `+`  | Supported     | Stop parsing when an argument (not an option) is found                      |
-| `-`  | Supported     | Not supported (No point in supporting it)                                   |
-| `@`  | Not supported | Similar to mode `+` but leaves `--` (AKA, subcommands mode)                 |
-
-NOTE: The following scanning modes are currently not implemented correctly and will be removed in the next version,
-as fixing them would increase the amount of code significantly. Please do not use them.
-
-| mode | `getopt`      | `getoptions`                                                                |
-| ---- | ------------- | --------------------------------------------------------------------------- |
-| `=`  | Not supported | Stop parsing when an unknown option is found                                |
-| `#`  | Not supported | Stop parsing when an argument (not an option) or an unknown option is found |
+| mode | `getopt`      | `getoptions`                                                |
+| ---- | ------------- | ----------------------------------------------------------- |
+| `+`  | Supported     | Stop parsing when an argument (not an option) is found      |
+| `-`  | Supported     | Not supported (No point in supporting it)                   |
+| `@`  | Not supported | Similar to mode `+` but leaves `--` (AKA, subcommands mode) |
 
 #### `flag` - Define an option that take no argument
 

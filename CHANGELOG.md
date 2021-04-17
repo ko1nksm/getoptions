@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+- Removed incomplete scanning modes `=`, `#`. [**breaking change**]
+
 ## [2.5.1] - 2021-01-10
 
 ### Changed
