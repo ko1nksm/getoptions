@@ -55,29 +55,35 @@ parser_definition() {
 
 	param DEFINITION -d --definition var:NAME -- \
 		"Specify the parser definition name" \
-		"  (default: filename without extensions)"
+		"  [default: filename without extensions]"
 
 	option INDENT -i --indent on:2 validate:number var:N -- \
-		"Use N (default: 2) spaces instead of tabs for indentation"
+		"Use N spaces instead of tabs for indentation [default: 2]"
 
 	option SHELLCHECK --shellcheck var:DIRECTIVES on:"$SHELLCHECK" -- \
-		"Embed the shellcheck directives" "  (default: '$SHELLCHECK')"
+		"Embed the shellcheck directives" "  [default: '$SHELLCHECK']"
 
 	flag COMMENT --no-comments init:@on -- \
 		"Do not embed comments"
+
+	param ARG --optarg -- \
+		"Use ARG instead of the variable name OPTARG"
+
+	param IND --optind -- \
+		"Use IND instead of the variable name OPTIND"
 
 	disp :usage -h --help -- "Display this help and exit"
 	disp VERSION -v --version -- "Display the version and exit"
 
 	msg -- ''
 	msg -- "URL: $URL"
-	msg -- "License: $LICENSE"
-	msg -- '' 'Example:' "$(example)"
+	msg -- "License: $LICENSE" '' ''
+	msg -- '----------------------------------------------------------------------'
+	msg -- '# Example of parser definition:' "$(example)"
 }
 
 example() {
 cat<<'HERE'
-----------------------------------------------------------------------
 parser_definition() {
   setup   REST plus:true help:usage abbr:true \
     -- "Usage: ${2##*/} [options...] [arguments...]" ''
@@ -173,6 +179,29 @@ shellcheck() {
 	printf '# shellcheck %s=%s\n' "$1" "$2"
 }
 
+replace_all() {
+  if [ $# -lt 4 ]; then
+    eval "set -- \"\$1\" \"\${$1}\" \"\$2\" \"\$3\" \"\""
+  else
+    set -- "$1" "$2" "$3" "$4" ""
+  fi
+  while :; do
+    case $2 in
+      *"$3"*) set -- "$1" "${2#*"$3"}" "$3" "$4" "$5${2%%"$3"*}$4" ;;
+      *) break ;;
+    esac
+  done
+  eval "$1=\$5\$2"
+}
+
+chvarname() {
+	while IFS= read -r line; do
+		[ "$ARG" ] && replace_all line OPTARG "$ARG"
+		[ "$IND" ] && replace_all line OPTIND "$IND"
+		printf '%s\n' "$line"
+	done
+}
+
 main() {
 	parse_shellcheck_directives "$SHELLCHECK"
 	shellcheck shell "$shellcheck_shell"
@@ -188,4 +217,4 @@ main() {
 }
 
 generated=$(generate "$@")
-printf '%s\n' "$generated" | main | tab2space "$INDENT"
+printf '%s\n' "$generated" | main | tab2space "$INDENT" | chvarname
