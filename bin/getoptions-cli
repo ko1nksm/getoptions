@@ -19,8 +19,9 @@ parser_definition() {
 
 	msg -- '' 'Commands:'
 
-	cmd parser -- 'Generate parser'
-	cmd example -- 'Generate example'
+	cmd parser -- 'Generate option parser'
+	cmd library -- 'Generate custom library'
+	cmd example -- 'Generate parser definition example'
 
 	msg -- ''
 	msg -- "URL: $URL"
@@ -50,6 +51,32 @@ parser_definition_parser() {
 
 	param IND --optind -- \
 		"Use IND instead of the variable name OPTIND"
+
+	disp :usage -h --help -- "Display this help and exit"
+}
+
+parser_definition_library() {
+	setup REST help:usage abbr:true width:24 error -- \
+		"Usage: ${2##*/} library [options]" '' \
+		'Options:'
+
+	option INDENT -i --indent on:2 validate:number var:N -- \
+		"Use N spaces instead of tabs for indentation [default: 2]"
+
+	param ARG --optarg -- \
+		"Use ARG instead of the variable name OPTARG"
+
+	param IND --optind -- \
+		"Use IND instead of the variable name OPTIND"
+
+	flag BASE --no-base init:=getoptions -- \
+		"Do not include base library"
+
+	flag ABBR --no-abbr init:=getoptions_abbr -- \
+		"Do not include abbr library"
+
+	flag HELP --no-help init:=getoptions_help -- \
+		"Do not include help library"
 
 	disp :usage -h --help -- "Display this help and exit"
 }
@@ -191,6 +218,36 @@ do_parser() {
 	} | tab2space "$INDENT" | chvarname
 }
 
+do_library() {
+	eval "$(getoptions parser_definition_library parse "$0")"
+	parse "$@"
+	eval "set -- $REST"
+
+	"$GETOPTIONS" - | {
+		funcname='' shellcheck_disable=""
+		while IFS= read -r line; do
+			case $line in
+				\#\ shellcheck*)
+					case $line in
+						*disable*) shellcheck_disable=${line#*disable=} ;;
+						*) shellcheck_disable="" ;;
+					esac
+					continue ;;
+				\#*) continue ;;
+				getoptions*)
+					funcname=${line%%\(\)*}
+					echo "# [$funcname] License: $LICENSE"
+					if [ "$shellcheck_disable" ]; then
+						echo "# shellcheck disable=$shellcheck_disable"
+					fi
+			esac
+			case $funcname in ("$BASE" | "$ABBR" | "$HELP")
+				printf '%s\n' "$line"
+			esac
+		done
+	 } | tab2space "$INDENT" | chvarname
+}
+
 do_example() {
 cat<<'HERE'
 parser_definition() {
@@ -211,17 +268,18 @@ HERE
 }
 
 if [ -e "${0%/*}/getoptions" ]; then
-	basedir=${0%/*}
-	getoptions() { "$basedir/getoptions" "$@"; }
+	GETOPTIONS="${0%/*}/getoptions"
+elif which getoptions >/dev/null 2>&1; then
+	GETOPTIONS=$(which getoptions)
+else
+	abort "getoptions not found"
 fi
-type getoptions 1>/dev/null 2>&1 || abort "getoptions not found"
 
 eval "$(getoptions parser_definition parse "$0")"
 parse "$@"
 eval "set -- $REST"
 
-case ${1:-} in
-	parser) shift; do_parser "$@" ;;
-	example) shift; do_example "$@" ;;
-	*) usage && exit 1 ;;
-esac
+[ "${1:---}" = "--" ] && usage && exit 1
+command=$1
+shift
+"do_$command" "$@"
