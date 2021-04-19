@@ -7,44 +7,10 @@ VERSION="v2.5.1"
 URL="https://github.com/ko1nksm/getoptions"
 LICENSE="Creative Commons Zero v1.0 Universal"
 
-# https://github.com/ko1nksm/readlinkf
-readlinkf() {
-	[ "${1:-}" ] || return 1
-	max_symlinks=40
-	CDPATH='' # to avoid changing to an unexpected directory
-
-	target=$1
-	[ -e "${target%/}" ] || target=${1%"${1##*[!/]}"} # trim trailing slashes
-	[ -d "${target:-/}" ] && target="$target/"
-
-	cd -P . 2>/dev/null || return 1
-	while [ "$max_symlinks" -ge 0 ] && max_symlinks=$((max_symlinks - 1)); do
-		if [ ! "$target" = "${target%/*}" ]; then
-			case $target in
-				/*) cd -P "${target%/*}/" 2>/dev/null || break ;;
-				*) cd -P "./${target%/*}" 2>/dev/null || break ;;
-			esac
-			target=${target##*/}
-		fi
-
-		if [ ! -L "$target" ]; then
-			target="${PWD%/}${target:+/}${target}"
-			printf '%s\n' "${target:-/}"
-			return 0
-		fi
-
-		# `ls -dl` format: "%s %u %s %s %u %s %s -> %s\n",
-		#   <file mode>, <number of links>, <owner name>, <group name>,
-		#   <size>, <date and time>, <pathname of link>, <contents of link>
-		# https://pubs.opengroup.org/onlinepubs/9699919799/utilities/ls.html
-		link=$(ls -dl -- "$target" 2>/dev/null) || break
-		target=${link#*" $target -> "}
-	done
-	return 1
-}
-
 outlibs() {
-	cat "$lib/getoptions.sh" "$lib/getoptions_abbr.sh" "$lib/getoptions_help.sh"
+	cat lib/getoptions.sh
+	cat lib/getoptions_abbr.sh
+	cat lib/getoptions_help.sh
 }
 
 quote() {
@@ -53,10 +19,6 @@ quote() {
 	q="'${r%????}'" && q=${q#\'\'} && q=${q%\'\'}
 	eval "$1=\${q:-\"''\"}"
 }
-
-self=$(readlinkf "$0")
-[ "${self##*/}" = "getoptions" ] || return 0
-lib="${self%/*/*}/lib"
 
 case ${1:---} in (-?*)
 	echo "getoptions $VERSION ($URL)"
