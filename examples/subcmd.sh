@@ -5,7 +5,7 @@ set -eu
 # shellcheck disable=SC2034
 VERSION=0.1
 
-. ./lib/getoptions.sh
+. ./lib/getoptions_base.sh
 . ./lib/getoptions_help.sh
 . ./lib/getoptions_abbr.sh
 

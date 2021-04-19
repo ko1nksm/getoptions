@@ -1,7 +1,7 @@
 # shellcheck shell=sh disable=SC1083,SC2004,SC2016
 
 Describe "getoptions()"
-	Include ./lib/getoptions.sh
+	Include ./lib/getoptions_base.sh
 
 	parse() {
 		eval "$(getoptions parser_definition _parse)"

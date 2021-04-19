@@ -2,7 +2,7 @@
 
 set -eu
 
-. ./lib/getoptions.sh
+. ./lib/getoptions_base.sh
 . ./lib/getoptions_help.sh
 . ./lib/getoptions_abbr.sh
 
