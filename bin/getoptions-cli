@@ -2,51 +2,12 @@
 
 set -euf
 
+VERSION="v2.5.1"
+URL="https://github.com/ko1nksm/getoptions"
+LICENSE="Creative Commons Zero v1.0 Universal"
 SHELLCHECK="shell=sh disable=SC2004,SC2034,SC2145,SC2194"
 
 [ "${ZSH_VERSION:-}" ] && setopt shwordsplit
-
-# https://github.com/ko1nksm/readlinkf
-readlinkf() {
-	[ "${1:-}" ] || return 1
-	max_symlinks=40
-	CDPATH='' # to avoid changing to an unexpected directory
-
-	target=$1
-	[ -e "${target%/}" ] || target=${1%"${1##*[!/]}"} # trim trailing slashes
-	[ -d "${target:-/}" ] && target="$target/"
-
-	cd -P . 2>/dev/null || return 1
-	while [ "$max_symlinks" -ge 0 ] && max_symlinks=$((max_symlinks - 1)); do
-		if [ ! "$target" = "${target%/*}" ]; then
-			case $target in
-				/*) cd -P "${target%/*}/" 2>/dev/null || break ;;
-				*) cd -P "./${target%/*}" 2>/dev/null || break ;;
-			esac
-			target=${target##*/}
-		fi
-
-		if [ ! -L "$target" ]; then
-			target="${PWD%/}${target:+/}${target}"
-			printf '%s\n' "${target:-/}"
-			return 0
-		fi
-
-		# `ls -dl` format: "%s %u %s %s %u %s %s -> %s\n",
-		#   <file mode>, <number of links>, <owner name>, <group name>,
-		#   <size>, <date and time>, <pathname of link>, <contents of link>
-		# https://pubs.opengroup.org/onlinepubs/9699919799/utilities/ls.html
-		link=$(ls -dl -- "$target" 2>/dev/null) || break
-		target=${link#*" $target -> "}
-	done
-	return 1
-}
-
-self=$(readlinkf "$0")
-bin=${self%/*}
-
-# shellcheck source=bin/getoptions
-. "$bin/getoptions"
 
 parser_definition() {
 	setup REST help:usage abbr:true width:24 error -- \
@@ -101,7 +62,7 @@ number() {
 }
 
 abort() {
-	echo "$@" >&2
+	echo "getoptions-cli:" "$@" >&2
 	exit 1
 }
 
@@ -168,8 +129,31 @@ chvarname() {
 	done
 }
 
+# shellcheck disable=SC2004
+tab2space() {
+	[ ! "${1:-}" ] && cat && return 0
+	TAB=$(printf '\t')
+
+	prefix='' i=0
+	while [ "$i" -lt "$1" ] && i=$(($i + 1)); do
+		prefix="$prefix "
+	done
+	i=0
+
+	while IFS= read -r line; do
+		while [ "$line" ]; do
+			case $line in ([!${TAB}]*) break; esac
+			i=$(($i + 1)) line=${line#?}
+		done
+		while [ "$i" -gt 0 ] && i=$(($i - 1)); do
+			line="${prefix}${line}"
+		done
+		printf '%s\n' "$line"
+	done
+}
+
 do_parser() {
-	eval "$("$bin/getoptions" parser_definition_parser parse "$0")"
+	eval "$(getoptions parser_definition_parser parse "$0")"
 	parse "$@"
 	eval "set -- $REST"
 	[ $# -lt 2 ] && usage && exit 1
@@ -226,7 +210,13 @@ eval "set -- $REST"
 HERE
 }
 
-eval "$("$bin/getoptions" parser_definition parse "$0")"
+if [ -e "${0%/*}/getoptions" ]; then
+	basedir=${0%/*}
+	getoptions() { "$basedir/getoptions" "$@"; }
+fi
+type getoptions 1>/dev/null 2>&1 || abort "getoptions not found"
+
+eval "$(getoptions parser_definition parse "$0")"
 parse "$@"
 eval "set -- $REST"
 
