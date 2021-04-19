@@ -4,7 +4,7 @@ test:
 	shellspec
 
 check:
-	shellcheck bin/* lib/*.sh spec/*.sh examples/*.sh
+	shellcheck src/* lib/*.sh spec/*.sh examples/*.sh
 
 testall:
 	shellspec -s sh
