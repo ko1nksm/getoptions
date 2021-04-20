@@ -239,11 +239,13 @@ do_library() {
 				\#*) continue ;;
 				getoptions*)
 					funcname=${line%%\(\)*}
-					comment "# [$funcname] License: $LICENSE"
-					comment "# $URL ($VERSION)"
-					if [ "$shellcheck_disable" ]; then
-						echo "# shellcheck disable=$shellcheck_disable"
-					fi
+					case $funcname in ("$BASE" | "$ABBR" | "$HELP")
+						comment "[$funcname] License: $LICENSE"
+						comment "$URL ($VERSION)"
+						if [ "$shellcheck_disable" ]; then
+							echo "# shellcheck disable=$shellcheck_disable"
+						fi
+					esac
 			esac
 			case $funcname in ("$BASE" | "$ABBR" | "$HELP")
 				printf '%s\n' "$line"
