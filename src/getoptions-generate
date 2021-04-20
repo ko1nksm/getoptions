@@ -274,6 +274,7 @@ elif which getoptions >/dev/null 2>&1; then
 else
 	abort "getoptions not found"
 fi
+getoptions() { "$GETOPTIONS" "$@"; }
 
 eval "$(getoptions parser_definition parse "$0")"
 parse "$@"

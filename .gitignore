@@ -2,3 +2,5 @@
 /.shellspec-quick.log
 /report/
 /coverage/
+/bin
+
