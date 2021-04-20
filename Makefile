@@ -30,5 +30,6 @@ bin/getoptions: src/build.sh src/getoptions lib/*.sh
 	src/build.sh < src/getoptions > bin/getoptions
 	chmod +x bin/getoptions
 
-bin/getoptions-generate: src/getoptions-generate
-	cp src/getoptions-generate bin/getoptions-generate
+bin/getoptions-generate: src/build.sh src/getoptions-generate
+	src/build.sh < src/getoptions-generate > bin/getoptions-generate
+	chmod +x bin/getoptions-generate

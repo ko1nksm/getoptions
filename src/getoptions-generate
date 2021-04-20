@@ -1,10 +1,13 @@
 #!/bin/sh
+# getoptions-generate is released under CC0
+# https://creativecommons.org/publicdomain/zero/1.0/
 
 set -euf
 
-VERSION="v2.5.1"
-URL="https://github.com/ko1nksm/getoptions"
-LICENSE="Creative Commons Zero v1.0 Universal"
+VERSION="VERSION" # @VAR
+URL="URL" # @VAR
+LICENSE="LICENSE" # @VAR
+
 SHELLCHECK="shell=sh disable=SC2004,SC2034,SC2145,SC2194"
 
 [ "${ZSH_VERSION:-}" ] && setopt shwordsplit
@@ -22,10 +25,6 @@ parser_definition() {
 	cmd parser -- 'Generate option parser'
 	cmd library -- 'Generate custom library'
 	cmd example -- 'Generate parser definition example'
-
-	msg -- ''
-	msg -- "URL: $URL"
-	msg -- "License: $LICENSE"
 }
 
 parser_definition_parser() {
@@ -56,12 +55,15 @@ parser_definition_parser() {
 }
 
 parser_definition_library() {
-	setup REST help:usage abbr:true width:24 error -- \
+	setup REST help:usage abbr:true mode:+ width:24 error -- \
 		"Usage: ${2##*/} library [options]" '' \
 		'Options:'
 
 	option INDENT -i --indent on:2 validate:number var:N -- \
 		"Use N spaces instead of tabs for indentation [default: 2]"
+
+	flag COMMENT --no-comments init:@on -- \
+		"Do not embed comments"
 
 	param ARG --optarg -- \
 		"Use ARG instead of the variable name OPTARG"
@@ -236,7 +238,8 @@ do_library() {
 				\#*) continue ;;
 				getoptions*)
 					funcname=${line%%\(\)*}
-					echo "# [$funcname] License: $LICENSE"
+					comment "# [$funcname] License: $LICENSE"
+					comment "# $URL ($VERSION)"
 					if [ "$shellcheck_disable" ]; then
 						echo "# shellcheck disable=$shellcheck_disable"
 					fi
@@ -268,7 +271,10 @@ HERE
 }
 
 if [ -e "${0%/*}/getoptions" ]; then
-	GETOPTIONS="${0%/*}/getoptions"
+	case $0 in
+		/*) GETOPTIONS="${0%/*}/getoptions" ;;
+		*) GETOPTIONS="$PWD/${0%/*}/getoptions" ;;
+	esac
 elif which getoptions >/dev/null 2>&1; then
 	GETOPTIONS=$(which getoptions)
 else

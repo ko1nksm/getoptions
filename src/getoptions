@@ -1,11 +1,13 @@
 #!/bin/sh
 # shellcheck disable=SC2016,SC2039
+# getoptions is released under CC0
+# https://creativecommons.org/publicdomain/zero/1.0/
 
 set -eu
 
-VERSION="v2.5.1"
-URL="https://github.com/ko1nksm/getoptions"
-LICENSE="Creative Commons Zero v1.0 Universal"
+VERSION="VERSION" # @VAR
+URL="URL" # @VAR
+LICENSE="LICENSE" # @VAR
 
 if [ "${KSH_VERSION:-}" ] || [ "${ZSH_VERSION:-}" ]; then
 	putlines() { IFS=$'\n'$IFS; print -r -- "$*"; IFS=${IFS#?}; }
@@ -26,11 +28,18 @@ quote() {
 	eval "$1=\${q:-\"''\"}"
 }
 
-case ${1:-} in (-?* | '')
-	echo "getoptions $VERSION ($URL)"
-	echo "License: $LICENSE"
+usage() {
 	echo 'Usage: eval "$(getoptions <parser_definition> <parser_name> [arguments...])"'
-	exit ${1:+1}
+}
+
+case ${1:-} in
+	-v | --version) echo "$VERSION" && exit 0 ;;
+	-h | --help) usage && exit 0 ;;
+	-?* | '')
+		echo "getoptions $VERSION ($URL)"
+		echo "License: $LICENSE"
+		usage
+		exit ${1:+1}
 esac
 
 outlibs
