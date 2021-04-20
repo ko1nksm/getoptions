@@ -63,6 +63,9 @@ parser_definition_library() {
 	option INDENT -i --indent on:2 validate:number var:N -- \
 		"Use N spaces instead of tabs for indentation [default: 2]"
 
+	flag SHELLCHECK --shellcheck -- \
+		"Embed the shellcheck directives"
+
 	flag COMMENT --no-comments init:@on -- \
 		"Do not embed comments"
 
@@ -231,9 +234,10 @@ do_library() {
 		while IFS= read -r line; do
 			case $line in
 				\#\ shellcheck*)
-					case $line in
-						*disable*) shellcheck_disable=${line#*disable=} ;;
-						*) shellcheck_disable="" ;;
+					shellcheck_disable=""
+					[ "$SHELLCHECK" ] || continue
+					case $line in (*disable*)
+						shellcheck_disable=${line#*disable=}
 					esac
 					continue ;;
 				\#*) continue ;;
@@ -242,9 +246,7 @@ do_library() {
 					case $funcname in ("$BASE" | "$ABBR" | "$HELP")
 						comment "[$funcname] License: $LICENSE"
 						comment "$URL ($VERSION)"
-						if [ "$shellcheck_disable" ]; then
-							echo "# shellcheck disable=$shellcheck_disable"
-						fi
+						shellcheck disable "$shellcheck_disable"
 					esac
 			esac
 			case $funcname in ("$BASE" | "$ABBR" | "$HELP")
