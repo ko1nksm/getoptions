@@ -25,6 +25,7 @@ parser_definition() {
 	cmd parser -- 'Generate option parser'
 	cmd library -- 'Generate custom library'
 	cmd example -- 'Generate parser definition example'
+	cmd getoptions -- 'Show detected getoptions info'
 }
 
 parser_definition_parser() {
@@ -270,11 +271,13 @@ eval "set -- $REST"
 HERE
 }
 
+do_getoptions() {
+	"$GETOPTIONS"
+	echo "Path: $GETOPTIONS"
+}
+
 if [ -e "${0%/*}/getoptions" ]; then
-	case $0 in
-		/*) GETOPTIONS="${0%/*}/getoptions" ;;
-		*) GETOPTIONS="$PWD/${0%/*}/getoptions" ;;
-	esac
+	GETOPTIONS="$(cd "${0%/*}" && pwd)/getoptions"
 elif which getoptions >/dev/null 2>&1; then
 	GETOPTIONS=$(which getoptions)
 else

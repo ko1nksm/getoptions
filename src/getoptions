@@ -29,17 +29,19 @@ quote() {
 }
 
 usage() {
-	echo 'Usage: eval "$(getoptions <parser_definition> <parser_name> [arguments...])"'
+	echo 'Usage: eval "$(getoptions <parser_definition> <parser_name> [arguments]...)"'
+}
+
+info() {
+	echo "getoptions $VERSION ($URL)"
+	echo "License: $LICENSE"
 }
 
 case ${1:-} in
+	'') info && exit 0 ;;
 	-v | --version) echo "$VERSION" && exit 0 ;;
 	-h | --help) usage && exit 0 ;;
-	-?* | '')
-		echo "getoptions $VERSION ($URL)"
-		echo "License: $LICENSE"
-		usage
-		exit ${1:+1}
+	-?*) info && usage && exit 1 ;;
 esac
 
 outlibs
