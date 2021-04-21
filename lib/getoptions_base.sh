@@ -190,5 +190,6 @@ getoptions() {
 	_1 'exit 1'
 	_0 '}'
 
-	[ ! "$_help" ] || eval "shift 2; getoptions_help $1 $_help" ${3+'"$@"'}
+	[ "$_help" ] && eval "shift 2; getoptions_help $1 $_help" ${3+'"$@"'}
+	_0 '# Do not execute' # exit 1
 }
