@@ -4,10 +4,10 @@ SHELL=bash
 
 .PHONY: build clean check test testall coverage install uninstall
 
-build: bin/getoptions bin/getoptions-generate
+build: bin/getoptions bin/gengetoptions
 
 clean:
-	rm -f bin/getoptions bin/getoptions-generate getoptions.tar.gz getoptions-generate.tar.gz
+	rm -f bin/getoptions bin/gengetoptions getoptions.tar.gz gengetoptions.tar.gz
 
 check:
 	shellcheck src/* lib/*.sh spec/*.sh examples/*.sh
@@ -31,20 +31,20 @@ coverage:
 
 dist: build
 	tar -C bin -czf getoptions.tar.gz getoptions
-	tar -C bin -czf getoptions-generate.tar.gz getoptions-generate
+	tar -C bin -czf gengetoptions.tar.gz gengetoptions
 
 install: build
 	install -m 755 bin/getoptions $(BINDIR)/getoptions
-	install -m 755 bin/getoptions-generate $(BINDIR)/getoptions-generate
+	install -m 755 bin/gengetoptions $(BINDIR)/gengetoptions
 
 uninstall:
 	rm -f $(BINDIR)/getoptions
-	rm -f $(BINDIR)/getoptions-generate
+	rm -f $(BINDIR)/gengetoptions
 
 bin/getoptions: src/build.sh src/getoptions lib/*.sh
 	src/build.sh < src/getoptions > bin/getoptions
 	chmod +x bin/getoptions
 
-bin/getoptions-generate: src/build.sh src/getoptions-generate
-	src/build.sh < src/getoptions-generate > bin/getoptions-generate
-	chmod +x bin/getoptions-generate
+bin/gengetoptions: src/build.sh src/gengetoptions
+	src/build.sh < src/gengetoptions > bin/gengetoptions
+	chmod +x bin/gengetoptions
