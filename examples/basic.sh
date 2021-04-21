@@ -4,10 +4,6 @@ set -eu
 
 VERSION=0.1
 
-. ./lib/getoptions_base.sh
-. ./lib/getoptions_help.sh
-. ./lib/getoptions_abbr.sh
-
 # shellcheck disable=SC1083
 parser_definition() {
 	setup   REST plus:true help:usage abbr:true -- \
@@ -28,7 +24,7 @@ parser_definition() {
 number() { case $OPTARG in (*[!0-9]*) return 1; esac; }
 
 # Define the parse function for option parsing
-eval "$(getoptions parser_definition parse "$0")"
+eval "$(getoptions parser_definition parse "$0") exit 1"
 
 parse "$@"          # Option parsing
 eval "set -- $REST" # Exclude options from arguments

@@ -1,10 +1,7 @@
-#!/bin/sh
+#!/bin/bash
+# shellcheck disable=SC2153
 
 set -eu
-
-. ./lib/getoptions_base.sh
-. ./lib/getoptions_help.sh
-. ./lib/getoptions_abbr.sh
 
 VERSION=0.1
 BLOOD_TYPES='A | B | O | AB'
@@ -13,7 +10,10 @@ BLOOD_TYPES='A | B | O | AB'
 
 # shellcheck disable=SC1083,SC2016,SC2145
 parser_definition() {
-	array() { param ":push $@"; } # custom helper function
+	# custom helper functions
+	array() { param ":append_array $@"; }
+	parray() { param ":append_array_posix $@"; } # posix version
+
 	setup   REST error:error on:1 no: export:true plus:true width:35 help:usage abbr:true -- \
 		"Usage: ${2##*/} [options...] [arguments...]" '' \
 		'getoptions advanced example' ''
@@ -34,7 +34,8 @@ parser_definition() {
 	param   REGEX           --regex validate:'regex "^[1-9][0-9]*$"' \
 		-- '^[1-9][0-9]*$'
 	param   :multiple       --multiple init:'MULTIPLE=""' var:MULTIPLE
-	array   ARRAY           --append init:'ARRAY=""' var:ARRAY
+	array   ARRAY           --array init:'ARRAY=()' var:VALUE
+	parray 	PARRAY          --array-posix init:'PARRAY=""' var:VALUE
 	param   :'action "$1" p1 p2' --act1 --act2 var:param
 	option  OPTION    -o +o --{no-}option on:"on value" no:"no value"
 	disp    :"getoptions parser_definition parse ''" --generate \
@@ -84,15 +85,16 @@ multiple() {
 	MULTIPLE="${MULTIPLE}${MULTIPLE:+,}${OPTARG}"
 }
 
-push() {
+append_array() {
+	eval "$1+=(\"\$OPTARG\")"
+}
+
+append_array_posix() {
 	# Store multiple (escaped) values in one variable in a POSIX compliant way
 	set -- "$1" "$OPTARG"
 	until [ "${2#*\'}" = "$2" ] && eval "$1=\"\$$1 '\${3:-}\$2'\""; do
 		set -- "$1" "${2#*\'}" "${2%%\'*}'\"'\"'"
 	done
-
-	# for bash, etc
-	# eval "$1+=(\"\$OPTARG\")"
 }
 
 action() {
@@ -101,44 +103,42 @@ action() {
 	exit
 }
 
-eval "$(getoptions parser_definition parse "$0")"
-parse "$@"
-eval "set -- $REST"
-
-# shellcheck disable=SC2153
-{
-	echo "FLAG_A: $FLAG_A"
-	echo "FLAG_B: $FLAG_B"
-	if [ ${FLAG_C+x} ]; then
-		echo "FLAG_C: $FLAG_C"
-	else
-		echo "FLAG_C: <unset>"
-	fi
-	echo "VERBOSE: $VERBOSE"
-	echo "PARAM: $PARAM"
-	echo "LANG: $LANG"
-	echo "NUMBER: $NUMBER"
-	echo "RANGE: $RANGE"
-	echo "PATTERN: $PATTERN"
-	echo "BLOOD_TYPE: $BLOOD_TYPE"
-	echo "REGEX: $REGEX"
-	echo "MULTIPLE: $MULTIPLE"
-	echo "OPTION: $OPTION"
-	echo "VERSION: $VERSION"
-	disp_array() {
-		eval "set -- $1"
-		i=0
-		while [ $# -gt 0 ] && i=$((i + 1)); do
-			echo "ARRAY $i: $1"
-			shift
-		done
-	}
-	disp_array "$ARRAY"
-	# printf '%s\n' "${ARRAY[@]}" # for bash
-
+disp_array() {
+	echo "$1:"
+	shift
 	i=0
 	while [ $# -gt 0 ] && i=$((i + 1)); do
-		echo "$i: $1"
+		echo "  $i: $1"
 		shift
 	done
 }
+
+eval "$(getoptions parser_definition parse "$0") exit 1"
+parse "$@"
+eval "set -- $REST"
+
+echo "FLAG_A: $FLAG_A"
+echo "FLAG_B: $FLAG_B"
+if [ ${FLAG_C+x} ]; then
+	echo "FLAG_C: $FLAG_C"
+else
+	echo "FLAG_C: <unset>"
+fi
+echo "VERBOSE: $VERBOSE"
+echo "PARAM: $PARAM"
+echo "LANG: $LANG"
+echo "NUMBER: $NUMBER"
+echo "RANGE: $RANGE"
+echo "PATTERN: $PATTERN"
+echo "BLOOD_TYPE: $BLOOD_TYPE"
+echo "REGEX: $REGEX"
+echo "MULTIPLE: $MULTIPLE"
+if [ ${#ARRAY[@]} -eq 0 ]; then
+	disp_array ARRAY
+else
+	disp_array ARRAY "${ARRAY[@]}"
+fi
+eval disp_array PARRAY "$PARRAY"
+echo "OPTION: $OPTION"
+echo "VERSION: $VERSION"
+disp_array arguments "$@"
