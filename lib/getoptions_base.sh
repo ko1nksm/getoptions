@@ -4,8 +4,8 @@ getoptions() {
 	_error='' _on=1 _no='' _export='' _plus='' _mode='' _alt='' _rest=''
 	_flags='' _nflags='' _opts='' _help='' _abbr='' _cmds='' _init=@empty IFS=' '
 
-	_0() { echo "$@"; }
-	for i in 1 2 3 4 5; do eval "_$i() { _$((${i-}-1)) \"	\$@\"; }"; done
+	i='					'
+	while eval "_${#i}() { echo \"$i\$@\"; }"; [ "$i" ]; do i=${i#?}; done
 
 	quote() {
 		q="$2'" r=''
