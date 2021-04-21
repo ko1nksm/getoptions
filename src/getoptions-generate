@@ -17,6 +17,7 @@ parser_definition() {
 		"Usage: ${2##*/} [options]... <command> [arguments]... " '' \
 		'Options:'
 
+	disp :info --getoptions -- 'Show detected getoptions info'
 	disp :usage -h --help -- "Display this help and exit"
 	disp VERSION -v --version -- "Display the version and exit"
 
@@ -25,7 +26,6 @@ parser_definition() {
 	cmd parser -- 'Generate option parser'
 	cmd library -- 'Generate custom library'
 	cmd example -- 'Generate parser definition example'
-	cmd getoptions -- 'Show detected getoptions info'
 }
 
 parser_definition_parser() {
@@ -275,7 +275,7 @@ eval "set -- $REST"
 HERE
 }
 
-do_getoptions() {
+info() {
 	"$GETOPTIONS"
 	echo "Path: $GETOPTIONS"
 }
