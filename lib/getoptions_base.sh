@@ -17,6 +17,7 @@ getoptions() {
 		[ "${1#:}" = "$1" ] && c=3 || c=4
 		eval "[ ! \${$c:+x} ] || $2 \"\$$c\""
 	}
+	sw() { sw="$sw${sw:+|}$1"; }
 	kv() { eval "${2-}${1%%:*}=\${1#*:}"; }
 	loop() { [ $# -gt 1 ] && [ "$2" != -- ]; }
 
@@ -73,9 +74,9 @@ getoptions() {
 		sw='' validate='' pattern='' counter='' on=$_on no=$_no export=$_export
 		while loop "$@" && shift; do
 			case $1 in
-				--\{no-\}*) i=${1#--?no-?}; sw="$sw${sw:+|}'--$i'|'--no-$i'" ;;
-				--with\{out\}-*) i=${1#--with?out?-}; sw="$sw${sw:+|}'--with-$i'|'--without-$i'" ;;
-				[-+]? | --*) sw="$sw${sw:+|}'$1'" ;;
+				--\{no-\}*) i=${1#--?no-?}; sw "'--$i'|'--no-$i'" ;;
+				--with\{out\}-*) i=${1#--*-}; sw "'--with-$i'|'--without-$i'" ;;
+				[-+]? | --*) sw "'$1'" ;;
 				*) kv "$1"
 			esac
 		done
