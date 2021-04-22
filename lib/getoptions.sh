@@ -74,6 +74,7 @@ getoptions() {
 		while loop "$@" && shift; do
 			case $1 in
 				--\{no-\}*) i=${1#--?no-?}; sw="$sw${sw:+|}'--$i'|'--no-$i'" ;;
+				--with\{out\}-*) i=${1#--with?out?-}; sw="$sw${sw:+|}'--with-$i'|'--without-$i'" ;;
 				[-+]? | --*) sw="$sw${sw:+|}'$1'" ;;
 				*) kv "$1"
 			esac
@@ -104,7 +105,7 @@ getoptions() {
 		_3 "$sw)"
 		_4 'set -- "$1" "$@"'
 		_4 '[ ${OPTARG+x} ] && {'
-		_5 'case $1 in --no-*) set "noarg" "${1%%\=*}"; break; esac'
+		_5 'case $1 in --no-*|--without-*) set "noarg" "${1%%\=*}"; break; esac'
 		_5 '[ "${OPTARG:-}" ] && { shift; OPTARG=$2; } ||' "OPTARG=$on"
 		_4 "} || OPTARG=$off"
 		valid "$1" '$OPTARG'
@@ -139,7 +140,7 @@ getoptions() {
 	_3 '--?*=*) OPTARG=$1; shift'
 	_wa '"${OPTARG%%\=*}" "${OPTARG#*\=}"'
 	_4 ';;'
-	_3 '--no-*) unset OPTARG ;;'
+	_3 '--no-*|--without-*) unset OPTARG ;;'
 	[ "$_alt" ] || {
 		[ "$_opts" ] && _op "-[$_opts]?*" '' ';;'
 		[ ! "$_flags" ] || _op "-[$_flags]?*" - 'OPTARG= ;;'
