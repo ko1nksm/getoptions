@@ -1,0 +1,54 @@
+#!/bin/sh
+# shellcheck disable=SC2016,SC2039
+# getoptions is released under CC0
+# https://creativecommons.org/publicdomain/zero/1.0/
+
+set -eu
+
+VERSION="VERSION" # @VAR
+URL="URL" # @VAR
+LICENSE="LICENSE" # @VAR
+
+if [ "${KSH_VERSION:-}" ] || [ "${ZSH_VERSION:-}" ]; then
+	putlines() { IFS=$'\n'$IFS; print -r -- "$*"; IFS=${IFS#?}; }
+else
+	putlines() { printf '%s\n' "$@"; }
+fi
+
+outlibs() {
+	cat lib/getoptions_base.sh # @INCLUDE-FILE
+	cat lib/getoptions_abbr.sh # @INCLUDE-FILE
+	cat lib/getoptions_help.sh # @INCLUDE-FILE
+}
+
+quote() {
+	q="$2'" r=''
+	while [ "$q" ]; do r="$r${q%%\'*}'\''" && q=${q#*\'}; done
+	q="'${r%????}'" && q=${q#\'\'} && q=${q%\'\'}
+	eval "$1=\${q:-\"''\"}"
+}
+
+usage() {
+	echo 'Usage: eval "$(getoptions <parser_definition> <parser_name> [arguments]...) exit 1"'
+}
+
+info() {
+	echo "getoptions $VERSION ($URL)"
+	echo "License: $LICENSE"
+}
+
+case ${1:-} in
+	'') info && exit 0 ;;
+	-v | --version) echo "$VERSION" && exit 0 ;;
+	-h | --help) usage && exit 0 ;;
+	-?*) info && usage && exit 1 ;;
+esac
+
+outlibs
+[ "$1" = - ] && exit 0
+for i; do
+	quote i "$i"
+	set -- "$@" "$i"
+	shift
+done
+echo "eval \"\$(getoptions $*)\""

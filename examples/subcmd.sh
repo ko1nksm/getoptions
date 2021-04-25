@@ -5,10 +5,6 @@ set -eu
 # shellcheck disable=SC2034
 VERSION=0.1
 
-. ./lib/getoptions.sh
-. ./lib/getoptions_help.sh
-. ./lib/getoptions_abbr.sh
-
 # shellcheck disable=SC1083
 parser_definition() {
 	setup   REST help:usage abbr:true -- \
@@ -55,7 +51,7 @@ parser_definition_cmd3() {
 	disp    :usage  -h --help
 }
 
-eval "$(getoptions parser_definition parse "$0")"
+eval "$(getoptions parser_definition parse "$0") exit 1"
 parse "$@"
 eval "set -- $REST"
 

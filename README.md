@@ -1,4 +1,4 @@
-# getoptions
+# getoptions <!-- omit in toc -->
 
 [![Test](https://github.com/ko1nksm/getoptions/workflows/Test/badge.svg)](https://github.com/ko1nksm/getoptions/actions)
 [![codecov](https://codecov.io/gh/ko1nksm/getoptions/branch/master/graph/badge.svg)](https://codecov.io/gh/ko1nksm/getoptions)
@@ -6,108 +6,132 @@
 [![GitHub top language](https://img.shields.io/github/languages/top/ko1nksm/getoptions.svg)](https://github.com/ko1nksm/getoptions/search?l=Shell)
 [![License](https://img.shields.io/github/license/ko1nksm/getoptions.svg)](https://github.com/ko1nksm/getoptions/blob/master/LICENSE)
 
-An elegant option parser for shell scripts (sh, bash and all POSIX shells)
+An elegant option parser for shell scripts (full support for all POSIX shells)
 
-**getoptions** is a new option parser (generator) written in POSIX-compliant shell script and released in august 2020.
-It is for those who want to support the standard option syntax in shell scripts without bashisms.
-Most simple, fast, small, extensible and portable. No more any loops and templates needed!
+**getoptions** is a new option parser and generator written in POSIX-compliant shell script and released in august 2020.
+It is for those who want to support the POSIX / GNU style option syntax in your shell scripts.
+Most easy, simple, fast, small, extensible and portable. No more any loops and templates needed!
+
+**This is the documentation for v3.0.0, which has not yet been released.**
+**The feature of the option parser is almost the same as the latest version [v2.5.1][v2.5.1],**
+**but the utilities and libraries are used differently and its usability has been greatly improved.**
+**v3.0.0 will be available soon.**
+
+[v2.5.1]: https://github.com/ko1nksm/getoptions/tree/v2.5.1
+
+## TL; DR <!-- omit in toc -->
+
+```sh
+#!/bin/sh
+
+VERSION="0.1"
+
+parser_definition() {
+  setup   REST help:usage -- "Usage: example.sh [options]... [arguments]..." ''
+  msg -- 'Options:'
+  flag    FLAG    -f --flag                 -- "takes no arguments"
+  param   PARAM   -p --param                -- "takes one argument"
+  option  OPTION  -o --option on:"default"  -- "takes one optional argument"
+  disp    :usage  -h --help
+  disp    VERSION    --version
+}
+
+eval "$(getoptions parser_definition parse) exit 1"
+parse "$@"
+eval "set -- $REST"
+
+echo "FLAG: $FLAG, PARAM: $PARAM, OPTION: $OPTION"
+printf '%s\n' "$@" # rest arguments
+```
+
+It's parses the following arguments:
+
+```sh
+example.sh -f --flag -p VALUE --param VALUE -o --option -oVALUE --option=VALUE 1 2 3
+```
+
+```console
+$ example.sh --help
+
+Usage: example.sh [options]... [arguments]...
+
+Options:
+  -f, --flag                  takes no arguments
+  -p, --param PARAM           takes one argument
+  -o, --option[=OPTION]       takes one optional argument
+  -h, --help
+      --version
+```
 
 ## Table of Contents <!-- omit in toc -->
 
-- [Comparison](#comparison)
-  - [with other implementations](#with-other-implementations)
-  - [`getopt` vs `getopts` vs `getoptions`](#getopt-vs-getopts-vs-getoptions)
-- [Installation](#installation)
+- [Features](#features)
+- [`getopt` vs `getopts` vs `getoptions`](#getopt-vs-getopts-vs-getoptions)
 - [Requirements](#requirements)
-- [Quickstart](#quickstart)
+- [Installation](#installation)
 - [Usage](#usage)
-  - [Use as external command (`getoptions`)](#use-as-external-command-getoptions)
-  - [Use as library (`getoptions.sh`, `getoptions_abbr.sh`, `getoptions_help.sh`)](#use-as-library-getoptionssh-getoptions_abbrsh-getoptions_helpsh)
-  - [Use as option parser generator (`getoptions-cli`)](#use-as-option-parser-generator-getoptions-cli)
-- [Parser definition examples](#parser-definition-examples)
-  - [Advanced](#advanced)
-  - [Subcommand](#subcommand)
-  - [Extension](#extension)
+  - [Use as a command](#use-as-a-command)
+  - [Use as a library](#use-as-a-library)
+  - [Use as a generator](#use-as-a-generator)
+- [How to see the option parser code](#how-to-see-the-option-parser-code)
+  - [Arguments containing spaces and quotes](#arguments-containing-spaces-and-quotes)
+  - [Why reuse `OPTARG` and `OPTIND` for different purposes?](#why-reuse-optarg-and-optind-for-different-purposes)
+  - [About workarounds](#about-workarounds)
 - [References](#references)
   - [Global functions](#global-functions)
-    - [`getoptions` - Generate a function for option parsing](#getoptions---generate-a-function-for-option-parsing)
-      - [About option parser](#about-option-parser)
-      - [About option parser definition function](#about-option-parser-definition-function)
-    - [`getoptions_abbr` - Handle abbreviated long options (add-on)](#getoptions_abbr---handle-abbreviated-long-options-add-on)
-    - [`getoptions_help` - Generate a function to display help (add-on)](#getoptions_help---generate-a-function-to-display-help-add-on)
-      - [Attributes related to the help display](#attributes-related-to-the-help-display)
-  - [Helper functions (not globally defined)](#helper-functions-not-globally-defined)
-    - [Data types & Initial values](#data-types--initial-values)
-    - [`setup` - Setup global settings (mandatory)](#setup---setup-global-settings-mandatory)
-      - [Scanning modes](#scanning-modes)
-    - [`flag` - Define an option that take no argument](#flag---define-an-option-that-take-no-argument)
-    - [`param` - Define an option that take an argument](#param---define-an-option-that-take-an-argument)
-    - [`option` - Define an option that take an optional argument](#option---define-an-option-that-take-an-optional-argument)
-    - [`disp` - Define an option that display only](#disp---define-an-option-that-display-only)
-    - [`msg` - Display message in help](#msg---display-message-in-help)
-    - [`cmd` - Define a subcommand](#cmd---define-a-subcommand)
-  - [Custom error handler](#custom-error-handler)
-  - [Extension (not globally defined)](#extension-not-globally-defined)
-    - [`prehook`, `invoke`](#prehook-invoke)
-  - [NOTE: 2.x breaking changes](#note-2x-breaking-changes)
+  - [Helper functions](#helper-functions)
+- [Examples](#examples)
+  - [Basic](#basic)
+  - [Advanced](#advanced)
+    - [Custom error handler](#custom-error-handler)
+    - [Custom helper functions](#custom-helper-functions)
+  - [Subcommand](#subcommand)
+  - [Prehook](#prehook)
+  - [Extension](#extension)
+  - [Practical example](#practical-example)
+- [NOTE: 2.x breaking changes](#note-2x-breaking-changes)
+- [NOTE: 3.x breaking changes](#note-3x-breaking-changes)
 - [For developers](#for-developers)
+  - [How to test getoptions](#how-to-test-getoptions)
 - [Changelog](#changelog)
 - [License](#license)
 
-## Comparison
+## Features
 
-### with other implementations
-
-- High portability, supports all environments where works POSIX shells
-  - Linux, macOS, BSD, Unix, Windows (WSL, gitbash, cygwin, msys, busybox-w32)
-  - `dash`, `bash` 2.0+, `ksh` 88+, `zsh` 3.1+, busybox `ash`, etc
-- **Full support for minimal POSIX shells**, no limitations, no bashisms
-- The goal is to meet the standard with minimal implementation instead of doing a lot of things
-- This is a **pure shell function**, so just include and call it, no other tools required
-- Provides flexibility and extensibility by defining options in easy-to-read DSL-like shell script
-  - No need for configuration files or definitions with embedded comments
-- Support for POSIX [[1]][POSIX] and GNU [[2]][GNU1] [[3]][GNU2] compatible option syntax
-  - `-a`, `-abc`, `-s`, `+s`, `-vvv`, `-s VALUE`, `-sVALUE`
-  - `--flag`, `--no-flag`, `--param VALUE`, `--param=VALUE`, `--option[=VALUE]`, `--no-option`
-  - Stop option parsing with `--` and treat `-` as an argument
-  - Support for **subcommands**
+- **Full support for all POSIX shells**, no limitations, no bashisms
+- High portability, supports all platforms (Linux, macOS, Windows, etc) where works POSIX shells
+- Neither `getopt` nor `getopts` is used, and implemented with shell scripts only
+- Provides DSL-like shell script way to define parsers for flexibility and extensibility
+- No need for code generation from embedded special comments
+- Can be used as an **option parser generator** to run without `getoptions`
+- Support for POSIX [[1]][POSIX] and GNU [[2]][GNU1] [[3]][GNU2] compliant option syntax
+- Support for **long options**
+- Support for **subcommands**
+- Support for **abbreviation option**
+- Support for **automatic help generation**
+- Support for options to call action function
+- Support for validation and custom error handler
+- Works fast with small overhead and small file size (5KB - 8KB) library
 - No global variables are used (except the special variables `OPTARG` and `OPTIND`)
-- Fast and small, Typically **less than 100ms overhead and only ~5.1KB and ~200 lines** (base module)
-  - Only one shell function is defined globally
-  - No external commands required
-  - Can be invoked action function and can be extended by shell scripts
-  - Support for validation and custom error messages
-- Support for **abbreviation option** (add-on)
-  - For example, you can specify `--version` by `--ver` (as long as it's not ambiguous)
-  - Additional one shell function, ~1.4KB and ~60 lines required
-  - No external commands required
-- Support for **automatic help generation** (add-on)
-  - Additional one shell function, ~1.3KB and ~50 lines required
-  - Only the `cat` command is required.
+- Only a minimum of one (and a maximum of three) global functions are defined as a library
 - No worry about license, it's public domain (Creative Commons Zero v1.0 Universal)
-
-Don't want to add `getoptions.sh` to your project?
-
-- Can be used as a **option parser generator**
-- Only one function is generated (or one more for automatic help generation)
-- Pre-generates the option parser makes more faster
 
 [POSIX]: https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap12.html
 [GNU1]: https://www.gnu.org/prep/standards/html_node/Command_002dLine-Interfaces.html
 [GNU2]: https://www.gnu.org/software/libc/manual/html_node/Argument-Syntax.html
 
-### `getopt` vs `getopts` vs `getoptions`
+## `getopt` vs `getopts` vs `getoptions`
 
 |                                 | getopt           | getopts               | getoptions            |
 | ------------------------------- | ---------------- | --------------------- | --------------------- |
-| Implementation                  | External command | Shell builtin command | Shell function        |
+| Implementation                  | external command | shell builtin command | shell script          |
 | Portability                     | No               | Yes                   | Yes                   |
 | Short option beginning with `-` | ✔️                | ✔️                     | ✔️                     |
 | Short option beginning with `+` | ❌                | ⚠ zsh, ksh, mksh only | ✔️                     |
 | Combining short options         | ✔️                | ✔️                     | ✔️                     |
 | Long option beginning with `--` | ⚠ GNU only       | ❌                     | ✔️                     |
 | Long option beginning with `-`  | ⚠ GNU only       | ❌                     | ✔️ limited             |
-| Abbreviating long options       | ⚠ GNU only       | ❌                     | ✔️ add-on              |
+| Abbreviating long options       | ⚠ GNU only       | ❌                     | ✔️                     |
 | Optional argument               | ⚠ GNU only       | ❌                     | ✔️                     |
 | Option after arguments          | ⚠ GNU only       | ❌                     | ✔️                     |
 | Stop option parsing with `--`   | ✔️                | ✔️                     | ✔️                     |
@@ -115,125 +139,91 @@ Don't want to add `getoptions.sh` to your project?
 | Subcommand                      | ❌                | ❌                     | ✔️                     |
 | Validation by pattern matching  | ❌                | ❌                     | ✔️                     |
 | Custom validation               | ❌                | ❌                     | ✔️                     |
-| Custom error message            | ❌                | ✔️                     | ✔️ more flexible       |
-| Automatic help generation       | ❌                | ❌                     | ✔️ add-on              |
-
-## Installation
-
-Download from [releases](https://github.com/ko1nksm/getoptions/releases)
-and extract it or just do a `git clone`.
-
-```sh
-git clone https://github.com/ko1nksm/getoptions.git
-```
-
-Copy the necessary files to your project or create a symbolic link if you want.
+| Custom error handler            | ❌                | ✔️                     | ✔️ more flexible       |
+| Automatic help generation       | ❌                | ❌                     | ✔️                     |
 
 ## Requirements
 
-- No requirements for option parsing (POSIX shell only)
-- `cat` is required for optional automatic help generation
+**Almost no requirements.**
 
-By the way, if you use `getoptions` as an external shell script library,
-It is useful to use `readlinkf` to loading from the execution script path
-that resolved the symlink.
+- Any POSIX shells
+  - `dash` 0.5.4, `bash` 2.03, `ksh88`, `mksh` R28, `zsh` 3.1.9, `yash` 2.29, busybox `ash` 1.1.3, etc
+- Only `cat` is used for help display, but it can be removed
 
-- [`readlinkf` - POSIX compliant readlink -f implementation for POSIX shell scripts][readlinkf]
+## Installation
 
-[readlinkf]: https://github.com/ko1nksm/readlinkf
+**Download prebuild shell scripts** from [releases](https://github.com/ko1nksm/getoptions/releases).
 
-## Quickstart
+- getoptions: Option parser [mandatory]
+- gengetoptions: Option parser generator and utility for distribution scripts [optional]
 
-```sh
-#!/bin/sh
-VERSION=0.1
-
-. ./lib/getoptions.sh # or paste it into your script
-. ./lib/getoptions_help.sh # if you need automatic help generation
-. ./lib/getoptions_abbr.sh # if you need abbreviation option
-
-parser_definition() {
-  setup   REST plus:true help:usage abbr:true -- \
-    "Usage: ${2##*/} [options...] [arguments...]" ''
-  msg -- 'getoptions example' ''
-  msg -- 'Options:'
-  flag    FLAG_A  -a                                        -- "message a"
-  flag    FLAG_B  -b                                        -- "message b"
-  flag    FLAG_F  -f +f --{no-}flag                         -- "expands to --flag and --no-flag"
-  flag    VERBOSE -v    --verbose   counter:true init:=0    -- "e.g. -vvv is verbose level 3"
-  param   PARAM   -p    --param     pattern:"foo | bar"     -- "accepts --param value / --param=value"
-  param   NUMBER  -n    --number    validate:number         -- "accepts only a number value"
-  option  OPTION  -o    --option    on:"default"            -- "accepts -ovalue / --option=value"
-  disp    :usage  -h    --help
-  disp    VERSION       --version
-}
-
-number() { case $OPTARG in (*[!0-9]*) return 1; esac; }
-
-eval "$(getoptions parser_definition parse "$0")" # Define the parse function for option parsing
-parse "$@"                                        # Option parsing
-eval "set -- $REST"                               # Exclude options from arguments
-
-echo "$FLAG_A"
-printf '%s\n' "$@"
-```
-
-[basic.sh](examples/basic.sh)
-
-It's parses the following options.
+Or build and install it yourself.
 
 ```sh
-examples/basic.sh -ab -f +f --flag --no-flag -vvv -p value -ovalue --option=value 1 2 -- 3 -f
-```
-
-```console
-$ examples/basic --help
-
-Usage: basic.sh [options...] [arguments...]
-
-getoptions example
-
-Options:
-  -a                          message a
-  -b                          message b
-  -f, +f, --{no-}flag         expands to --flag and --no-flag
-  -v,     --verbose           e.g. -vvv is verbose level 3
-  -p,     --param PARAM       accepts --param value / --param=value
-  -n,     --number NUMBER     accepts only a number value
-  -o,     --option[=OPTION]   accepts -ovalue / --option=value
-  -h,     --help
-          --version
+git clone https://github.com/ko1nksm/getoptions.git
+cd getoptions
+make
+make install PREFIX=$HOME
 ```
 
 ## Usage
 
-|      | external command | library | option parser generator |
-| ---- | ---------------- | ------- | ----------------------- |
-| easy | ★★★              | ★★☆     | ★☆☆                     |
-| fast | ★☆☆              | ★★☆     | ★★★                     |
+Support three ways of use. It is better to use it as a command at first,
+and then use it as a library or generator as needed.
 
-### Use as external command (`getoptions`)
+|      | command | library | generator |
+| ---- | ------- | ------- | --------- |
+| easy | ★★★     | ★★☆     | ★☆☆       |
+| fast | ★☆☆     | ★★☆     | ★★★       |
 
-It is easy to use `getoptions` as an external command,
-but its execution speed is slightly slow (takes about 25ms longer).
-It is suitable for use with personal scripts.
+### Use as a command
 
-- [bin/getoptions.sh](./bin/getoptions)
+Use the `getoptions` command that you installed on your system.
+This assumes that you have the `getoptions` command installed,
+but it is the easiest to use and is suitable for personal scripts.
 
-```console
-$ bin/getoptions --help
-
-Usage: eval "$(getoptions <parser_definition> <parser_name> [arguments...])"
-Usage: getoptions [ -<N> (N=0-9) ] [ --no-base ] [ --no-abbr ] [ --no-help ]
-Usage: getoptions [ -h | --help | -v | --version ]
-```
-
-The second usage outputs the all getoptions libraries to the stdout.
-The `-<N>` allows you to change the number of spaces used for indentation,
-which is useful for embedding libraries in your scripts.
+The execution speed is slightly slower than using it as a library. (Approx. 15ms overhead)
 
 ```sh
-#!/bin/sh
+parser_definition() {
+  ...
+}
+
+eval "$(getoptions parser_definition parse "$0") exit 1"
+parse "$@"
+eval "set -- $REST"
+```
+
+The above code `exit 1` is the recommended option.
+This allows you to exit if the `getoptions` command is not found.
+
+HINT: Are you wondering why the external command can call a shell function?
+
+The external command `getoptions` will output the shell function `getoptions`.
+The external command `getoptions` will be hidden by the shell function `getoptions` that defined by `eval`,
+and the `getoptions` will be called again, so it can be call the shell function `parser_ definition`.
+
+Try running the following command to see what is output.
+
+```console
+$ getoptions parser_definition parse
+```
+
+### Use as a library
+
+The `getoptions` command is not recommended for use in distribution scripts
+because it is not always installed on the system. This problem can be solved by
+including getoptions as a shell script library in your shell scripts.
+
+To use getoptions as a library, you need to generate a library using the `gengetoptions` command.
+You can optionally adjust the indentation and other settings when generating the library.
+
+```console
+$ gengetoptions library > getoptions.sh
+```
+
+```sh
+. ./getoptions.sh # Or include it here
 
 parser_definition() {
   ...
@@ -244,160 +234,84 @@ parse "$@"
 eval "set -- $REST"
 ```
 
-### Use as library (`getoptions.sh`, `getoptions_abbr.sh`, `getoptions_help.sh`)
+NOTE for 1.x and 2.x users: The previous version guided you to use `lib/*.sh`.
+This is still available, but it is recommended to use `gengetoptions library`.
 
-It is suitable for inclusion in distribution scripts. (Recommendation)
+### Use as a generator
 
-- [lib/getoptions.sh](./lib/getoptions.sh) - Base module
-- [lib/getoptions_abbr.sh](./lib/getoptions_abbr.sh) - Abbreviation option module (add-on)
-- [lib/getoptions_help.sh](./lib/getoptions_help.sh) - Automatic help generation module (add-on)
+If you do not want to include getoptions in your shell scripts, you can pre-generate an option parser.
+It also runs the fastest, so it suitable when you need a lot of options.
 
-NOTE: If you want the libraries combined into one, run `bin/getoptions`.
+```console
+$ gengetoptions parser examples/parser_definition.sh parse prog > parser.sh
+```
 
 ```sh
-#!/bin/sh
+. ./parser.sh # Or include it here
 
-. ./lib/getoptions.sh
-. ./lib/getoptions_help.sh
-. ./lib/getoptions_abbr.sh
-
-parser_definition() {
-  ...
-}
-
-eval "$(getoptions parser_definition parse "$0")"
 parse "$@"
 eval "set -- $REST"
 ```
 
-### Use as option parser generator (`getoptions-cli`)
+## How to see the option parser code
 
-Use `getoptions-cli` to pre-generate the option parser code.
-This reduces maintainability, but is even faster.
-It also eliminates the need to include the library in the distribution script.
+It is important to know what kind of code is being generated
+when the option parser is not working as expected.
 
-- [bin/getoptions-cli](bin/getoptions-cli)
-
-```console
-$ bin/getoptions-cli --help
-
-Usage: getoptions-cli [options...] <path> <parser> [arguments...]
-
-Options:
-  -d, --definition NAME Specify the parser definition name
-                          (default: filename without extensions)
-  -i, --indent[=N]      Use N (default: 2) spaces instead of tabs for indentation
-      --shellcheck[=DIRECTIVES]
-                        Embed the shellcheck directives
-                          (default: 'shell=sh disable=SC2004,SC2145,SC2194')
-      --no-comments     Do not embed comments
-  -h, --help            Display this help and exit
-  -v, --version         Display the version and exit
-```
+If you want to see the the option parser code, rewrite it as follows.
 
 ```sh
-# Try to run it
-bin/getoptions-cli --indent=2 --shellcheck examples/parser_definition.sh parser prog
+# eval "$(getoptions parser_definition parse) exit 1"
+
+# Preload the getoptions library
+# (can be omitted when using getoptions as a library)
+eval "$(getoptions -)"
+
+# Output of the option parser
+getoptions parser_definition parse
+exit
 ```
+
+The option parsing code generated by getoptions is very simple.
 
 <details>
-<summary>generated code</summary>
+<summary>Example option parser code</summary>
 
 ```sh
-# shellcheck shell=sh
-# Generated by getoptions (BEGIN)
-# URL: https://github.com/ko1nksm/getoptions (v2.5.0)
 FLAG=''
-VERBOSE='0'
 PARAM=''
 OPTION=''
 REST=''
-# shellcheck disable=SC2004,SC2145,SC2194
-parser() {
+parse() {
   OPTIND=$(($#+1))
   while OPTARG= && [ $# -gt 0 ]; do
-    set -- "${1%%\=*}" "${1#*\=}" "$@"
-    case $1 in -[!-]?*) set -- "-$@"; esac
-    while [ ${#1} -gt 2 ]; do
-      case $1 in (*[!a-zA-Z0-9_-]*) break; esac
-      case '--flag' in
-        "$1") OPTARG=; break ;;
-        $1*) OPTARG="$OPTARG --flag"
-      esac
-      case '--no-flag' in
-        "$1") OPTARG=; break ;;
-        $1*) OPTARG="$OPTARG --no-flag"
-      esac
-      case '--verbose' in
-        "$1") OPTARG=; break ;;
-        $1*) OPTARG="$OPTARG --verbose"
-      esac
-      case '--param' in
-        "$1") OPTARG=; break ;;
-        $1*) OPTARG="$OPTARG --param"
-      esac
-      case '--option' in
-        "$1") OPTARG=; break ;;
-        $1*) OPTARG="$OPTARG --option"
-      esac
-      case '--help' in
-        "$1") OPTARG=; break ;;
-        $1*) OPTARG="$OPTARG --help"
-      esac
-      case '--version' in
-        "$1") OPTARG=; break ;;
-        $1*) OPTARG="$OPTARG --version"
-      esac
-      break
-    done
-    case ${OPTARG# } in
-      *\ *)
-        eval "set -- $OPTARG $1 $OPTARG"
-        OPTIND=$((($#+1)/2)) OPTARG=$1; shift
-        while [ $# -gt "$OPTIND" ]; do OPTARG="$OPTARG, $1"; shift; done
-        set "Ambiguous option: $1 (could be $OPTARG)" ambiguous "$@"
-        error "$@" >&2 || exit $?
-        echo "$1" >&2
-        exit 1 ;;
-      ?*)
-        [ "$2" = "$3" ] || OPTARG="$OPTARG=$2"
-        shift 3; eval 'set -- "${OPTARG# }"' ${1+'"$@"'}; OPTARG= ;;
-      *) shift 2
-    esac
-    case $1 in -[!-]?*) set -- "-$@"; esac
     case $1 in
       --?*=*) OPTARG=$1; shift
         eval 'set -- "${OPTARG%%\=*}" "${OPTARG#*\=}"' ${1+'"$@"'}
         ;;
-      --no-*) unset OPTARG ;;
-      +??*) OPTARG=$1; shift
-        eval 'set -- "${OPTARG%"${OPTARG#??}"}" +"${OPTARG#??}"' ${1+'"$@"'}
-        unset OPTARG ;;
-      +*) unset OPTARG ;;
+      --no-*|--without-*) unset OPTARG ;;
+      -[po]?*) OPTARG=$1; shift
+        eval 'set -- "${OPTARG%"${OPTARG#??}"}" "${OPTARG#??}"' ${1+'"$@"'}
+        ;;
+      -[fh]?*) OPTARG=$1; shift
+        eval 'set -- "${OPTARG%"${OPTARG#??}"}" -"${OPTARG#??}"' ${1+'"$@"'}
+        OPTARG= ;;
     esac
     case $1 in
-      '-f'|'+f'|'--flag'|'--no-flag')
+      '-f'|'--flag'|'--no-flag'|'--without-flag')
         [ "${OPTARG:-}" ] && OPTARG=${OPTARG#*\=} && set "noarg" "$1" && break
         eval '[ ${OPTARG+x} ] &&:' && OPTARG='1' || OPTARG=''
         FLAG="$OPTARG"
         ;;
-      '-v'|'--verbose')
-        [ "${OPTARG:-}" ] && OPTARG=${OPTARG#*\=} && set "noarg" "$1" && break
-        eval '[ ${OPTARG+x} ] &&:' && OPTARG=1 || OPTARG=-1
-        VERBOSE="$((${VERBOSE:-0}+$OPTARG))"
-        ;;
       '-p'|'--param')
         [ $# -le 1 ] && set "required" "$1" && break
         OPTARG=$2
-        case $OPTARG in foo | bar) ;;
-          *) set "pattern:foo | bar" "$1"; break
-        esac
         PARAM="$OPTARG"
         shift ;;
       '-o'|'--option')
         set -- "$1" "$@"
         [ ${OPTARG+x} ] && {
-          case $1 in --no-*) set "noarg" "${1%%\=*}"; break; esac
+          case $1 in --no-*|--without-*) set "noarg" "${1%%\=*}"; break; esac
           [ "${OPTARG:-}" ] && { shift; OPTARG=$2; } || OPTARG='default'
         } || OPTARG=''
         OPTION="$OPTARG"
@@ -415,8 +329,7 @@ parser() {
           shift
         done
         break ;;
-      [-+]?*)
-        set "unknown" "$1"; break ;;
+      [-]?*) set "unknown" "$1"; break ;;
       *)
         REST="${REST} \"\${$(($OPTIND-$#))}\""
     esac
@@ -431,42 +344,138 @@ parser() {
     notcmd) set "Not a command: $2" "$@" ;;
     *) set "Validation error ($1): $2" "$@"
   esac
-  error "$@" >&2 || exit $?
   echo "$1" >&2
   exit 1
 }
 usage() {
 cat<<'GETOPTIONSHERE'
-Usage: prog [options...] [arguments...]
-
-getoptions parser_definition example
+Usage: example.sh [options]... [arguments]...
 
 Options:
-  -f, +f, --{no-}flag         expands to --flag and --no-flag
-  -v,     --verbose           e.g. -vvv is verbose level 3
-  -p,     --param PARAM       accepts --param value / --param=value
-  -o,     --option[=OPTION]   accepts -ovalue / --option=value
-  -h,     --help
-          --version
+  -f, --flag, --no-flag, --without-flag
+                              takes no arguments
+  -p, --param PARAM           takes one argument
+  -o, --option[=OPTION]       takes one optional argument
+  -h, --help
+      --version
 GETOPTIONSHERE
 }
-# Generated by getoptions (END)
+# Do not execute
 ```
 
 </details>
 
-See also [generator.sh](examples/generator.sh)
+### Arguments containing spaces and quotes
 
-## Parser definition examples
+The getoptions correctly handles arguments containing spaces and quotes
+without using arrays, which are not available in POSIX shells.
+
+The magic is in the `REST` variable in the following code.
+
+```sh
+$ examples.sh --flag 1 --param value 2 -- 3
+
+# examples.sh
+...
+eval "$(getoptions parser_definition parse "$0") exit 1"
+parse "$@"
+eval "set -- $REST"
+
+echo "$REST" # => "${2}" "${5}" "${7}"
+echo "$@" # => 1 2 3
+...
+```
+
+### Why reuse `OPTARG` and `OPTIND` for different purposes?
+
+This is to avoid using valuable global variables. The POSIX shell does not have local variables.
+Instead of using long variable names to avoid conflicts, we reuse `OPTARG` and `OPTIND`.
+This code has been tested to work without any problem with all POSIX shells (e.g. ksh88, bash 2.03).
+
+If you use `getoptions` instead of `getopts` for option parsing, `OPTARG` and `OPTIND` are not needed.
+In addition, you can also use `getopts`, since `OPTARG` and `OPTIND` will be correctly reset after use.
+
+If you still don't like it, you can use the `--optarg` and `--optind` options of `gengetoptions` to change the variable name.
+In addition, since the license of `getoptions` is CC0, you can modify it to use it as you like.
+
+### About workarounds
+
+The option parser code contains workarounds for some shell bugs.
+If you want to know what that code means, please refer to [Workarounds.md](docs/Workarounds.md).
+
+## References
+
+For more information, see [References](docs/References.md).
+
+### Global functions
+
+When the `getoptions` is used as an external command, three global functions,
+`getoptions`, `getoptions_help`, and `getoptions_abbr`, are defined in your shell script.
+
+If you are using it as a library, only `getoptions` is required.
+The other functions are needed when the corresponding features are used.
+
+### Helper functions
+
+Helper functions are  (`setup`, `flag`, `param`, etc) used to define option parsers,
+and are defined only within the global functions described above.
+
+## Examples
+
+### Basic
+
+[basic.sh](examples/basic.sh)
+
+This is an example of basic usage. It should be enough for your personal script.
 
 ### Advanced
 
-```sh
-# Try to run it
-examples/advanced.sh --help
-```
+[advanced.sh](examples/advanced.sh)
 
-See [advanced.sh](examples/advanced.sh)
+Shell scripts distributed as utilities may require advanced features and validation.
+
+#### Custom error handler
+
+By defining the custom error handler, you can change the standard error messages,
+respond to additional error messages, and change the exit status.
+
+#### Custom helper functions
+
+By defining your own helper functions, you can easily define advanced options.
+For example, getoptions does not have a helper function to assign to the array,
+but it can be easily implemented by a custom helper function.
+
+### Subcommand
+
+[subcmd.sh](examples/subcmd.sh)
+
+Complex programs are often implemented using subcommands.
+When using subcommands in getoptions, parse the arguments multiple times.
+(For example, parse up to the subcommand, and then parse after it.
+This design is useful for splitting shell scripts by each subcommand.
+
+### Prehook
+
+[prehook.sh](examples/prehook.sh)
+
+If you define a `prehook` function in the parser definition,
+it will be calledbefore helper functions is called.
+This allows you to process the arguments before calling the helper function.
+
+This feature was originally designed to handle variable names with prefixes
+without complicating getoptions. Therefore, it may not be very flexible.
+
+NOTE: The `prehook` function is not called in the help.
+
+### Extension
+
+TODO: ~~[extension.sh](examples/extension.sh)~~
+
+Recall that the parser definition function is just a shell script.
+You can extend the functionality by calling it from your function.
+For example, you could add a `required` attribute that means nonsense required options.
+
+### Practical example
 
 getoptions was originally developed to improve the maintainability and testability for [ShellSpec][shellspec]
 which has number of options. [ShellSpec optparser][optparser] is another good example of how to use getoptions.
@@ -474,425 +483,25 @@ which has number of options. [ShellSpec optparser][optparser] is another good ex
 [shellspec]: https://shellspec.info/
 [optparser]: https://github.com/shellspec/shellspec/tree/master/lib/libexec/optparser
 
-### Subcommand
-
-```console
-$ examples/subcmd.sh --help
-
-Usage: subcmd.sh [global options...] [command] [options...] [arguments...]
-
-subcommand example
-
-Options:
-  -g, --global                global flag
-  -h, --help
-      --version
-
-Commands:
-  cmd1      subcommand 1
-  cmd2      subcommand 2
-  cmd3      subcommand 3
-
-
-$ examples/subcmd.sh cmd1 --help
-
-Usage: subcmd.sh cmd1 [options...] [arguments...]
-
-subcommand example
-
-Options:
-  -a, --flag-a
-  -h, --help
-```
-
-See [subcmd.sh](examples/subcmd.sh)
-
-```sh
-parser_definition() {
-  setup   REST help:usage abbr:true -- \
-          "Usage: ${2##*/} [global options...] [command] [options...] [arguments...]"
-  msg -- '' 'subcommand example' ''
-  msg -- 'Options:'
-  flag    GLOBAL  -g --global    -- "global flag"
-  disp    :usage  -h --help
-  disp    VERSION    --version
-
-  msg -- '' 'Commands:'
-  cmd cmd1 -- "subcommand 1"
-  cmd cmd2 -- "subcommand 2"
-  cmd cmd3 -- "subcommand 3"
-}
-
-parser_definition_cmd1() {
-  setup   REST help:usage abbr:true -- \
-          "Usage: ${2##*/} cmd1 [options...] [arguments...]"
-  msg -- '' 'subcommand example' ''
-  msg -- 'Options:'
-  flag    FLAG_A  -a --flag-a
-  disp    :usage  -h --help
-}
-```
-
-### Extension
-
-Since option definitions are shell scripts, they can be extended by defining functions.
-Here is a example code to define your own custom helper functions.
-It can also be extended by using hooks. For example, you can prefix all variables.
-
-See [extension.sh](examples/extension.sh)
-
-## References
-
-### Global functions
-
-#### `getoptions` - Generate a function for option parsing
-
-This function is, to be exact, an option parser generator.
-An option parser is defined by `eval` the generated code.
-
-`getoptions <parser_definition> <parser_name> [arguments...]`
-
-- parser_definition - Option parser definition
-- parser_name - Function name for option parser
-- arguments - Passed to the parser definition function
-
-```sh
-parser_definition() {
-  setup REST ...
-  ...
-}
-
-# Define the parse function for option parsing
-eval "$(getoptions parser_definition parse "$0")"
-parse "$@"          # Option parsing
-eval "set -- $REST" # Exclude options from arguments
-```
-
-##### About option parser
-
-The option parser reuses the shell special variables `OPTIND` and `OPTARG`
-for a different purpose than `getopts`. When the option parsing is
-successfully completed, the `OPTIND` is reset to 1 and the `OPTARG` is unset.
-When option parsing fails, the `OPTARG` is set to the value of the failed option.
-
-##### About option parser definition function
-
-The option parser definition functions are called by `getoptions` 2 times
-(or 3 times when using automatic help generation).
-
-Since this function is called within a subshell, defining variables and
-functions within this function does not pollute the global. Of course,
-helper functions are also defined in the subshell.
-
-#### `getoptions_abbr` - Handle abbreviated long options (add-on)
-
-This function is called automatically by `getoptions` with the `abbr` attribute,
-Do not call it manually.
-
-#### `getoptions_help` - Generate a function to display help (add-on)
-
-This function is called automatically by `getoptions` with the `help` attribute,
-but can also be called manually.
-
-`getoptions_help <parser_definition> <help_name> [arguments...]`
-
-- parser_definition - Option parser definition
-- help_name - Function name for help display
-- arguments - Passed to the parser definition function
-
-```sh
-parser_definition() {
-  ...
-}
-
-eval "$(getoptions_help parser_definition usage)"
-usage
-```
-
-##### Attributes related to the help display
-
-```console
-$ script.sh ---help
-
-Options:
-+----------------------------- message -----------------------------+
-:                                                                   :
-+----------- label -----------+                                     :
-:   width [default: 30]       :                                     :
-:                             :                                     :
-  -f, +f, --flag              message for --flag
-  -l, +l, --long-long-option-name
-                              message for --long-long-option-name
-  -o, +o, --option VAR        message for --option
-|     |            |
-|     |            +-- var
-|     +-- plus (visible if specified)
-+-- leading [default: "  " (two spaces)]
-
-Commands:
-+---------------- message ----------------+
-:                                         :
-+-- label --+                             :
-: width [12]:                             :
-:           :                             :
-  cmd1      subcommand1
-  cmd2      subcommand2
-  cmd3      subcommand3
-|
-+-- leading [default: "  " (two spaces)]
-```
-
-NOTE: If you don't like the output, feel free to change it.
-
-### Helper functions (not globally defined)
-
-Helper functions are not defined globally.
-They are available only in the `getoptions` and `getoptions_help` functions.
-
-#### Data types & Initial values
-
-| name       | description                                                                       |
-| ---------- | --------------------------------------------------------------------------------- |
-| SWITCH     | `-?`, `+?`, `--*`, `--{no-}*` (expand to `--flag` and `--no-flag`)                |
-| BOOLEAN    | Boolean (true: not zero-length string, false: **zero-length string**)             |
-| STRING     | String                                                                            |
-| NUMBER     | Number                                                                            |
-| STATEMENT  | Function name (arguments can be added) - e.g. `foo`, `foo 1 2 3`                  |
-| CODE       | Statement or multiple statements - e.g `foo; bar`                                 |
-| KEY-VALUE  | `key:value` style arguments - If `:value` is omitted, it is the same as `key:key` |
-| INIT-VALUE | Initial value (`@on`, `@off`, `@unset`, `@none`, `@export`)                       |
-
-| name      | description                                                                  |
-| --------- | ---------------------------------------------------------------------------- |
-| `@on`     | Set the variable to a positive value. [default: `1`]                         |
-| `@off`    | Set the variable to a negative value. [default: empty]                       |
-| `@unset`  | Unset the variable                                                           |
-| `@none`   | Do not initialization (Use the current value as it is)                       |
-| `@export` | Add only export flag without initialization (Use the current value as it is) |
-
-#### `setup` - Setup global settings (mandatory)
-
-`setup <restargs> [settings...] [default attributes...] [-- [messages...]]`
-
-- resrargs (VARIABLE)
-  - The variable name for getting rest arguments
-  - Specify `-` if you want to omit the restargs
-- settings (KEY-VALUE)
-  - `abbr`:BOOLEAN - Handle abbreviated long options (requires `getoptions_abbr`)
-  - `alt`:BOOLEAN - allow long options starting with single `-` (alternative)
-    - Unlike `getopt`, the syntax `-abc` and `-sVALUE` cannot be used when enabled
-  - `error`:STATEMENT - Custom error handler
-  - `help`:STATEMENT - Define help function (requires `getoptions_help`)
-  - `leading`:STRING - Leading characters in the option part of the help [default: `"  "` (two spaces)]
-  - `mode`:STRING - Scanning modes (See below or `man getopt`) [default: empty]
-  - `plus`:BOOLEAN - Those start with `+` are treated as options [default: auto]
-  - `width`:NUMBER - The width of the option or subcommand part of the help [default: `"30,12"`]
-- default attributes (KEY-VALUE)
-  - `export`:BOOLEAN - Export variables [default: empty]
-  - `hidden`:BOOLEAN - Do not display in help [default: empty]
-  - `init`:[@INIT-VALUE | =STRING | CODE] - Initial value
-  - `off`:STRING - The negative value [default: empty]
-  - `on`:STRING - The positive value [default: `1`]
-- message (STRING)
-  - Help messages
-
-##### Scanning modes
-
-| mode | `getopt`      | `getoptions`                                                                |
-| ---- | ------------- | --------------------------------------------------------------------------- |
-| `+`  | Supported     | Stop parsing when an argument (not an option) is found                      |
-| `-`  | Supported     | Not supported (No point in supporting it)                                   |
-| `@`  | Not supported | Similar to mode `+` but leaves `--` (AKA, subcommands mode)                 |
-
-NOTE: The following scanning modes are currently not implemented correctly and will be removed in the next version,
-as fixing them would increase the amount of code significantly. Please do not use them.
-
-| mode | `getopt`      | `getoptions`                                                                |
-| ---- | ------------- | --------------------------------------------------------------------------- |
-| `=`  | Not supported | Stop parsing when an unknown option is found                                |
-| `#`  | Not supported | Stop parsing when an argument (not an option) or an unknown option is found |
-
-#### `flag` - Define an option that take no argument
-
-`flag <varname | :action> [switches...] [attributes...] [-- [messages...]]`
-
-- varname (VARIABLE) or action (STATEMENT)
-  - Variable name or Action function
-- switches (SWITCH)
-  - Options
-- attributes (KEY-VALUE)
-  - `abbr`:BOOLEAN - Set empty to disable individually [default: `1` if abbreviation option is enabled]
-  - `counter`:BOOLEAN - Counts the number of flags
-  - `export`:BOOLEAN - Export variables
-  - `hidden`:BOOLEAN - Do not display in help
-  - `init`:[@INIT-VALUE | =STRING | CODE] - Initial value
-  - `label`:STRING - The option part of the help
-  - `off`:STRING - The negative value
-  - `on`:STRING - The positive value
-  - `pattern`:PATTERN - Pattern to accept
-  - `validate`:STATEMENT - Code for value validation
-- message (STRING)
-  - Help messages
-
-#### `param` - Define an option that take an argument
-
-`param <varname | :action> [switches...] [attributes...] [-- [messages...]]`
-
-- varname (VARIABLE) or action (STATEMENT)
-  - Variable name or Action function
-- switches (SWITCH)
-  - Options
-- attributes (KEY-VALUE)
-  - `abbr`:BOOLEAN - Set empty to disable individually [default: `1` if abbreviation option is enabled]
-  - `export`:BOOLEAN - Export variables
-  - `hidden`:BOOLEAN - Do not display in help
-  - `init`:[@INIT-VALUE | =STRING | CODE] - Initial value
-  - `label`:STRING - Option part of help message
-  - `pattern`:PATTERN - Pattern to accept
-  - `validate`:STATEMENT - Code for value validation
-  - `var`:STRING - Variable name displayed in help
-- message (STRING)
-  - Help messages
-
-#### `option` - Define an option that take an optional argument
-
-`option <varname | :action> [switches...] [attributes...] [-- [messages...]]`
-
-- varname (VARIABLE) or action (STATEMENT)
-  - Variable name or Action function
-- switches (SWITCH)
-  - Options
-- attributes (KEY-VALUE)
-  - `abbr`:BOOLEAN - Set empty to disable individually [default: `1` if abbreviation option is enabled]
-  - `export`:BOOLEAN - Export variables
-  - `hidden`:BOOLEAN - Do not display in help
-  - `init`:[@INIT-VALUE | =STRING | CODE] - Initial value
-  - `label`:STRING - Option part of help message
-  - `off`:STRING - The negative value
-  - `on`:STRING - The positive value
-  - `pattern`:PATTERN - Pattern to accept
-  - `validate`:STATEMENT - Code for value validation
-  - `var`:STRING - Variable name displayed in help
-- message (STRING)
-  - Help messages
-
-#### `disp` - Define an option that display only
-
-`disp <varname | :action> [switches...] [attributes...] [-- [messages...]]`
-
-- varname (VARIABLE) or action (STATEMENT)
-  - Variable name or Action function
-- switches (SWITCH)
-  - Options
-- attributes (KEY-VALUE)
-  - `abbr`:BOOLEAN - Set empty to disable individually [default: `1` if abbreviation option is enabled]
-  - `hidden`:BOOLEAN - Do not display in help
-  - `label`:STRING - Option part of help message
-- message (STRING)
-  - Help messages
-
-#### `msg` - Display message in help
-
-`msg [attributes...] [-- [messages...]]`
-
-- attributes (KEY-VALUE)
-  - `hidden`:BOOLEAN - Do not display in help
-  - `label`:STRING - Option part of help message
-- message (STRING)
-  - Help messages
-
-#### `cmd` - Define a subcommand
-
-`cmd [subcommand] [-- [messages...]]`
-
-- attributes (KEY-VALUE)
-  - `hidden`:BOOLEAN - Do not display in help
-  - `label`:STRING - Command part of help message
-- message (STRING)
-  - Help messages
-
-NOTE: Defining a subcommand will change the scanning mode to `@` (subcommands mode).
-
-### Custom error handler
-
-Example
-
-```sh
-# Validators
-number() { case $OPTARG in (*[!0-9]*) return 1; esac; }
-range() {
-  number || return 1
-  [ "$1" -le "$OPTARG" ] && [ "$OPTARG" -le "$2" ] && return 0
-  return 2
-}
-
-# Custom error handler
-#   $1: Default error message
-#   $2: Error name
-#     - `unknown` (Unrecognized option)
-#     - `noarg` (Does not allow an argument)
-#     - `required` (Requires an argument)
-#     - `pattern:<PATTERN>` (Does not match the pattern)
-#     - `validator_name:<STATUS>` (Validation error)
-#     - `ambiguous` (Ambiguous option)
-#   $3: Option
-#   $4-: Validator name and arguments (if $2 is validator_name)
-#   $4-: Candidate options (if $2 is ambiguous)
-#   return: exit status
-error() {
-  case $2 in
-    unknown) echo "Unrecognized option: $3" ;;
-    number:*) echo "Not a number: $3" ;;
-    range:1) echo "Not a number: $3" ;;
-    range:2) echo "Out of range ($5 - $6): $3"; return 2 ;;
-    *) return 0 ;; # Display default error
-  esac
-  return 1
-}
-```
-
-The value of the option that caused the error is stored in the `OPTARG` variable.
-If the cause of the error is `ambiguous`, the `OPTARG` is stored candidate
-options splited by `, `.
-
-### Extension (not globally defined)
-
-#### `prehook`, `invoke`
-
-If you define a `prehook` function in the parser definition,
-the `prehook` function will be called before helper functions is called.
-Use `invoke` to call the original function from within a `prehook` function.
-
-NOTE: The `prehook` function is not called in the help.
-
-```sh
-extension() {
-  # The prehook is called before helper functions is called.
-  prehook() {
-    helper=$1 varname_or_action=$2
-    shift 2
-
-    # Do something
-
-    invoke "$helper" "$varname_or_action" "$@"
-  }
-}
-
-parser_definition() {
-  extension
-  setup   REST
-  flag    FLAG -f  --flag
-}
-```
-
-### NOTE: 2.x breaking changes
+## NOTE: 2.x breaking changes
 
 - Calling `getoptions_help` is no longer needed (see `help` attribute)
 - Changed the `default` attribute of the `option` helper function to the `on` attribute
 - Improved the custom error handler and changed the arguments
 - Disable expansion variables in the help display
 
+## NOTE: 3.x breaking changes
+
+- Renamed `lin/getoptions.sh` to `lin/getoptions_base.sh`
+- Renamed `getoptions-cli` to `gengetoptions`
+- Moved library generation feature of `getoptions` to `gengetoptions`
+- Removed scanning mode `=` and `#`
+- Changed attribute `off` to `no`
+- Changed initial value `@off` to `@no`
+
 ## For developers
+
+### How to test getoptions
 
 Tests are executed using [shellspec](https://github.com/shellspec/shellspec).
 
@@ -906,6 +515,9 @@ shellspec
 # Run tests with other shell
 shellspec --shell bash
 ```
+
+NOTE: Currently, only the option parser is being tested,
+and the CLI utilities is not being tested.
 
 ## Changelog
 

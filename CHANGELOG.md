@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added support for `--with-*` and `--without-*` options.
+  - #20: Thanks to Cem Keylan.
+- Added new option parser generator `gengetoptions`.
+- Added build system.
+- Added support for handling of missing commands (`eval "$(getoptions ...) exit 1"`).
+
+### Changed
+
+- Changed Attribute `off` to `no`. [**breaking change**]
+- Changed initial value `@off` to `@no`. [**breaking change**]
+- Renamed `lin/getoptions.sh` to `lin/getoptions_base.sh`. [**breaking change**]
+- Moved library generation feature of `getoptions` to `gengetoptions` [**breaking change**]
+
+### Removed
+
+- Removed incomplete scanning modes `=`, `#`. [**breaking change**]
+- Removed `getoptions-cli` and replaced it with `gengetoptions`. [**breaking change**]
+
 ## [2.5.1] - 2021-01-10
 
 ### Changed
@@ -103,7 +123,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Unset `OPTARG` when the option parser ends normally. (#3 Cem Keylan)
+- Unset `OPTARG` when the option parser ends normally.
+  - #3: Thanks to Cem Keylan.
 - Reset `OPTIND` to 1 when the option parser ends normally.
 
 ## [1.0.0] - 2020-08-20

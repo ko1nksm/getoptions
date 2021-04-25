@@ -1,11 +1,11 @@
 # shellcheck shell=sh disable=SC2016
 # [getoptions] License: Creative Commons Zero v1.0 Universal
 getoptions() {
-	_error='' _on=1 _off='' _export='' _plus='' _mode='' _alt='' _rest=''
+	_error='' _on=1 _no='' _export='' _plus='' _mode='' _alt='' _rest=''
 	_flags='' _nflags='' _opts='' _help='' _abbr='' _cmds='' _init=@empty IFS=' '
 
-	_0() { echo "$@"; }
-	for i in 1 2 3 4 5; do eval "_$i() { _$((${i-}-1)) \"	\$@\"; }"; done
+	i='					'
+	while eval "_${#i}() { echo \"$i\$@\"; }"; [ "$i" ]; do i=${i#?}; done
 
 	quote() {
 		q="$2'" r=''
@@ -17,6 +17,7 @@ getoptions() {
 		[ "${1#:}" = "$1" ] && c=3 || c=4
 		eval "[ ! \${$c:+x} ] || $2 \"\$$c\""
 	}
+	sw() { sw="$sw${sw:+|}$1"; }
 	kv() { eval "${2-}${1%%:*}=\${1#*:}"; }
 	loop() { [ $# -gt 1 ] && [ "$2" != -- ]; }
 
@@ -27,7 +28,7 @@ getoptions() {
 	done
 
 	args() {
-		on=$_on off=$_off export=$_export init=$_init _hasarg=$1 && shift
+		on=$_on no=$_no export=$_export init=$_init _hasarg=$1 && shift
 		while loop "$@" && shift; do
 			case $1 in
 				-?) [ "$_hasarg" ] && _opts="$_opts${1#-}" || _flags="$_flags${1#-}" ;;
@@ -70,25 +71,25 @@ getoptions() {
 	[ "$_abbr" ] && getoptions_abbr "$@"
 
 	args() {
-		sw='' validate='' pattern='' counter='' on=$_on off=$_off export=$_export
+		sw='' validate='' pattern='' counter='' on=$_on no=$_no export=$_export
 		while loop "$@" && shift; do
 			case $1 in
-				--\{no-\}*) i=${1#--?no-?}; sw="$sw${sw:+|}'--$i'|'--no-$i'" ;;
-				--with\{out\}-*) i=${1#--with?out?-}; sw="$sw${sw:+|}'--with-$i'|'--without-$i'" ;;
-				[-+]? | --*) sw="$sw${sw:+|}'$1'" ;;
+				--\{no-\}*) i=${1#--?no-?}; sw "'--$i'|'--no-$i'" ;;
+				--with\{out\}-*) i=${1#--*-}; sw "'--with-$i'|'--without-$i'" ;;
+				[-+]? | --*) sw "'$1'" ;;
 				*) kv "$1"
 			esac
 		done
 		quote on "$on"
-		quote off "$off"
+		quote no "$no"
 	}
 	setup() { :; }
 	_flag() {
 		args "$@"
-		[ "$counter" ] && on=1 off=-1 v="\$((\${$1:-0}+\$OPTARG))" || v=''
+		[ "$counter" ] && on=1 no=-1 v="\$((\${$1:-0}+\$OPTARG))" || v=''
 		_3 "$sw)"
 		_4 '[ "${OPTARG:-}" ] && OPTARG=${OPTARG#*\=} && set "noarg" "$1" && break'
-		_4 "eval '[ \${OPTARG+x} ] &&:' && OPTARG=$on || OPTARG=$off"
+		_4 "eval '[ \${OPTARG+x} ] &&:' && OPTARG=$on || OPTARG=$no"
 		valid "$1" "${v:-\$OPTARG}"
 		_4 ';;'
 	}
@@ -107,7 +108,7 @@ getoptions() {
 		_4 '[ ${OPTARG+x} ] && {'
 		_5 'case $1 in --no-*|--without-*) set "noarg" "${1%%\=*}"; break; esac'
 		_5 '[ "${OPTARG:-}" ] && { shift; OPTARG=$2; } ||' "OPTARG=$on"
-		_4 "} || OPTARG=$off"
+		_4 "} || OPTARG=$no"
 		valid "$1" '$OPTARG'
 		_4 'shift ;;'
 	}
@@ -162,8 +163,7 @@ getoptions() {
 	_3 '--)'
 	[ "$_mode" = @ ] || _4 'shift'
 	rest
-	_3 "[-${_plus:++}]?*)"
-	case $_mode in [=#]) rest ;; *) _4 'set "unknown" "$1"; break ;;'; esac
+	_3 "[-${_plus:++}]?*)" 'set "unknown" "$1"; break ;;'
 	_3 '*)'
 	case $_mode in
 		@)
@@ -171,7 +171,7 @@ getoptions() {
 			_5 '*) set "notcmd" "$1"; break'
 			_4 'esac'
 			rest ;;
-		[+#]) rest ;;
+		+) rest ;;
 		*) _4 "$_rest=\"\${$_rest}" '\"\${$(($OPTIND-$#))}\""'
 	esac
 	_2 'esac'
@@ -191,5 +191,6 @@ getoptions() {
 	_1 'exit 1'
 	_0 '}'
 
-	[ ! "$_help" ] || eval "shift 2; getoptions_help $1 $_help" ${3+'"$@"'}
+	[ "$_help" ] && eval "shift 2; getoptions_help $1 $_help" ${3+'"$@"'}
+	_0 '# Do not execute' # exit 1
 }
