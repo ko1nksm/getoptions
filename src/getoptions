@@ -29,7 +29,7 @@ quote() {
 }
 
 usage() {
-	echo 'Usage: eval "$(getoptions <parser_definition> <parser_name> [arguments]...)"'
+	echo 'Usage: eval "$(getoptions <parser_definition> <parser_name> [arguments]...) exit 1"'
 }
 
 info() {

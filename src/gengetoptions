@@ -269,7 +269,7 @@ parser_definition() {
   disp    :usage  -h    --help
   disp    VERSION       --version
 }
-eval "$(getoptions parser_definition parse "$0")"
+eval "$(getoptions parser_definition parse "$0") exit 1"
 parse "$@"
 eval "set -- $REST"
 HERE
