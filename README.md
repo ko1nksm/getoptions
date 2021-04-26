@@ -12,13 +12,6 @@ An elegant option parser for shell scripts (full support for all POSIX shells)
 It is for those who want to support the POSIX / GNU style option syntax in your shell scripts.
 Most easy, simple, fast, small, extensible and portable. No more any loops and templates needed!
 
-**This is the documentation for v3.0.0, which has not yet been released.**
-**The feature of the option parser is almost the same as the latest version [v2.5.1][v2.5.1],**
-**but the utilities and libraries are used differently and its usability has been greatly improved.**
-**v3.0.0 will be available soon.**
-
-[v2.5.1]: https://github.com/ko1nksm/getoptions/tree/v2.5.1
-
 ## TL; DR <!-- omit in toc -->
 
 ```sh
