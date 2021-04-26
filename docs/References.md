@@ -184,16 +184,16 @@ They are available only in the `getoptions` and `getoptions_help` functions.
 
 ### Data types & Initial values
 
-| name       | description                                                                       |
-| ---------- | --------------------------------------------------------------------------------- |
-| SWITCH     | `-?`, `+?`, `--*`, `--{no-}*` (expand to `--flag` and `--no-flag`)                |
-| BOOLEAN    | Boolean (true: not zero-length string, false: **zero-length string**)             |
-| STRING     | String                                                                            |
-| NUMBER     | Number                                                                            |
-| STATEMENT  | Function name (arguments can be added) - e.g. `foo`, `foo 1 2 3`                  |
-| CODE       | Statement or multiple statements - e.g `foo; bar`                                 |
-| KEY-VALUE  | `key:value` style arguments - If `:value` is omitted, it is the same as `key:key` |
-| INIT-VALUE | Initial value (`@on`, `@no`, `@unset`, `@none`, `@export`)                        |
+| name       | description                                                                                                                                                                   |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| SWITCH     | `-?`, `+?`, `--*`, `--no-*`, `--with-*`, `--without-*`,<br>`--{no-}*` (expand to `--flag` and `--no-flag`),<br>`--with{out}-*` (expand to `--with-flag` and `--without-flag`) |
+| BOOLEAN    | Boolean (true: not zero-length string, false: **zero-length string**)                                                                                                         |
+| STRING     | String                                                                                                                                                                        |
+| NUMBER     | Number                                                                                                                                                                        |
+| STATEMENT  | Function name (arguments can be added) - e.g. `foo`, `foo 1 2 3`                                                                                                              |
+| CODE       | Statement or multiple statements - e.g `foo; bar`                                                                                                                             |
+| KEY-VALUE  | `key:value` style arguments - If `:value` is omitted, it is the same as `key:key`                                                                                             |
+| INIT-VALUE | Initial value (`@on`, `@no`, `@unset`, `@none`, `@export`)                                                                                                                    |
 
 | name      | description                                                                  |
 | --------- | ---------------------------------------------------------------------------- |
