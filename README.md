@@ -154,8 +154,17 @@ Options:
 
 **Download prebuild shell scripts** from [releases](https://github.com/ko1nksm/getoptions/releases).
 
-- getoptions: Option parser [mandatory]
-- gengetoptions: Option parser generator and utility for distribution scripts [optional]
+- getoptions: Option parser
+- gengetoptions: Option parser generator
+
+```sh
+wget https://github.com/ko1nksm/getoptions/releases/latest/download/getoptions -O $HOME/bin/getoptions
+chmod +x $HOME/bin/getoptions
+
+# optional
+wget https://github.com/ko1nksm/getoptions/releases/latest/download/gengetoptions -O $HOME/bin/gengetoptions
+chmod +x $HOME/bin/gengetoptions
+```
 
 Or build and install it yourself.
 
