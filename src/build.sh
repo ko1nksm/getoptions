@@ -9,11 +9,9 @@ LICENSE="Creative Commons Zero v1.0 Universal"
 
 while IFS= read -r line; do
 	case $line in
-		*"# @INCLUDE-FILE")
-			printf '\t%s \\\n' "putlines"
-			eval "$line" | sed "s/'/'\\\\''/g; s/^/\t\t'/; s/$/' \\\\/"
-			echo
-			;;
+		*"# @OUTPUT-BEGIN") echo "\"\$@\" '" ;;
+		*"# @OUTPUT-END") echo "'" ;;
+		*"# @INCLUDE-FILE") eval "$line" | sed "s/'/'\\\\''/g" ;;
 		*"# @VAR")
 			var=${line%%\=*} value=""
 			eval "value=\$$var"

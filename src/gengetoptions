@@ -229,7 +229,8 @@ do_library() {
 	parse "$@"
 	eval "set -- $REST"
 
-	"$GETOPTIONS" - | {
+	lib=$("$GETOPTIONS" -)
+	printf '%s\n' "$lib" | {
 		funcname='' shellcheck_disable=""
 		while IFS= read -r line; do
 			case $line in

@@ -9,16 +9,12 @@ VERSION="VERSION" # @VAR
 URL="URL" # @VAR
 LICENSE="LICENSE" # @VAR
 
-if [ "${KSH_VERSION:-}" ] || [ "${ZSH_VERSION:-}" ]; then
-	putlines() { IFS=$'\n'$IFS; print -r -- "$*"; IFS=${IFS#?}; }
-else
-	putlines() { printf '%s\n' "$@"; }
-fi
-
 outlibs() {
+	# @OUTPUT-BEGIN
 	cat lib/getoptions_base.sh # @INCLUDE-FILE
 	cat lib/getoptions_abbr.sh # @INCLUDE-FILE
 	cat lib/getoptions_help.sh # @INCLUDE-FILE
+	# @OUTPUT-END
 }
 
 quote() {
@@ -44,7 +40,11 @@ case ${1:-} in
 	-?*) info && usage && exit 1 ;;
 esac
 
-outlibs
+if [ "${KSH_VERSION:-}" ] || [ "${ZSH_VERSION:-}" ]; then
+	outlibs 'print' '-r' '--'
+else
+	outlibs 'printf' '%s\n'
+fi
 [ "$1" = - ] && exit 0
 for i; do
 	quote i "$i"
