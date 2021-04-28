@@ -2,6 +2,7 @@
 
 set -eu
 
+# shellcheck disable=SC2034
 VERSION="0.1"
 
 parser_definition() {
@@ -18,10 +19,14 @@ parser_definition() {
 
 case ${MODE:-command} in
   command | library)
-    [ "${MODE:-}" = "library" ] && . ./getoptions-library.sh
-    eval "$(getoptions parser_definition parse) exit 1"
-    ;;
-  parser) . ./getoptions-parser.sh ;;
+    if [ "${MODE:-}" = "library" ]; then
+      # shellcheck disable=SC1091
+      . ./getoptions-library.sh
+    fi
+    eval "$(getoptions parser_definition parse) exit 1" ;;
+  parser)
+    # shellcheck disable=SC1091
+    . ./getoptions-parser.sh ;;
 esac
 
 parse "$@"

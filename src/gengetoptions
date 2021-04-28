@@ -188,6 +188,7 @@ do_library() {
 
 	lib=$("$GETOPTIONS" -)
 	printf '%s\n' "$lib" | {
+		# shellcheck disable=SC2030
 		funcname='' shellcheck_disable=""
 		while IFS= read -r line; do
 			case $line in
@@ -245,6 +246,7 @@ do_parser() {
 		comment "URL: $URL ($VERSION)"
 		while IFS= read -r line; do
 			if [ "$line" = "$parser() {" ]; then
+				# shellcheck disable=SC2031
 				shellcheck disable "$shellcheck_disable"
 			fi
 			printf '%s\n' "$line"
