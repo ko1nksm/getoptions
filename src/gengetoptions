@@ -12,10 +12,14 @@ SHELLCHECK="shell=sh disable=SC2004,SC2034,SC2145,SC2194"
 
 [ "${ZSH_VERSION:-}" ] && setopt shwordsplit
 
+parser_definition_setup() {
+	setup REST help:usage abbr:true width:25 error -- \
+		"Usage: ${1##*/} $2" '' 'Options:'
+}
+
 parser_definition() {
-	setup REST help:usage abbr:true width:24 error -- \
-		"Usage: ${2##*/} [options]... <command> [arguments]... " '' \
-		'Options:'
+	parser_definition_setup "$2" \
+		"[options]... <command> [arguments]..."
 
 	disp :info --info -- 'Show detected getoptions info'
 	disp :usage -h --help -- "Display this help and exit"
@@ -28,52 +32,12 @@ parser_definition() {
 	cmd example -- 'Generate parser definition example'
 }
 
-parser_definition_parser() {
-	setup REST help:usage abbr:true mode:+ width:24 error -- \
-		"Usage: ${2##*/} parser [options]... <file> <parser> [arguments]..." '' \
-		'Options:'
-
-	param DEFINITION -d --definition var:NAME -- \
-		"Specify the parser definition name" \
-		"  [default: filename without extensions]"
-
-	option INDENT -i --indent on:2 validate:number var:N -- \
-		"Use N spaces instead of tabs for indentation [default: 2]"
-
-	option SHELLCHECK --shellcheck var:DIRECTIVES on:"$SHELLCHECK" -- \
-		"Embed the shellcheck directives" "  [default: '$SHELLCHECK']"
-
-	flag COMMENT --no-comments init:@on -- \
-		"Do not embed comments"
-
-	param ARG --optarg -- \
-		"Use ARG instead of the variable name OPTARG"
-
-	param IND --optind -- \
-		"Use IND instead of the variable name OPTIND"
-
-	disp :usage -h --help -- "Display this help and exit"
-}
-
 parser_definition_library() {
-	setup REST help:usage abbr:true mode:+ width:24 error -- \
-		"Usage: ${2##*/} library [options]" '' \
-		'Options:'
-
-	option INDENT -i --indent on:2 validate:number var:N -- \
-		"Use N spaces instead of tabs for indentation [default: 2]"
+	parser_definition_setup "$2" \
+		"library [options]..."
 
 	flag SHELLCHECK --shellcheck -- \
 		"Embed the shellcheck directives"
-
-	flag COMMENT --no-comments init:@on -- \
-		"Do not embed comments"
-
-	param ARG --optarg -- \
-		"Use ARG instead of the variable name OPTARG"
-
-	param IND --optind -- \
-		"Use IND instead of the variable name OPTIND"
 
 	flag BASE --no-base init:=getoptions -- \
 		"Do not include base library"
@@ -84,7 +48,39 @@ parser_definition_library() {
 	flag HELP --no-help init:=getoptions_help -- \
 		"Do not include help library"
 
+	parser_definition_style
+
 	disp :usage -h --help -- "Display this help and exit"
+}
+
+parser_definition_parser() {
+	parser_definition_setup "$2" \
+		"parser [options]... <file> <parser> [arguments]..."
+
+	param DEFINITION -d --definition var:NAME -- \
+		"Specify the parser definition name" \
+		"  [default: filename without extensions]"
+
+	option SHELLCHECK --shellcheck var:DIRECTIVES on:"$SHELLCHECK" -- \
+		"Embed the shellcheck directives" "  [default: '$SHELLCHECK']"
+
+	parser_definition_style
+
+	disp :usage -h --help -- "Display this help and exit"
+}
+
+parser_definition_style() {
+	option INDENT -i --indent on:2 validate:number var:N -- \
+		"Use N spaces instead of tabs for indentation [default: 2]"
+
+	flag COMMENT --no-comments init:@on -- \
+		"Do not embed comments"
+
+	param ARG --optarg -- \
+		"Use ARG instead of the variable name OPTARG"
+
+	param IND --optind -- \
+		"Use IND instead of the variable name OPTIND"
 }
 
 number() {
