@@ -55,11 +55,13 @@ parser_definition_library() {
 
 parser_definition_parser() {
 	parser_definition_setup "$2" \
-		"parser [options]... <file> <parser> [arguments]..."
+		"parser [options]... <definition> <parser> [arguments]..."
+
+	param FILE -f --file -- \
+		"Read from a file instead of stdin"
 
 	param DEFINITION -d --definition var:NAME -- \
-		"Specify the parser definition name" \
-		"  [default: filename without extensions]"
+		"Specify the parser definition name (deprecated)"
 
 	option SHELLCHECK --shellcheck var:DIRECTIVES on:"$SHELLCHECK" -- \
 		"Embed the shellcheck directives" "  [default: '$SHELLCHECK']"
@@ -221,23 +223,32 @@ do_parser() {
 	eval "set -- $REST"
 	[ $# -lt 2 ] && usage && exit 1
 
-	if [ ! "$DEFINITION" ]; then
-		DEFINITION=${1##*/} && DEFINITION=${DEFINITION%%.*}
+	if [ "$DEFINITION" ] || { [ ! "$FILE" ] && [ -e "$1" ]; } then
+		echo "Deprecated. Use the --file option instead." >&2
+		if [ ! "$DEFINITION" ]; then
+			DEFINITION=${1##*/} && DEFINITION=${DEFINITION%%.*}
+		fi
+		FILE=$1 parser=$2 definition=$DEFINITION
+		shift
+		set -- "$definition" "$@"
+	else
+		parser=$1 definition=$2
 	fi
-	file=$1 parser=$2
-	shift
-	set -- "$DEFINITION" "$@"
 
-	if ! is_valid_identifier "$DEFINITION"; then
-		abort "The parser definition name '$DEFINITION' is not a valid name"
+	if ! is_valid_identifier "$definition"; then
+		abort "The parser definition name '$definition' is not a valid name"
 	fi
 	if ! is_valid_identifier "$parser"; then
 		abort "The parser name '$parser' is not a valid name"
 	fi
 
-	eval "$DEFINITION() { parser_definition_not_found \"\$DEFINITION\"; }"
-	# shellcheck disable=SC1090
-	. "$file"
+	eval "$definition() { parser_definition_not_found \"\$definition\"; }"
+	if [ "${FILE:--}" = "-" ]; then
+		eval "$(cat)"
+	else
+		# shellcheck disable=SC1090
+		. "$FILE"
+	fi
 	generated=$(getoptions "$@")
 	printf '%s\n' "$generated" | {
 		parse_shellcheck_directives "$SHELLCHECK"
