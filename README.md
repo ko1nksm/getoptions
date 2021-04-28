@@ -66,6 +66,7 @@ Options:
   - [Use as a command](#use-as-a-command)
   - [Use as a library](#use-as-a-library)
   - [Use as a generator](#use-as-a-generator)
+- [Benchmarks](#benchmarks)
 - [How to see the option parser code](#how-to-see-the-option-parser-code)
   - [Arguments containing spaces and quotes](#arguments-containing-spaces-and-quotes)
   - [Why reuse `OPTARG` and `OPTIND` for different purposes?](#why-reuse-optarg-and-optind-for-different-purposes)
@@ -140,7 +141,7 @@ Options:
 **Almost no requirements.**
 
 - Any POSIX shells
-  - `dash` 0.5.4, `bash` 2.03, `ksh88`, `mksh` R28, `zsh` 3.1.9, `yash` 2.29, busybox `ash` 1.1.3, etc
+  - `dash` 0.5.4+, `bash` 2.03+, `ksh` 88+, `mksh` R28+, `zsh` 3.1.9+, `yash` 2.29+, busybox `ash` 1.1.3+, etc
 - Only `cat` is used for help display, but it can be removed
 
 ## Installation
@@ -253,6 +254,46 @@ $ gengetoptions parser examples/parser_definition.sh parse prog > parser.sh
 
 parse "$@"
 eval "set -- $REST"
+```
+
+## Benchmarks
+
+Ubuntu (dash) Core i7 3.4 Ghz
+
+```ini
+[command]
+Benchmark #1: ./example.sh --flag --param param --option=option a b c
+  Time (mean ± σ):       8.6 ms ±   0.3 ms    [User: 6.3 ms, System: 0.6 ms]
+  Range (min … max):     7.7 ms …  10.1 ms    300 runs
+
+[library]
+Benchmark #1: ./example.sh --flag --param param --option=option a b c
+  Time (mean ± σ):       8.3 ms ±   0.4 ms    [User: 5.2 ms, System: 0.5 ms]
+  Range (min … max):     7.4 ms …  10.5 ms    322 runs
+
+[generator]
+Benchmark #1: ./example.sh --flag --param param --option=option a b c
+  Time (mean ± σ):       4.7 ms ±   0.3 ms    [User: 1.4 ms, System: 0.1 ms]
+  Range (min … max):     4.4 ms …   6.5 ms    510 runs
+```
+
+macOS (bash), Core i5 2.4 GHz
+
+```ini
+[command]
+Benchmark #1: ./example.sh --flag --param param --option=option a b c
+  Time (mean ± σ):      37.6 ms ±   3.2 ms    [User: 29.2 ms, System: 7.4 ms]
+  Range (min … max):    33.4 ms …  47.5 ms    66 runs
+
+[library]
+Benchmark #1: ./example.sh --flag --param param --option=option a b c
+  Time (mean ± σ):      31.0 ms ±   3.7 ms    [User: 26.0 ms, System: 4.4 ms]
+  Range (min … max):    26.4 ms …  43.8 ms    77 runs
+
+[generator]
+Benchmark #1: ./example.sh --flag --param param --option=option a b c
+  Time (mean ± σ):       5.6 ms ±   2.1 ms    [User: 2.8 ms, System: 2.0 ms]
+  Range (min … max):     3.9 ms …  15.1 ms    277 runs
 ```
 
 ## How to see the option parser code
