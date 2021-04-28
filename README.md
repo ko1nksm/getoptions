@@ -341,7 +341,7 @@ parse() {
         OPTARG= ;;
     esac
     case $1 in
-      '-f'|'--flag'|'--no-flag'|'--without-flag')
+      '-f'|'--flag')
         [ "${OPTARG:-}" ] && OPTARG=${OPTARG#*\=} && set "noarg" "$1" && break
         eval '[ ${OPTARG+x} ] &&:' && OPTARG='1' || OPTARG=''
         FLAG="$OPTARG"
@@ -395,8 +395,7 @@ cat<<'GETOPTIONSHERE'
 Usage: example.sh [options]... [arguments]...
 
 Options:
-  -f, --flag, --no-flag, --without-flag
-                              takes no arguments
+  -f, --flag                  takes no arguments
   -p, --param PARAM           takes one argument
   -o, --option[=OPTION]       takes one optional argument
   -h, --help
