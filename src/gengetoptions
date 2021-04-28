@@ -91,7 +91,7 @@ number() {
 }
 
 abort() {
-	echo "getoptions-cli:" "$@" >&2
+	echo "gengetoptions:" "$@" >&2
 	exit 1
 }
 
