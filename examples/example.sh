@@ -8,7 +8,7 @@ VERSION="0.1"
 parser_definition() {
   setup   REST help:usage -- "Usage: example.sh [options]... [arguments]..." ''
   msg -- 'Options:'
-  flag    FLAG    -f --flag --no-flag       -- "takes no arguments"
+  flag    FLAG    -f --flag                 -- "takes no arguments"
   param   PARAM   -p --param                -- "takes one argument"
   option  OPTION  -o --option on:"default"  -- "takes one optional argument"
   disp    :usage  -h --help
