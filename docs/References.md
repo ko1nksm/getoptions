@@ -4,6 +4,7 @@
   - [`getoptions` - Generate a function for option parsing](#getoptions---generate-a-function-for-option-parsing)
   - [`getoptions_abbr` - Handle abbreviated long options](#getoptions_abbr---handle-abbreviated-long-options)
   - [`getoptions_help` - Generate a function to display help](#getoptions_help---generate-a-function-to-display-help)
+  - [`getoptions_parse` - Default option parser name](#getoptions_parse---default-option-parser-name)
 - [Option parser](#option-parser)
   - [Option parser definition function](#option-parser-definition-function)
   - [Custom error handler](#custom-error-handler)
@@ -45,6 +46,23 @@ parse "$@"          # Option parsing
 eval "set -- $REST" # Exclude options from arguments
 ```
 
+If you use `-` as the option parser name, it will define the default option parser
+and parse the arguments directly.
+
+```sh
+parser_definition() {
+  setup REST ...
+  ...
+}
+
+eval "$(getoptions parser_definition - "$0") exit 1"
+
+# The above means the same as the following code.
+# eval "$(getoptions parser_definition getoptions_parse "$0") exit 1"
+# getoptions_parse "$@"
+# eval "set -- $REST"
+```
+
 ### `getoptions_abbr` - Handle abbreviated long options
 
 This function is called automatically by `getoptions` with the `abbr` attribute,
@@ -72,6 +90,10 @@ parser_definition() {
 eval "$(getoptions_help parser_definition usage)"
 usage
 ```
+
+### `getoptions_parse` - Default option parser name
+
+This is the default option parser name defined when `-` is specified as the option parser name.
 
 ## Option parser
 
