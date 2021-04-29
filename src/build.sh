@@ -3,7 +3,7 @@
 
 set -eu
 
-VERSION="v3.0.0"
+VERSION="v3.1.0"
 URL="https://github.com/ko1nksm/getoptions"
 LICENSE="Creative Commons Zero v1.0 Universal"
 
