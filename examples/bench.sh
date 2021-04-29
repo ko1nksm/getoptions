@@ -24,6 +24,6 @@ bench "library"
 rm "$lib"
 
 lib="./getoptions-parser.sh"
-gengetoptions parser -f ./example.sh parser_definition parse > "$lib"
+gengetoptions parser -f ./example.sh parser_definition - > "$lib"
 bench "parser"
 rm "$lib"

@@ -1,8 +1,9 @@
 # shellcheck shell=sh disable=SC2016
 # [getoptions] License: Creative Commons Zero v1.0 Universal
 getoptions() {
-	_error='' _on=1 _no='' _export='' _plus='' _mode='' _alt='' _rest=''
+	_error='' _on=1 _no='' _export='' _plus='' _mode='' _alt='' _rest='' _def=''
 	_flags='' _nflags='' _opts='' _help='' _abbr='' _cmds='' _init=@empty IFS=' '
+	[ "$2" = - ] && _def=getoptions_parse
 
 	i='					'
 	while eval "_${#i}() { echo \"$i\$@\"; }"; [ "$i" ]; do i=${i#?}; done
@@ -65,7 +66,7 @@ getoptions() {
 	cmd() { :; }
 	_0 "${_rest:?}=''"
 
-	_0 "$2() {"
+	_0 "${_def:-$2}() {"
 	_1 'OPTIND=$(($#+1))'
 	_1 'while OPTARG= && [ $# -gt 0 ]; do'
 	[ "$_abbr" ] && getoptions_abbr "$@"
@@ -192,5 +193,6 @@ getoptions() {
 	_0 '}'
 
 	[ "$_help" ] && eval "shift 2; getoptions_help $1 $_help" ${3+'"$@"'}
+	[ "$_def" ] && _0 "eval $_def \${1+'\"\$@\"'}; eval set -- \"\${$_rest}\""
 	_0 '# Do not execute' # exit 1
 }

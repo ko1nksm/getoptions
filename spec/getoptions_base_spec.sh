@@ -34,6 +34,18 @@ Describe "getoptions()"
 		The status should be success
 	End
 
+	It "parses options with default parser name"
+		parse() {
+			eval "$(getoptions parser_definition -)"
+			printf '%s ' "$@"
+		}
+		parser_definition() { setup ARGS; echo 'called' >&2; }
+		When call parse 1 2 3
+		The word 1 of stderr should eq "called"
+		The output should eq "1 2 3 "
+		The status should be success
+	End
+
 	Describe 'handling arguments'
 		Context 'when scanning mode is default'
 			parser_definition() {

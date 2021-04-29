@@ -24,11 +24,7 @@ parser_definition() {
 
 number() { case $OPTARG in (*[!0-9]*) return 1; esac; }
 
-# Define the parse function for option parsing
-eval "$(getoptions parser_definition parse "$0") exit 1"
-
-parse "$@"          # Option parsing
-eval "set -- $REST" # Exclude options from arguments
+eval "$(getoptions parser_definition - "$0") exit 1"
 
 echo "FLAG_A: $FLAG_A"
 echo "FLAG_B: $FLAG_B"

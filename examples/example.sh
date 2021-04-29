@@ -23,14 +23,11 @@ case ${MODE:-command} in
       # shellcheck disable=SC1091
       . ./getoptions-library.sh
     fi
-    eval "$(getoptions parser_definition parse) exit 1" ;;
+    eval "$(getoptions parser_definition -) exit 1" ;;
   parser)
     # shellcheck disable=SC1091
     . ./getoptions-parser.sh ;;
 esac
-
-parse "$@"
-eval "set -- $REST"
 
 echo "FLAG: $FLAG, PARAM: $PARAM, OPTION: $OPTION"
 printf '%s\n' "$@"

@@ -285,14 +285,17 @@ do_parser() {
 		parser=$1 definition=$2
 	fi
 
-	if ! is_valid_identifier "$definition"; then
-		abort "The parser definition name '$definition' is not a valid name"
+	if [ "$definition" != "-" ]; then
+		if is_valid_identifier "$definition"; then
+			eval "$definition() { parser_definition_not_found \"\$definition\"; }"
+		else
+			abort "The parser definition name '$definition' is not a valid name"
+		fi
 	fi
 	if ! is_valid_identifier "$parser"; then
 		abort "The parser name '$parser' is not a valid name"
 	fi
 
-	eval "$definition() { parser_definition_not_found \"\$definition\"; }"
 	# shellcheck disable=SC1090
 	case $FILE in
 		'' | - ) eval "$(cat)" ;;
