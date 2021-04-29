@@ -66,6 +66,7 @@ Options:
   - [Use as a command](#use-as-a-command)
   - [Use as a library](#use-as-a-library)
   - [Use as a generator](#use-as-a-generator)
+  - [Embedding into a file](#embedding-into-a-file)
 - [Benchmarks](#benchmarks)
 - [How to see the option parser code](#how-to-see-the-option-parser-code)
   - [Arguments containing spaces and quotes](#arguments-containing-spaces-and-quotes)
@@ -254,6 +255,52 @@ $ gengetoptions parser examples/parser_definition.sh parse prog > parser.sh
 
 parse "$@"
 eval "set -- $REST"
+```
+
+### Embedding into a file
+
+You can use `gengetoptions embed` to embed the generated code in a file,
+which makes maintenance easier.
+
+If you want to write the parser definition in the same file as
+the shell script to execute, define it between `@getoptions` and `@end`.
+The code contained here will be executed during code generation.
+
+The generated code will be embedded between the `@gengetoptions` and `@end` directives.
+The arguments of `@gengetoptions` are the same as the arguments of the `gengetoptions` command,
+which allows you to embed the library as well as the parser.
+
+Example
+
+```console
+$ gengetoptions embed --overwrite example.sh
+```
+
+```sh
+#!/bin/sh
+
+set -eu
+
+# @getoptions
+parser_definition() {
+  setup   REST help:usage -- "Usage: example.sh [options]... [arguments]..." ''
+  msg -- 'Options:'
+  flag    FLAG    -f --flag                 -- "takes no arguments"
+  param   PARAM   -p --param                -- "takes one argument"
+  option  OPTION  -o --option on:"default"  -- "takes one optional argument"
+  disp    :usage  -h --help
+  disp    VERSION    --version
+}
+# @end
+
+# @gengetoptions parser -i parser_definition parse
+# @end
+
+parse "$@"
+eval "set -- $REST"
+
+echo "FLAG: $FLAG, PARAM: $PARAM, OPTION: $OPTION"
+printf '%s\n' "$@" # rest arguments
 ```
 
 ## Benchmarks
