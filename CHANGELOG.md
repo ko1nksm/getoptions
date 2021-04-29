@@ -7,9 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.0] - 2021-04-29
+
 ### Added
 
 - gengetoptions: Added embed subcommand.
+
+### Changed
+
+- gengetoptions: Deprecate the `-d` (`--definition`) option.
 
 ## [3.0.0] - 2021-04-26
 
@@ -139,7 +145,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First release version
 
-[Unreleased]: https://github.com/ko1nksm/getoptions/compare/v3.0.0...HEAD
+[Unreleased]: https://github.com/ko1nksm/getoptions/compare/v3.1.0...HEAD
+[3.1.0]: https://github.com/ko1nksm/getoptions/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/ko1nksm/getoptions/compare/v2.5.1...v3.0.0
 [2.5.1]: https://github.com/ko1nksm/getoptions/compare/v2.5.0...v2.5.1
 [2.5.0]: https://github.com/ko1nksm/getoptions/compare/v2.4.0...v2.5.0
