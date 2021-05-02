@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- getoptions: Make the parser name optional
+
 ## [3.2.0] - 2021-04-30
 
 ### Added
