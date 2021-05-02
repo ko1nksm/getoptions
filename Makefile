@@ -34,6 +34,7 @@ dist: build
 	tar -C bin -czf gengetoptions.tar.gz gengetoptions
 
 install: build
+	mkdir -p $(BINDIR)
 	install -m 755 bin/getoptions $(BINDIR)/getoptions
 	install -m 755 bin/gengetoptions $(BINDIR)/gengetoptions
 
