@@ -29,7 +29,7 @@ parser_definition() {
   disp    VERSION    --version
 }
 
-eval "$(getoptions parser_definition -) exit 1"
+eval "$(getoptions parser_definition) exit 1"
 
 echo "FLAG: $FLAG, PARAM: $PARAM, OPTION: $OPTION"
 printf '%s\n' "$@" # rest arguments
@@ -200,7 +200,7 @@ parser_definition() {
   ...
 }
 
-eval "$(getoptions parser_definition parse "$0") exit 1"
+eval "$(getoptions parser_definition parse) exit 1"
 parse "$@"
 eval "set -- $REST"
 ```
@@ -208,8 +208,8 @@ eval "set -- $REST"
 The above code `exit 1` is the recommended option.
 This allows you to exit if the `getoptions` command is not found.
 
-If you use `-` as the option parser name, it will define the default option parser
-and parse the arguments directly.
+If you omit the option parser name or use `-`, it will define the default option
+parser and parse arguments immediately.
 
 ```sh
 parser_definition() {
@@ -217,10 +217,10 @@ parser_definition() {
   ...
 }
 
-eval "$(getoptions parser_definition - "$0") exit 1"
+eval "$(getoptions parser_definition) exit 1"
 
 # The above means the same as the following code.
-# eval "$(getoptions parser_definition getoptions_parse "$0") exit 1"
+# eval "$(getoptions parser_definition getoptions_parse) exit 1"
 # getoptions_parse "$@"
 # eval "set -- $REST"
 ```
@@ -258,7 +258,7 @@ parser_definition() {
   ...
 }
 
-eval "$(getoptions parser_definition parse "$0")"
+eval "$(getoptions parser_definition parse)"
 parse "$@"
 eval "set -- $REST"
 ```
