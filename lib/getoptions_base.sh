@@ -3,6 +3,7 @@
 getoptions() {
 	_error='' _on=1 _no='' _export='' _plus='' _mode='' _alt='' _rest='' _def=''
 	_flags='' _nflags='' _opts='' _help='' _abbr='' _cmds='' _init=@empty IFS=' '
+	[ $# -lt 2 ] && set -- "${1:?No parser definition}" -
 	[ "$2" = - ] && _def=getoptions_parse
 
 	i='					'

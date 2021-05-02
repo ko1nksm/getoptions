@@ -25,7 +25,7 @@ quote() {
 }
 
 usage() {
-	echo 'Usage: eval "$(getoptions <parser_definition> <parser_name> [arguments]...) exit 1"'
+	echo 'Usage: eval "$(getoptions <definition> [<parser|-> [arguments]...]) exit 1"'
 }
 
 info() {
@@ -34,7 +34,7 @@ info() {
 }
 
 case ${1:-} in
-	'') info && exit 0 ;;
+	'') [ -t 1 ] && info && exit 0;;
 	-v | --version) echo "$VERSION" && exit 0 ;;
 	-h | --help) usage && exit 0 ;;
 	-?*) info && usage && exit 1 ;;
@@ -45,10 +45,6 @@ if [ "${KSH_VERSION:-}" ] || [ "${ZSH_VERSION:-}" ]; then
 else
 	outlibs 'printf' '%s\n'
 fi
-[ "$1" = - ] && exit 0
-for i; do
-	quote i "$i"
-	set -- "$@" "$i"
-	shift
-done
+[ "${1:-}" = - ] && exit 0
+for i; do quote i "$i"; set -- "$@" "$i"; shift; done
 echo "eval \"\$(getoptions $*)\""
