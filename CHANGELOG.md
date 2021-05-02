@@ -7,9 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.3.0] - 2021-05-02
+
 ### Added
 
 - getoptions: Make the parser name optional
+- Support installation via Homebrew
 
 ## [3.2.0] - 2021-04-30
 
