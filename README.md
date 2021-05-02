@@ -60,6 +60,7 @@ Options:
 - [`getopt` vs `getopts` vs `getoptions`](#getopt-vs-getopts-vs-getoptions)
 - [Requirements](#requirements)
 - [Installation](#installation)
+  - [Homebrew / Linuxbrew](#homebrew--linuxbrew)
 - [Usage](#usage)
   - [Use as a command](#use-as-a-command)
   - [Use as a library](#use-as-a-library)
@@ -166,6 +167,13 @@ git clone https://github.com/ko1nksm/getoptions.git
 cd getoptions
 make
 make install PREFIX=$HOME
+```
+
+### Homebrew / Linuxbrew
+
+```sh
+brew tap ko1nksm/getoptions
+brew install getoptions
 ```
 
 ## Usage
