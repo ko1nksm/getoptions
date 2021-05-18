@@ -35,7 +35,7 @@ echo "FLAG: $FLAG, PARAM: $PARAM, OPTION: $OPTION"
 printf '%s\n' "$@" # rest arguments
 ```
 
-It's parses the following arguments:
+It generates a simple [option parser code](#how-to-see-the-option-parser-code) internally and parses the following arguments.
 
 ```sh
 example.sh -f --flag -p VALUE --param VALUE -o --option -oVALUE --option=VALUE 1 2 3
