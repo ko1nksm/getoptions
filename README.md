@@ -272,7 +272,7 @@ If you do not want to include getoptions in your shell scripts, you can pre-gene
 It also runs the fastest, so it suitable when you need a lot of options.
 
 ```console
-$ gengetoptions parser examples/parser_definition.sh parse prog > parser.sh
+$ gengetoptions parser -f examples/parser_definition.sh parser_definition parse prog > parser.sh
 ```
 
 ```sh
@@ -297,9 +297,7 @@ which allows you to embed the library as well as the parser.
 
 Example
 
-```console
-$ gengetoptions embed --overwrite example.sh
-```
+**example.sh**
 
 ```sh
 #!/bin/sh
@@ -319,6 +317,9 @@ parser_definition() {
 # @end
 
 # @gengetoptions parser -i parser_definition parse
+#
+#     INSERTED HERE
+#
 # @end
 
 parse "$@"
@@ -326,6 +327,10 @@ eval "set -- $REST"
 
 echo "FLAG: $FLAG, PARAM: $PARAM, OPTION: $OPTION"
 printf '%s\n' "$@" # rest arguments
+```
+
+```console
+$ gengetoptions embed --overwrite example.sh
 ```
 
 ## Benchmarks
