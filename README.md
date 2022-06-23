@@ -378,7 +378,7 @@ Benchmark #1: ./example.sh --flag --param param --option=option a b c
 It is important to know what kind of code is being generated
 when the option parser is not working as expected.
 
-If you want to see the the option parser code, rewrite it as follows.
+If you want to see the option parser code, rewrite it as follows.
 
 ```sh
 # eval "$(getoptions parser_definition parse) exit 1"
