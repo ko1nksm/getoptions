@@ -229,7 +229,7 @@ HINT: Are you wondering why the external command can call a shell function?
 
 The external command `getoptions` will output the shell function `getoptions`.
 The external command `getoptions` will be hidden by the shell function `getoptions` that defined by `eval`,
-and the `getoptions` will be called again, so it can be call the shell function `parser_ definition`.
+and the `getoptions` will be called again, so it can be call the shell function `parser_definition`.
 
 Try running the following command to see what is output.
 
