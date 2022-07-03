@@ -229,7 +229,7 @@ HINT: Are you wondering why the external command can call a shell function?
 
 The external command `getoptions` will output the shell function `getoptions`.
 The external command `getoptions` will be hidden by the shell function `getoptions` that defined by `eval`,
-and the `getoptions` will be called again, so it can be call the shell function `parser_ definition`.
+and the `getoptions` will be called again, so it can be call the shell function `parser_definition`.
 
 Try running the following command to see what is output.
 
@@ -378,7 +378,7 @@ Benchmark #1: ./example.sh --flag --param param --option=option a b c
 It is important to know what kind of code is being generated
 when the option parser is not working as expected.
 
-If you want to see the the option parser code, rewrite it as follows.
+If you want to see the option parser code, rewrite it as follows.
 
 ```sh
 # eval "$(getoptions parser_definition parse) exit 1"
