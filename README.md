@@ -169,7 +169,7 @@ make
 make install PREFIX=$HOME
 ```
 
-### Homebrew / Linuxbrew
+### Homebrew
 
 ```sh
 brew tap ko1nksm/getoptions
