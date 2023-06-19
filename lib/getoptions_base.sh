@@ -56,6 +56,7 @@ getoptions() {
 		[ "${1#-}" ] && _rest=$1
 		while loop "$@" && shift; do kv "$1" _; done
 	}
+	_0 "${_def:-$2}() {"
 	_flag() { args '' "$@"; defvar "$@"; }
 	_param() { args 1 "$@"; defvar "$@"; }
 	_option() { args 1 "$@"; defvar "$@"; }
@@ -67,7 +68,6 @@ getoptions() {
 	cmd() { :; }
 	_0 "${_rest:?}=''"
 
-	_0 "${_def:-$2}() {"
 	_1 'OPTIND=$(($#+1))'
 	_1 'while OPTARG= && [ $# -gt 0 ]; do'
 	[ "$_abbr" ] && getoptions_abbr "$@"
