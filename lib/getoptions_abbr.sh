@@ -44,9 +44,9 @@ getoptions_abbr() {
 	_4 'OPTIND=$((($#+1)/2)) OPTARG=$1; shift'
 	_4 'while [ $# -gt "$OPTIND" ]; do OPTARG="$OPTARG, $1"; shift; done'
 	_4 'set "Ambiguous option: $1 (could be $OPTARG)" ambiguous "$@"'
-	[ "$_error" ] && _4 "$_error" '"$@" >&2 || exit $?'
+	[ "$_error" ] && _4 "$_error" '"$@" >&2 || return $?'
 	_4 'echo "$1" >&2'
-	_4 'exit 1 ;;'
+	_4 'return 1 ;;'
 	_3 '?*)'
 	_4 '[ "$2" = "$3" ] || OPTARG="$OPTARG=$2"'
 	_4 "shift 3; eval 'set -- \"\${OPTARG# }\"' \${1+'\"\$@\"'}; OPTARG= ;;"
