@@ -128,7 +128,7 @@ getoptions() {
 		args "$@"
 		_3 "$sw)"
 		code "$1" _4 "echo \"\${$1}\"" "${1#:}"
-		_4 'exit 0 ;;'
+		_4 'return 0 ;;'
 	}
 	_msg() { :; }
 
@@ -188,12 +188,12 @@ getoptions() {
 	_2 'notcmd) set "Not a command: $2" "$@" ;;'
 	_2 '*) set "Validation error ($1): $2" "$@"'
 	_1 'esac'
-	[ "$_error" ] && _1 "$_error" '"$@" >&2 || exit $?'
+	[ "$_error" ] && _1 "$_error" '"$@" >&2 || return $?'
 	_1 'echo "$1" >&2'
-	_1 'exit 1'
+	_1 'return 1'
 	_0 '}'
 
 	[ "$_help" ] && eval "shift 2; getoptions_help $1 $_help" ${3+'"$@"'}
 	[ "$_def" ] && _0 "eval $_def \${1+'\"\$@\"'}; eval set -- \"\${$_rest}\""
-	_0 '# Do not execute' # exit 1
+	_0 '# Do not execute' # return 1
 }
