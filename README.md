@@ -611,7 +611,7 @@ which has number of options. [ShellSpec optparser][optparser] is another good ex
 
 ## NOTE: 3.x breaking changes
 
-- Renamed `lin/getoptions.sh` to `lin/getoptions_base.sh`
+- Renamed `lib/getoptions.sh` to `lib/getoptions_base.sh`
 - Renamed `getoptions-cli` to `gengetoptions`
 - Moved library generation feature of `getoptions` to `gengetoptions`
 - Removed scanning mode `=` and `#`
