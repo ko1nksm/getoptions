@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixes for Schily Bourne Shell (bosh/pbosh 2023/01/12).
+- Fixed broken --shellcheck
+- Minor fixes for old yash (POSIXly-correct mode).
+
 ## [3.3.0] - 2021-05-02
 
 ### Added
