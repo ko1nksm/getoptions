@@ -11,6 +11,8 @@ clean:
 
 check:
 	shellcheck src/* lib/*.sh spec/*.sh examples/*.sh
+	bin/gengetoptions library --shellcheck | shellcheck -s sh -
+	bin/gengetoptions parser -f examples/parser_definition.sh --shellcheck parser_definition parser prog | shellcheck -
 
 test:
 	shellspec

@@ -175,12 +175,12 @@ chvarname() {
 	done
 }
 
-# shellcheck disable=SC2004
 tab2space() {
 	[ ! "${1:-}" ] && cat && return 0
 	TAB=$(printf '\t')
 
 	prefix='' i=0
+	# shellcheck disable=SC2004
 	while [ "$i" -lt "$1" ] && i=$(($i + 1)); do
 		prefix="$prefix "
 	done
@@ -189,8 +189,10 @@ tab2space() {
 	while IFS= read -r line; do
 		while [ "$line" ]; do
 			case $line in ([!${TAB}]*) break; esac
+			# shellcheck disable=SC2004
 			i=$(($i + 1)) line=${line#?}
 		done
+		# shellcheck disable=SC2004
 		while [ "$i" -gt 0 ] && i=$(($i - 1)); do
 			line="${prefix}${line}"
 		done

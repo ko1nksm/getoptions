@@ -1,5 +1,4 @@
-#shellcheck shell=sh
-
+# shellcheck shell=sh
 set -eu
 
 # shellspec_spec_helper_configure() {

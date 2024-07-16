@@ -5,7 +5,6 @@ set -eu
 # shellcheck disable=SC2034
 VERSION=0.1
 
-# shellcheck disable=SC1083
 parser_definition() {
 	setup   REST help:usage abbr:true -- \
 		"Usage: ${2##*/} [global options...] [command] [options...] [arguments...]"
@@ -21,7 +20,6 @@ parser_definition() {
 	cmd cmd3 -- "subcommand 3"
 }
 
-# shellcheck disable=SC1083
 parser_definition_cmd1() {
 	setup   REST help:usage abbr:true -- \
 		"Usage: ${2##*/} cmd1 [options...] [arguments...]"
@@ -31,7 +29,6 @@ parser_definition_cmd1() {
 	disp    :usage  -h --help
 }
 
-# shellcheck disable=SC1083
 parser_definition_cmd2() {
 	setup   REST help:usage abbr:true -- \
 		"Usage: ${2##*/} cmd2 [options...] [arguments...]"
@@ -41,7 +38,6 @@ parser_definition_cmd2() {
 	disp    :usage  -h --help
 }
 
-# shellcheck disable=SC1083
 parser_definition_cmd3() {
 	setup   REST help:usage abbr:true -- \
 		"Usage: ${2##*/} cmd3 [options...] [arguments...]"

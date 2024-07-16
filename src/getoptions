@@ -1,5 +1,4 @@
 #!/bin/sh
-# shellcheck disable=SC2016,SC2039
 # getoptions is released under CC0
 # https://creativecommons.org/publicdomain/zero/1.0/
 
@@ -25,6 +24,7 @@ quote() {
 }
 
 usage() {
+	# shellcheck disable=SC2016
 	echo 'Usage: eval "$(getoptions <definition> [<parser|-> [arguments]...]) exit 1"'
 }
 

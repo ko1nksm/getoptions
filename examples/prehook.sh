@@ -4,7 +4,7 @@ set -eu
 
 PREFIX_VERSION=0.1
 
-# shellcheck disable=SC2145
+# shellcheck disable=SC2145,SC2317
 parser_definition() {
 	# Append prefix to variable name using prehook
 	prefix=$3
