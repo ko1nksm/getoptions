@@ -206,7 +206,9 @@ embed() {
 		case $line in
 			\#\ @end)
 				if [ "$args" ]; then
-					[ "$ERASE" ] || eval "fetch < \"\$1\" | gengetoptions $args"
+					if [ ! "$ERASE" ]; then
+						embed_gengetoptions "$1" "$args"
+					fi
 					args=''
 				fi
 				;;
@@ -233,6 +235,17 @@ fetch() {
 			printf '%s\n' "$line"
 		fi
 	done
+}
+
+embed_gengetoptions() {
+	eval "fetch < \"\$1\" | gengetoptions $2" | {
+		while IFS= read -r line; do
+			case $line in
+				\#\ shellcheck\ shell=*) continue
+			esac
+			printf '%s\n' "$line"
+		done
+	}
 }
 
 do_library() {
