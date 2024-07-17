@@ -2,7 +2,9 @@
 
 set -eu
 
-type hyperfine || exit 1
+shell="${1:-sh}"
+type "$shell" >/dev/null || exit 1
+type hyperfine >/dev/null || exit 1
 
 cd "${0%/*}"
 
@@ -10,20 +12,28 @@ cd "${0%/*}"
 i=0; while [ "$i" -lt 100000 ]; do i=$((i+1)); done
 
 bench() {
-  echo "[$1]"
-  export MODE="$1"
-  set -- ./example.sh --flag --param param --option=option a b c
+  echo "[Use as $1]"
+  export MODE="${1}:${lib}"
+  set -- "$shell" ./example.sh \
+    --flag1 --flag2 --flag3 \
+    --param1 param1 --param2 param2 --param3 param3 \
+    --option1=option1 --option2=option2 --option3=option3 \
+    a b c d e f g
   hyperfine --warmup 1 "$*"
 }
 
+
+lib=$(mktemp)
+
+# Use as command
 bench "command"
 
-lib="./getoptions-library.sh"
+# Use as library
 gengetoptions library > "$lib"
 bench "library"
-rm "$lib"
 
-lib="./getoptions-parser.sh"
-gengetoptions parser -f ./example.sh parser_definition - > "$lib"
-bench "parser"
+# Use as generator
+gengetoptions parser -f ./example.sh parser_definition parse > "$lib"
+bench "generator"
+
 rm "$lib"
