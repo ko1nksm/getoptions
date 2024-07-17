@@ -386,8 +386,6 @@ Benchmark 1: sh ./example.sh --flag1 --flag2 --flag3 --param1 param1 --param2 pa
   Time (mean ± σ):      69.1 ms ±  10.4 ms    [User: 55.3 ms, System: 9.5 ms]
   Range (min … max):    60.5 ms … 120.5 ms    39 runs
 
-  Warning: Statistical outliers were detected. Consider re-running this benchmark on a quiet system without any interferences from other programs. It might help to use the '--warmup' or '--prepare' options.
-
 [Use as generator]
 Benchmark 1: sh ./example.sh --flag1 --flag2 --flag3 --param1 param1 --param2 param2 --param3 param3 --option1=option1 --option2=option2 --option3=option3 a b c d e f g
   Time (mean ± σ):      13.2 ms ±   5.1 ms    [User: 5.2 ms, System: 5.4 ms]
