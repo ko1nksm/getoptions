@@ -338,39 +338,60 @@ $ gengetoptions embed --overwrite example.sh
 Ubuntu (dash) Core i7 3.4 Ghz
 
 ```ini
-[command]
-Benchmark #1: ./example.sh --flag --param param --option=option a b c
-  Time (mean ± σ):       8.6 ms ±   0.3 ms    [User: 6.3 ms, System: 0.6 ms]
-  Range (min … max):     7.7 ms …  10.1 ms    300 runs
+[Use as command]
+Benchmark 1: sh ./example.sh --flag1 --flag2 --flag3 --param1 param1 --param2 param2 --param3 param3 --option1=option1 --option2=option2 --option3=option3 a b c d e f g
+  Time (mean ± σ):       5.2 ms ±   0.2 ms    [User: 5.1 ms, System: 0.5 ms]
+  Range (min … max):     4.8 ms …   6.3 ms    519 runs
 
-[library]
-Benchmark #1: ./example.sh --flag --param param --option=option a b c
-  Time (mean ± σ):       8.3 ms ±   0.4 ms    [User: 5.2 ms, System: 0.5 ms]
-  Range (min … max):     7.4 ms …  10.5 ms    322 runs
+[Use as library]
+Benchmark 1: sh ./example.sh --flag1 --flag2 --flag3 --param1 param1 --param2 param2 --param3 param3 --option1=option1 --option2=option2 --option3=option3 a b c d e f g
+  Time (mean ± σ):       4.4 ms ±   0.3 ms    [User: 4.2 ms, System: 0.4 ms]
+  Range (min … max):     4.0 ms …   7.3 ms    634 runs
 
-[generator]
-Benchmark #1: ./example.sh --flag --param param --option=option a b c
-  Time (mean ± σ):       4.7 ms ±   0.3 ms    [User: 1.4 ms, System: 0.1 ms]
-  Range (min … max):     4.4 ms …   6.5 ms    510 runs
+[Use as generator]
+Benchmark 1: sh ./example.sh --flag1 --flag2 --flag3 --param1 param1 --param2 param2 --param3 param3 --option1=option1 --option2=option2 --option3=option3 a b c d e f g
+  Time (mean ± σ):     827.7 µs ±  71.2 µs    [User: 760.4 µs, System: 107.1 µs]
+  Range (min … max):   691.2 µs … 1850.3 µs    2310 runs
+```
+
+Ubuntu (bash) Core i7 3.4 Ghz
+
+```ini
+[Use as command]
+Benchmark 1: bash ./example.sh --flag1 --flag2 --flag3 --param1 param1 --param2 param2 --param3 param3 --option1=option1 --option2=option2 --option3=option3 a b c d e f g
+  Time (mean ± σ):      20.6 ms ±   0.7 ms    [User: 19.5 ms, System: 1.6 ms]
+  Range (min … max):    19.1 ms …  24.2 ms    130 runs
+
+[Use as library]
+Benchmark 1: bash ./example.sh --flag1 --flag2 --flag3 --param1 param1 --param2 param2 --param3 param3 --option1=option1 --option2=option2 --option3=option3 a b c d e f g
+  Time (mean ± σ):      19.6 ms ±   1.0 ms    [User: 18.6 ms, System: 1.5 ms]
+  Range (min … max):    18.0 ms …  24.8 ms    154 runs
+
+[Use as generator]
+Benchmark 1: bash ./example.sh --flag1 --flag2 --flag3 --param1 param1 --param2 param2 --param3 param3 --option1=option1 --option2=option2 --option3=option3 a b c d e f g
+  Time (mean ± σ):       2.4 ms ±   0.2 ms    [User: 2.0 ms, System: 0.4 ms]
+  Range (min … max):     2.2 ms …   3.3 ms    915 runs
 ```
 
 macOS (bash), Core i5 2.4 GHz
 
 ```ini
-[command]
-Benchmark #1: ./example.sh --flag --param param --option=option a b c
-  Time (mean ± σ):      37.6 ms ±   3.2 ms    [User: 29.2 ms, System: 7.4 ms]
-  Range (min … max):    33.4 ms …  47.5 ms    66 runs
+[Use as command]
+Benchmark 1: sh ./example.sh --flag1 --flag2 --flag3 --param1 param1 --param2 param2 --param3 param3 --option1=option1 --option2=option2 --option3=option3 a b c d e f g
+  Time (mean ± σ):      82.3 ms ±  15.2 ms    [User: 60.8 ms, System: 16.0 ms]
+  Range (min … max):    69.2 ms … 128.9 ms    36 runs
 
-[library]
-Benchmark #1: ./example.sh --flag --param param --option=option a b c
-  Time (mean ± σ):      31.0 ms ±   3.7 ms    [User: 26.0 ms, System: 4.4 ms]
-  Range (min … max):    26.4 ms …  43.8 ms    77 runs
+[Use as library]
+Benchmark 1: sh ./example.sh --flag1 --flag2 --flag3 --param1 param1 --param2 param2 --param3 param3 --option1=option1 --option2=option2 --option3=option3 a b c d e f g
+  Time (mean ± σ):      69.1 ms ±  10.4 ms    [User: 55.3 ms, System: 9.5 ms]
+  Range (min … max):    60.5 ms … 120.5 ms    39 runs
 
-[generator]
-Benchmark #1: ./example.sh --flag --param param --option=option a b c
-  Time (mean ± σ):       5.6 ms ±   2.1 ms    [User: 2.8 ms, System: 2.0 ms]
-  Range (min … max):     3.9 ms …  15.1 ms    277 runs
+  Warning: Statistical outliers were detected. Consider re-running this benchmark on a quiet system without any interferences from other programs. It might help to use the '--warmup' or '--prepare' options.
+
+[Use as generator]
+Benchmark 1: sh ./example.sh --flag1 --flag2 --flag3 --param1 param1 --param2 param2 --param3 param3 --option1=option1 --option2=option2 --option3=option3 a b c d e f g
+  Time (mean ± σ):      13.2 ms ±   5.1 ms    [User: 5.2 ms, System: 5.4 ms]
+  Range (min … max):     7.2 ms …  34.9 ms    135 runs
 ```
 
 ## How to see the option parser code
