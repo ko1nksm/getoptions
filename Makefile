@@ -51,10 +51,10 @@ uninstall:
 	rm -f $(BINDIR)/getoptions
 	rm -f $(BINDIR)/gengetoptions
 
-bin/getoptions: src/build.sh src/getoptions lib/*.sh
+bin/getoptions: VERSION src/build.sh src/getoptions lib/*.sh
 	src/build.sh < src/getoptions > bin/getoptions
 	chmod +x bin/getoptions
 
-bin/gengetoptions: src/build.sh src/gengetoptions
+bin/gengetoptions: VERSION src/build.sh src/gengetoptions
 	src/build.sh < src/gengetoptions > bin/gengetoptions
 	chmod +x bin/gengetoptions
