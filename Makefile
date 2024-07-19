@@ -9,10 +9,17 @@ build: bin/getoptions bin/gengetoptions
 clean:
 	rm -f bin/getoptions bin/gengetoptions getoptions.tar.gz gengetoptions.tar.gz
 
-check:
+check: build
+	shellcheck --version
 	shellcheck src/* lib/*.sh spec/*.sh examples/*.sh
 	bin/gengetoptions library --shellcheck | shellcheck -s sh -
 	bin/gengetoptions parser -f examples/parser_definition.sh --shellcheck parser_definition parser prog | shellcheck -
+
+check_with_docker: build
+	support/shellcheck.sh --version
+	support/shellcheck.sh src/* lib/*.sh spec/*.sh examples/*.sh
+	bin/gengetoptions library --shellcheck | support/shellcheck.sh -s sh -
+	bin/gengetoptions parser -f examples/parser_definition.sh --shellcheck parser_definition parser prog | support/shellcheck.sh -
 
 test:
 	shellspec
