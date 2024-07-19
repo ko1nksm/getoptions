@@ -314,7 +314,8 @@ do_parser() {
 	# shellcheck disable=SC1090
 	case $FILE in
 		'' | - ) eval "$(cat)" ;;
-		*) . "$FILE" ;;
+		/* | ./* | ../*) . "$FILE" ;;
+		*) . "./$FILE" ;;
 	esac
 	generated=$(getoptions "$@")
 	printf '%s\n' "$generated" | {
