@@ -12,10 +12,11 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y bash busybox ksh mksh posh yash zsh kcov
     - name: Install shellspec
+      env:
+        FORCE_COLOR: 1
       run: |
         echo "${HOME}/.local/bin" >> "$GITHUB_PATH"
         curl -fsSL https://git.io/shellspec | sh -s master -y
-        echo "--color" > $HOME/.shellspec
     - name: Run all tests
       run: make testall
     - name: Measure code coverage
