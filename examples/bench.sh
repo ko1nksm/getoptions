@@ -33,7 +33,8 @@ gengetoptions library > "$lib"
 bench "library"
 
 # Use as generator
-gengetoptions parser -f ./example.sh parser_definition parse > "$lib"
+export PARSER=parse
+gengetoptions parser -f ./example.sh parser_definition "$PARSER" > "$lib"
 bench "generator"
 
 rm "$lib"

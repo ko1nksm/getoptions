@@ -3,11 +3,12 @@
 set -eu
 
 VERSION=0.1
+PROG=${0##*/}
 
 # shellcheck disable=SC1083
 parser_definition() {
 	setup   REST plus:true help:usage abbr:true -- \
-		"Usage: ${2##*/} [options...] [arguments...]" ''
+		"Usage: $PROG [options...] [arguments...]" ''
 	msg -- 'getoptions basic example' ''
 	msg -- 'Options:'
 	flag    FLAG_A  -a                                        -- "message a"
@@ -24,7 +25,7 @@ parser_definition() {
 
 number() { case $OPTARG in (*[!0-9]*) return 1; esac; }
 
-eval "$(getoptions parser_definition - "$0") exit 1"
+eval "$(getoptions parser_definition) exit 1"
 
 echo "FLAG_A: $FLAG_A"
 echo "FLAG_B: $FLAG_B"

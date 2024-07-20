@@ -5,6 +5,7 @@ set -eu
 
 VERSION=0.1
 BLOOD_TYPES='A | B | O | AB'
+PROG=${0##*/}
 
 : "${LANG:=C}"
 
@@ -15,7 +16,7 @@ parser_definition() {
 	parray() { param ":append_array_posix $@"; } # posix version
 
 	setup   REST error:error on:1 no: export:true plus:true width:35 help:usage abbr:true -- \
-		"Usage: ${2##*/} [options...] [arguments...]" '' \
+		"Usage: $PROG [options...] [arguments...]" '' \
 		'getoptions advanced example' ''
 	msg     label:"OPTION" -- "DESCRIPTION"
 	flag    FLAG_A    -a --flag-a on:1 no: init:= export:
@@ -113,9 +114,7 @@ disp_array() {
 	done
 }
 
-eval "$(getoptions parser_definition parse "$0") exit 1"
-parse "$@"
-eval "set -- $REST"
+eval "$(getoptions parser_definition) exit 1"
 
 echo "FLAG_A: $FLAG_A"
 echo "FLAG_B: $FLAG_B"

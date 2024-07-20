@@ -23,16 +23,17 @@ parser_definition() {
 
 [ "${GETOPTIONS:-}" ] && return 0
 
+# The following code is used when called from bench.sh
 # shellcheck disable=SC1090
 case ${MODE:-command:} in
   command:*)
-    eval "$(getoptions parser_definition -) exit 1" ;;
+    eval "$(getoptions parser_definition) exit 1" ;;
   library:*)
     . "${MODE#*:}"
-    eval "$(getoptions parser_definition -) exit 1" ;;
+    eval "$(getoptions parser_definition) exit 1" ;;
   generator:*)
     . "${MODE#*:}"
-    parse "$@"
+    "$PARSER" "$@"
     eval "set -- $REST"
 esac
 
