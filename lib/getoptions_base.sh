@@ -7,7 +7,7 @@ getoptions() {
 	[ "$2" = - ] && _def=getoptions_parse
 
 	i='					'
-	while eval "_${#i}() { echo \"$i\$@\"; }"; [ "$i" ]; do i=${i#?}; done
+	while eval "_${#i}() { echo \"$i\$@\"; }" && [ "$i" ]; do i=${i#?}; done
 
 	quote() {
 		q="$2'" r=''
