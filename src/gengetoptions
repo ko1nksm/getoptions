@@ -249,9 +249,7 @@ embed_gengetoptions() {
 }
 
 do_library() {
-	eval "$(getoptions parser_definition_library parse "$0")"
-	parse "$@"
-	eval "set -- $REST"
+	eval "$(getoptions parser_definition_library - "$0")"
 
 	lib=$("$GETOPTIONS" -)
 	printf '%s\n' "$lib" | {
@@ -283,9 +281,7 @@ do_library() {
 }
 
 do_parser() {
-	eval "$(getoptions parser_definition_parser parse "$0")"
-	parse "$@"
-	eval "set -- $REST"
+	eval "$(getoptions parser_definition_parser - "$0")"
 	[ $# -lt 2 ] && usage && exit 1
 
 	if [ "$DEFINITION" ] || { [ ! "$FILE" ] && [ -e "$1" ]; } then
@@ -336,9 +332,7 @@ do_parser() {
 }
 
 do_embed() {
-	eval "$(getoptions parser_definition_embed parse "$0")"
-	parse "$@"
-	eval "set -- $REST"
+	eval "$(getoptions parser_definition_embed - "$0")"
 	[ $# -lt 1 ] && usage && exit 1
 
 	[ -e "$1" ] || abort "No such file: $1"
@@ -366,9 +360,7 @@ parser_definition() {
 	disp    :usage  -h    --help
 	disp    VERSION       --version
 }
-eval "$(getoptions parser_definition parse "$0") exit 1"
-parse "$@"
-eval "set -- $REST"
+eval "$(getoptions parser_definition - "$0") exit 1"
 HERE
 }
 
@@ -386,9 +378,7 @@ else
 fi
 getoptions() { "$GETOPTIONS" "$@"; }
 
-eval "$(getoptions parser_definition parse "$0")"
-parse "$@"
-eval "set -- $REST"
+eval "$(getoptions parser_definition - "$0")"
 
 [ "${1:---}" = "--" ] && usage && exit 1
 command=$1
