@@ -7,7 +7,7 @@ set -euf
 VERSION="VERSION" # @VAR
 URL="URL" # @VAR
 LICENSE="LICENSE" # @VAR
-PROG=$0
+PROG=${0##*/}
 
 SHELLCHECK="shell=sh disable=SC2004,SC2034,SC2145,SC2194"
 
@@ -15,11 +15,11 @@ SHELLCHECK="shell=sh disable=SC2004,SC2034,SC2145,SC2194"
 
 parser_definition_setup() {
 	setup REST help:usage abbr:true width:25 error -- \
-		"Usage: ${1##*/} $2" '' 'Options:'
+		"Usage: $PROG $1" '' 'Options:'
 }
 
 parser_definition() {
-	parser_definition_setup "$2" \
+	parser_definition_setup \
 		"[options]... <command> [arguments]..."
 
 	disp :info --info -- 'Show detected getoptions info'
@@ -35,7 +35,7 @@ parser_definition() {
 }
 
 parser_definition_library() {
-	parser_definition_setup "$2" \
+	parser_definition_setup \
 		"library [options]..."
 
 	flag SHELLCHECK --shellcheck -- \
@@ -56,7 +56,7 @@ parser_definition_library() {
 }
 
 parser_definition_parser() {
-	parser_definition_setup "$2" \
+	parser_definition_setup \
 		"parser [options]... <definition> <parser> [arguments]..."
 
 	param FILE -f --file -- \
@@ -88,7 +88,7 @@ parser_definition_style() {
 }
 
 parser_definition_embed() {
-	parser_definition_setup "$2" \
+	parser_definition_setup \
 		"embed [options]... <file>"
 
 	flag OVERWRITE -w --overwrite -- \
@@ -250,7 +250,7 @@ embed_gengetoptions() {
 }
 
 do_library() {
-	eval "$(getoptions parser_definition_library - "$PROG")"
+	eval "$(getoptions parser_definition_library)"
 
 	lib=$("$GETOPTIONS" -)
 	printf '%s\n' "$lib" | {
@@ -282,7 +282,7 @@ do_library() {
 }
 
 do_parser() {
-	eval "$(getoptions parser_definition_parser - "$PROG")"
+	eval "$(getoptions parser_definition_parser)"
 	[ $# -lt 2 ] && usage && exit 1
 
 	if [ "$DEFINITION" ] || { [ ! "$FILE" ] && [ -e "$1" ]; } then
@@ -333,7 +333,7 @@ do_parser() {
 }
 
 do_embed() {
-	eval "$(getoptions parser_definition_embed - "$PROG")"
+	eval "$(getoptions parser_definition_embed)"
 	[ $# -lt 1 ] && usage && exit 1
 
 	[ -e "$1" ] || abort "No such file: $1"
@@ -379,7 +379,7 @@ else
 fi
 getoptions() { "$GETOPTIONS" "$@"; }
 
-eval "$(getoptions parser_definition - "$PROG")"
+eval "$(getoptions parser_definition)"
 
 [ "${1:---}" = "--" ] && usage && exit 1
 command=$1
