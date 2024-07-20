@@ -24,6 +24,10 @@ jobs:
     - name: Measure code coverage
       run: make test_with_coverage
     - name: Send code coverage
-      env:
-        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-      run: bash <(curl -s https://codecov.io/bash) -s coverage
+      uses: codecov/codecov-action@v4
+      with:
+        directory: coverage
+        fail_ci_if_error: true
+        flags: unittests
+        token: ${{ secrets.CODECOV_TOKEN }}
+        verbose: true
