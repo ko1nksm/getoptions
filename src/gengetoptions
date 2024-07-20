@@ -7,6 +7,7 @@ set -euf
 VERSION="VERSION" # @VAR
 URL="URL" # @VAR
 LICENSE="LICENSE" # @VAR
+PROG=$0
 
 SHELLCHECK="shell=sh disable=SC2004,SC2034,SC2145,SC2194"
 
@@ -249,7 +250,7 @@ embed_gengetoptions() {
 }
 
 do_library() {
-	eval "$(getoptions parser_definition_library - "$0")"
+	eval "$(getoptions parser_definition_library - "$PROG")"
 
 	lib=$("$GETOPTIONS" -)
 	printf '%s\n' "$lib" | {
@@ -281,7 +282,7 @@ do_library() {
 }
 
 do_parser() {
-	eval "$(getoptions parser_definition_parser - "$0")"
+	eval "$(getoptions parser_definition_parser - "$PROG")"
 	[ $# -lt 2 ] && usage && exit 1
 
 	if [ "$DEFINITION" ] || { [ ! "$FILE" ] && [ -e "$1" ]; } then
@@ -332,7 +333,7 @@ do_parser() {
 }
 
 do_embed() {
-	eval "$(getoptions parser_definition_embed - "$0")"
+	eval "$(getoptions parser_definition_embed - "$PROG")"
 	[ $# -lt 1 ] && usage && exit 1
 
 	[ -e "$1" ] || abort "No such file: $1"
@@ -378,7 +379,7 @@ else
 fi
 getoptions() { "$GETOPTIONS" "$@"; }
 
-eval "$(getoptions parser_definition - "$0")"
+eval "$(getoptions parser_definition - "$PROG")"
 
 [ "${1:---}" = "--" ] && usage && exit 1
 command=$1
