@@ -17,6 +17,8 @@ jobs:
       run: |
         echo "${HOME}/.local/bin" >> "$GITHUB_PATH"
         curl -fsSL https://git.io/shellspec | sh -s master -y
+    - name: Check code
+      run: make check_with_docker
     - name: Run all tests
       run: make testall
     - name: Measure code coverage
