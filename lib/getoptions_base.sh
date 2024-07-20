@@ -6,8 +6,8 @@ getoptions() {
 	[ $# -lt 2 ] && set -- "${1:?No parser definition}" -
 	[ "$2" = - ] && _def=getoptions_parse
 
-	_0() { echo "$@"; }
-	for i in 1 2 3 4 5; do eval "_$i() { _$((${i-}-1)) \"	\$@\"; }"; done
+	i='					'
+	while eval "_${#i}() { echo \"$i\$@\"; }"; [ "$i" ]; do i=${i#?}; done
 
 	quote() {
 		q="$2'" r=''
