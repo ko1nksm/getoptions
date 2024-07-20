@@ -1,6 +1,5 @@
 PREFIX ?= /usr/local
 BINDIR := $(PREFIX)/bin
-SHELL=bash
 
 .PHONY: build clean check test testall coverage install uninstall
 
@@ -34,9 +33,8 @@ testall:
 	shellspec -s yash
 	shellspec -s zsh
 
-coverage:
+test_with_coverage:
 	shellspec -s bash --kcov
-	bash <(curl -s https://codecov.io/bash) -s coverage
 
 dist: build
 	tar -C bin -czf getoptions.tar.gz getoptions

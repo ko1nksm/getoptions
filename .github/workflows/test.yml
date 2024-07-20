@@ -16,8 +16,11 @@ jobs:
         echo "${HOME}/.local/bin" >> "$GITHUB_PATH"
         curl -fsSL https://git.io/shellspec | sh -s master -y
         echo "--color" > $HOME/.shellspec
-    - name: Run tests
+    - name: Run all tests
+      run: make testall
+    - name: Measure code coverage
+      run: make test_with_coverage
+    - name: Send code coverage
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-      run: |
-        make testall coverage
+      run: bash <(curl -s https://codecov.io/bash) -s coverage
