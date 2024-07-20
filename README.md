@@ -340,18 +340,18 @@ Ubuntu (dash) Core i7 3.4 Ghz
 ```ini
 [Use as command]
 Benchmark 1: sh ./example.sh --flag1 --flag2 --flag3 --param1 param1 --param2 param2 --param3 param3 --option1=option1 --option2=option2 --option3=option3 a b c d e f g
-  Time (mean ± σ):       5.2 ms ±   0.2 ms    [User: 5.1 ms, System: 0.5 ms]
-  Range (min … max):     4.8 ms …   6.3 ms    519 runs
+  Time (mean ± σ):       4.9 ms ±   0.2 ms    [User: 4.8 ms, System: 0.6 ms]
+  Range (min … max):     4.5 ms …   5.8 ms    479 runs
 
 [Use as library]
 Benchmark 1: sh ./example.sh --flag1 --flag2 --flag3 --param1 param1 --param2 param2 --param3 param3 --option1=option1 --option2=option2 --option3=option3 a b c d e f g
-  Time (mean ± σ):       4.4 ms ±   0.3 ms    [User: 4.2 ms, System: 0.4 ms]
-  Range (min … max):     4.0 ms …   7.3 ms    634 runs
+  Time (mean ± σ):       4.1 ms ±   0.2 ms    [User: 3.9 ms, System: 0.4 ms]
+  Range (min … max):     3.7 ms …   5.0 ms    661 runs
 
 [Use as generator]
 Benchmark 1: sh ./example.sh --flag1 --flag2 --flag3 --param1 param1 --param2 param2 --param3 param3 --option1=option1 --option2=option2 --option3=option3 a b c d e f g
-  Time (mean ± σ):     827.7 µs ±  71.2 µs    [User: 760.4 µs, System: 107.1 µs]
-  Range (min … max):   691.2 µs … 1850.3 µs    2310 runs
+  Time (mean ± σ):     827.0 µs ±  77.0 µs    [User: 759.0 µs, System: 100.1 µs]
+  Range (min … max):   702.2 µs … 3044.5 µs    2293 runs
 ```
 
 Ubuntu (bash) Core i7 3.4 Ghz
@@ -359,18 +359,18 @@ Ubuntu (bash) Core i7 3.4 Ghz
 ```ini
 [Use as command]
 Benchmark 1: bash ./example.sh --flag1 --flag2 --flag3 --param1 param1 --param2 param2 --param3 param3 --option1=option1 --option2=option2 --option3=option3 a b c d e f g
-  Time (mean ± σ):      20.6 ms ±   0.7 ms    [User: 19.5 ms, System: 1.6 ms]
-  Range (min … max):    19.1 ms …  24.2 ms    130 runs
+  Time (mean ± σ):      18.9 ms ±   0.6 ms    [User: 17.9 ms, System: 1.5 ms]
+  Range (min … max):    17.7 ms …  22.0 ms    153 runs
 
 [Use as library]
 Benchmark 1: bash ./example.sh --flag1 --flag2 --flag3 --param1 param1 --param2 param2 --param3 param3 --option1=option1 --option2=option2 --option3=option3 a b c d e f g
-  Time (mean ± σ):      19.6 ms ±   1.0 ms    [User: 18.6 ms, System: 1.5 ms]
-  Range (min … max):    18.0 ms …  24.8 ms    154 runs
+  Time (mean ± σ):      17.7 ms ±   0.6 ms    [User: 16.8 ms, System: 1.4 ms]
+  Range (min … max):    16.5 ms …  19.8 ms    160 runs
 
 [Use as generator]
 Benchmark 1: bash ./example.sh --flag1 --flag2 --flag3 --param1 param1 --param2 param2 --param3 param3 --option1=option1 --option2=option2 --option3=option3 a b c d e f g
-  Time (mean ± σ):       2.4 ms ±   0.2 ms    [User: 2.0 ms, System: 0.4 ms]
-  Range (min … max):     2.2 ms …   3.3 ms    915 runs
+  Time (mean ± σ):       2.4 ms ±   0.2 ms    [User: 2.1 ms, System: 0.4 ms]
+  Range (min … max):     2.1 ms …   5.3 ms    882 runs
 ```
 
 macOS (bash), Core i5 2.4 GHz
@@ -378,18 +378,18 @@ macOS (bash), Core i5 2.4 GHz
 ```ini
 [Use as command]
 Benchmark 1: sh ./example.sh --flag1 --flag2 --flag3 --param1 param1 --param2 param2 --param3 param3 --option1=option1 --option2=option2 --option3=option3 a b c d e f g
-  Time (mean ± σ):      82.3 ms ±  15.2 ms    [User: 60.8 ms, System: 16.0 ms]
-  Range (min … max):    69.2 ms … 128.9 ms    36 runs
+  Time (mean ± σ):      68.5 ms ±   5.5 ms    [User: 55.2 ms, System: 12.3 ms]
+  Range (min … max):    63.8 ms …  87.8 ms    33 runs
 
 [Use as library]
 Benchmark 1: sh ./example.sh --flag1 --flag2 --flag3 --param1 param1 --param2 param2 --param3 param3 --option1=option1 --option2=option2 --option3=option3 a b c d e f g
-  Time (mean ± σ):      69.1 ms ±  10.4 ms    [User: 55.3 ms, System: 9.5 ms]
-  Range (min … max):    60.5 ms … 120.5 ms    39 runs
+  Time (mean ± σ):      57.1 ms ±   3.6 ms    [User: 49.4 ms, System: 7.3 ms]
+  Range (min … max):    54.3 ms …  75.7 ms    47 runs
 
 [Use as generator]
 Benchmark 1: sh ./example.sh --flag1 --flag2 --flag3 --param1 param1 --param2 param2 --param3 param3 --option1=option1 --option2=option2 --option3=option3 a b c d e f g
-  Time (mean ± σ):      13.2 ms ±   5.1 ms    [User: 5.2 ms, System: 5.4 ms]
-  Range (min … max):     7.2 ms …  34.9 ms    135 runs
+  Time (mean ± σ):       9.6 ms ±   2.3 ms    [User: 4.6 ms, System: 3.9 ms]
+  Range (min … max):     7.4 ms …  19.2 ms    125 runs
 ```
 
 ## How to see the option parser code
