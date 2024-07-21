@@ -206,8 +206,8 @@ parse "$@"
 eval "set -- $REST"
 ```
 
-The above code `exit 1` is the recommended option.
-This allows you to exit if the `getoptions` command is not found.
+The mysterious `exit 1` above is code for exiting when the `getoptions`
+command is not found. The last character output by `getoptions` is `#`.
 
 If you omit the option parser name or use `-`, it will define the default option
 parser and parse arguments immediately.
