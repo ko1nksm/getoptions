@@ -27,17 +27,27 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Install packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y kcov
+      - name: Install shellspec
+        run: |
+          echo "${HOME}/.local/bin" >> "$GITHUB_PATH"
+          curl -fsSL https://git.io/shellspec | sh -s master -y
+      - name: Measure code coverage
+        run: make test_with_coverage
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           # Upload entire repository
-          path: 'pages'
+          path: 'coverage'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
