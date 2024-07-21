@@ -29,7 +29,7 @@ test_in_various_shells:
 	if type busybox; then shellspec -s 'busybox ash'; fi
 	if type ksh; then shellspec -s ksh; fi
 	if type mksh; then shellspec -s mksh; fi
-	# Broken macOS posh gives an error (posh: exit: bad number)
+	# Skip broken macOS posh that gives error. (posh: exit: bad number)
 	if type posh && posh -c exit; then shellspec -s posh; fi
 	if type yash; then shellspec -s yash; fi
 	if type zsh; then shellspec -s zsh; fi
