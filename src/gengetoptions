@@ -62,7 +62,7 @@ parser_definition_parser() {
 	param FILE -f --file -- \
 		"Read from a file instead of stdin"
 
-	param DEFINITION -d --definition var:NAME -- \
+	param DEFINITION -d --definition var:NAME hidden:true -- \
 		"Specify the parser definition name (deprecated)"
 
 	option SHELLCHECK --shellcheck var:DIRECTIVES on:"$SHELLCHECK" -- \
