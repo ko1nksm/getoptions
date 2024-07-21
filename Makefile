@@ -23,15 +23,16 @@ check_with_docker: build
 test:
 	shellspec
 
-testall:
-	shellspec -s sh
-	shellspec -s bash
-	shellspec -s 'busybox ash'
-	shellspec -s ksh
-	shellspec -s mksh
-	shellspec -s posh
-	shellspec -s yash
-	shellspec -s zsh
+test_in_various_shells:
+	if type sh; then shellspec -s sh; fi
+	if type bash; then shellspec -s bash; fi
+	if type busybox; then shellspec -s 'busybox ash'; fi
+	if type ksh; then shellspec -s ksh; fi
+	if type mksh; then shellspec -s mksh; fi
+	# Broken macOS posh gives an error (posh: exit: bad number)
+	if type posh && posh -c exit; then shellspec -s posh; fi
+	if type yash; then shellspec -s yash; fi
+	if type zsh; then shellspec -s zsh; fi
 
 test_with_coverage:
 	shellspec -s bash --kcov
