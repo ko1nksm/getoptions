@@ -2,6 +2,9 @@ name: Test
 
 on: [push]
 
+env:
+  FORCE_COLOR: 1
+
 jobs:
   test:
     runs-on: ubuntu-22.04
@@ -12,8 +15,6 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y bash busybox ksh mksh posh yash zsh kcov
     - name: Install shellspec
-      env:
-        FORCE_COLOR: 1
       run: |
         echo "${HOME}/.local/bin" >> "$GITHUB_PATH"
         curl -fsSL https://git.io/shellspec | sh -s master -y
