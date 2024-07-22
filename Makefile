@@ -10,15 +10,15 @@ clean:
 
 check: build
 	shellcheck --version
-	shellcheck src/* lib/*.sh spec/*.sh examples/*.sh
+	shellcheck tools/* src/* lib/*.sh spec/*.sh examples/*.sh
 	bin/gengetoptions library --shellcheck | shellcheck -s sh -
 	bin/gengetoptions parser -f examples/parser_definition.sh --shellcheck parser_definition parser prog | shellcheck -
 
 check_with_docker: build
-	support/shellcheck.sh --version
-	support/shellcheck.sh src/* lib/*.sh spec/*.sh examples/*.sh
-	bin/gengetoptions library --shellcheck | support/shellcheck.sh -s sh -
-	bin/gengetoptions parser -f examples/parser_definition.sh --shellcheck parser_definition parser prog | support/shellcheck.sh -
+	tools/shellcheck.sh --version
+	tools/shellcheck.sh tools/* src/* lib/*.sh spec/*.sh examples/*.sh
+	bin/gengetoptions library --shellcheck | tools/shellcheck.sh -s sh -
+	bin/gengetoptions parser -f examples/parser_definition.sh --shellcheck parser_definition parser prog | tools/shellcheck.sh -
 
 test:
 	shellspec
@@ -50,10 +50,10 @@ uninstall:
 	rm -f $(BINDIR)/getoptions
 	rm -f $(BINDIR)/gengetoptions
 
-bin/getoptions: VERSION src/build.sh src/getoptions lib/*.sh
-	src/build.sh < src/getoptions > bin/getoptions
+bin/getoptions: VERSION tools/build.sh src/getoptions lib/*.sh
+	tools/build.sh < src/getoptions > bin/getoptions
 	chmod +x bin/getoptions
 
-bin/gengetoptions: VERSION src/build.sh src/gengetoptions
-	src/build.sh < src/gengetoptions > bin/gengetoptions
+bin/gengetoptions: VERSION tools/build.sh src/gengetoptions
+	tools/build.sh < src/gengetoptions > bin/gengetoptions
 	chmod +x bin/gengetoptions
