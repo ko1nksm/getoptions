@@ -1,10 +1,10 @@
 # getoptions <!-- omit in toc -->
 
 [![Test](https://github.com/ko1nksm/getoptions/workflows/Test/badge.svg)](https://github.com/ko1nksm/getoptions/actions)
-[![codecov](https://codecov.io/gh/ko1nksm/getoptions/branch/master/graph/badge.svg)](https://codecov.io/gh/ko1nksm/getoptions)
-[![CodeFactor](https://www.codefactor.io/repository/github/ko1nksm/getoptions/badge)](https://www.codefactor.io/repository/github/ko1nksm/getoptions)
-[![GitHub top language](https://img.shields.io/github/languages/top/ko1nksm/getoptions.svg)](https://github.com/ko1nksm/getoptions/search?l=Shell)
+[![CodeFactor Grade](https://img.shields.io/codefactor/grade/github/ko1nksm/getoptions?logo=codefactor)](https://www.codefactor.io/repository/github/ko1nksm/getoptions)
+[![Codecov](https://img.shields.io/codecov/c/github/ko1nksm/getoptions?logo=codecov)](https://codecov.io/gh/ko1nksm/getoptions)
 [![kcov](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fko1nksm.github.io%2Fgetoptions%2Fcoverage.json&query=percent_covered&label=kcov&suffix=%25)](https://ko1nksm.github.io/getoptions/)
+[![GitHub top language](https://img.shields.io/github/languages/top/ko1nksm/getoptions.svg)](https://github.com/ko1nksm/getoptions/search?l=Shell)
 [![License](https://img.shields.io/github/license/ko1nksm/getoptions.svg)](https://github.com/ko1nksm/getoptions/blob/master/LICENSE)
 
 An elegant option parser for shell scripts (full support for all POSIX shells)
