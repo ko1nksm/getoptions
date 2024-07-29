@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed broken --shellcheck
 - Minor fixes for old yash (POSIXly-correct mode).
 
+### Changed
+
+- gengetoptions: Hide the `-d` (`--definition`) option.
+
 ## [3.3.0] - 2021-05-02
 
 ### Added
