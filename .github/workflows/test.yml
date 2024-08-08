@@ -20,8 +20,8 @@ jobs:
         curl -fsSL https://git.io/shellspec | sh -s master -y
     - name: Check code
       run: make check_with_docker
-    - name: Run all tests
-      run: make testall
+    - name: Test in various shells
+      run: make test_in_various_shells
     - name: Measure code coverage
       run: make test_with_coverage
     - name: Send code coverage
