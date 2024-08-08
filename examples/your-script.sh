@@ -36,7 +36,7 @@ REST=''
 # shellcheck disable=SC2004,SC2034,SC2145,SC2194
 parse() {
   OPTIND=$(($#+1))
-  while OPTARG= && [ $# -gt 0 ]; do
+  while OPTARG= && [ "${REST}" != x ] && [ $# -gt 0 ]; do
     case $1 in
       --?*=*) OPTARG=$1; shift
         eval 'set -- "${OPTARG%%\=*}" "${OPTARG#*\=}"' ${1+'"$@"'}
@@ -47,7 +47,7 @@ parse() {
         ;;
       -[fh]?*) OPTARG=$1; shift
         eval 'set -- "${OPTARG%"${OPTARG#??}"}" -"${OPTARG#??}"' ${1+'"$@"'}
-        OPTARG= ;;
+        [ "$2" = -- ] && set -- "$1" unknown -- && REST=x; OPTARG= ;;
     esac
     case $1 in
       '-f'|'--flag')
