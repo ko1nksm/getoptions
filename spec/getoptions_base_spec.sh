@@ -140,6 +140,15 @@ Describe "getoptions()"
 			End
 		End
 
+		Context "when the combined short option contains -"
+			parser_definition() { setup ARGS; flag FLAG -f --flag; }
+			It "displays error"
+				When run parse -f-flag
+				The stderr should eq "Unrecognized option: --flag"
+				The status should be failure
+			End
+		End
+
 		Context "when specified unknown long option"
 			parser_definition() { setup ARGS; }
 			It "displays error"

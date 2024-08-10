@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixes Makefile
 - Fixes -f- not to be interpreted as -f --
+- Fixes -f-flag not to be interpreted as -f --flag
 
 ## [3.3.1] - 2024-07-30
 

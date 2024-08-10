@@ -147,7 +147,7 @@ getoptions() {
 	[ "$_alt" ] || {
 		[ "$_opts" ] && _op "-[$_opts]?*" "" ";;"
 		[ ! "$_flags" ] || _op "-[$_flags]?*" - "OPTARG= ;;" \
-			'[ "$2" = -- ] && set -- "$1" unknown -- && '"$_rest=x; "
+			'case $2 in --*) set -- "$1" unknown "$2" && '"$_rest=x; esac;"
 	}
 	[ "$_plus" ] && {
 		[ "$_nflags" ] && _op "+[$_nflags]?*" + "unset OPTARG ;;"
