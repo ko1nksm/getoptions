@@ -1,0 +1,20 @@
+name: macOS Homebrew
+
+on: [push]
+
+env:
+  FORCE_COLOR: 1
+
+jobs:
+  macos-latest:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v4
+    - run: brew upgrade
+    - run: brew install dash bash ksh mksh yash zsh
+    - name: Install shellspec
+      run: |
+        echo "${HOME}/.local/bin" >> "$GITHUB_PATH"
+        curl -fsSL https://git.io/shellspec | sh -s master -y
+    - name: Test in various shells
+      run: make test_in_various_shells
