@@ -1,0 +1,18 @@
+name: macOS Sonoma
+
+on: [push]
+
+env:
+  FORCE_COLOR: 1
+
+jobs:
+  macos-14:
+    runs-on: macos-14
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install shellspec
+      run: |
+        echo "${HOME}/.local/bin" >> "$GITHUB_PATH"
+        curl -fsSL https://git.io/shellspec | sh -s master -y
+    - name: Test in various shells
+      run: make test_in_various_shells
