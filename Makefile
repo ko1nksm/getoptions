@@ -29,6 +29,7 @@ test:
 .PHONY: test_in_various_shells
 test_in_various_shells:
 	if type sh; then shellspec -s sh; fi
+	if type dash; then shellspec -s dash; fi
 	if type bash; then shellspec -s bash; fi
 	if type busybox; then shellspec -s 'busybox ash'; fi
 	if type ksh; then shellspec -s ksh; fi
