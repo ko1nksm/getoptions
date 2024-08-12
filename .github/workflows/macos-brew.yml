@@ -11,7 +11,8 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - run: brew upgrade
-    - run: brew install --cask dash bash ksh93 mksh yash zsh
+    - run: brew install --cask dash
+    - run: brew install bash ksh93 mksh yash zsh
     - name: Install shellspec
       run: |
         echo "${HOME}/.local/bin" >> "$GITHUB_PATH"
