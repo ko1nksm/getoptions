@@ -1,4 +1,4 @@
-name: Test
+name: Coverage
 
 on: [push]
 
@@ -6,22 +6,20 @@ env:
   FORCE_COLOR: 1
 
 jobs:
-  test:
+  ubuntu-jammy:
     runs-on: ubuntu-22.04
     steps:
     - uses: actions/checkout@v4
     - name: Install packages
       run: |
         sudo apt-get update
-        sudo apt-get install -y bash busybox ksh mksh posh yash zsh kcov
+        sudo apt-get install -y bash kcov
     - name: Install shellspec
       run: |
         echo "${HOME}/.local/bin" >> "$GITHUB_PATH"
         curl -fsSL https://git.io/shellspec | sh -s master -y
     - name: Check code
       run: make check_with_docker
-    - name: Test in various shells
-      run: make test_in_various_shells
     - name: Measure code coverage
       run: make test_with_coverage
     - name: Send code coverage

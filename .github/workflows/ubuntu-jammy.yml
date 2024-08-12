@@ -1,0 +1,22 @@
+name: Ubuntu Jammy Jellyfish
+
+on: [push]
+
+env:
+  FORCE_COLOR: 1
+
+jobs:
+  ubuntu-jammy:
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install packages
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y bash busybox ksh mksh posh yash zsh
+    - name: Install shellspec
+      run: |
+        echo "${HOME}/.local/bin" >> "$GITHUB_PATH"
+        curl -fsSL https://git.io/shellspec | sh -s master -y
+    - name: Test in various shells
+      run: make test_in_various_shells
