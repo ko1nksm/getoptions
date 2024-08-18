@@ -1,5 +1,6 @@
 # shellcheck shell=sh disable=SC1083
 
+# @getoptions
 parser_definition() {
 	prog=${2:?The program name is not set}
 	setup   REST plus:true help:usage abbr:true error alt:true -- \
@@ -13,3 +14,4 @@ parser_definition() {
 	disp    :usage  -h    --help
 	disp    VERSION       --version
 }
+# @end
