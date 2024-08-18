@@ -33,8 +33,6 @@ case ${MODE:-command:} in
     eval "$(getoptions parser_definition) exit 1" ;;
   generator:*)
     . "${MODE#*:}"
-    "$PARSER" "$@"
-    eval "set -- $REST"
 esac
 
 echo "FLAG1:$FLAG1 FLAG2:$FLAG2 FLAG3:$FLAG3"
