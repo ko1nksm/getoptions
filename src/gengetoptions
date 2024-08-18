@@ -58,7 +58,7 @@ parser_definition_library() {
 
 parser_definition_parser() {
 	parser_definition_setup \
-		"parser [options]... <definition> <parser> [arguments]..."
+		"parser [options]... <definition> [<parser|-> [arguments]...]"
 
 	param FILE -f --file -- \
 		"Read from a file instead of stdin"
@@ -293,7 +293,7 @@ do_library() {
 
 do_parser() {
 	eval "$(getoptions parser_definition_parser)"
-	[ $# -lt 2 ] && usage && exit 1
+	[ $# -lt 1 ] && usage && exit 1
 
 	if [ "$DEFINITION" ] || { [ ! "$FILE" ] && [ -e "$1" ]; } then
 		echo "Deprecated. Use the --file option instead." >&2
@@ -304,7 +304,7 @@ do_parser() {
 		shift
 		set -- "$definition" "$@"
 	else
-		definition=$1 parser=$2
+		definition=$1 parser=${2:-}
 	fi
 
 	if [ "$definition" != "-" ]; then
@@ -314,7 +314,7 @@ do_parser() {
 			abort "The parser definition name '$definition' is not a valid name"
 		fi
 	fi
-	if ! is_valid_identifier "$parser"; then
+	if [ "$parser" != - ] && ! is_valid_identifier "$parser"; then
 		abort "The parser name '$parser' is not a valid name"
 	fi
 
