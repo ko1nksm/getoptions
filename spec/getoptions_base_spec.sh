@@ -176,6 +176,52 @@ Describe "getoptions()"
 			End
 		End
 
+		Context "when missing a mandatory parameter"
+			parser_definition() { setup ARGS; param PARAM --param mandatory:true; }
+			It "displays error"
+				When run parse
+				The stderr should eq "Mandatory argument: --param"
+				The status should be failure
+			End
+		End
+
+		Context "when missing a mandatory parameter with an unknown option"
+			parser_definition() { setup ARGS; param PARAM --param mandatory:true; }
+			It "displays error"
+				When run parse -x
+				The stderr should eq "Unrecognized option: -x"
+				The status should be failure
+			End
+		End
+
+		Context "when missing a mandatory parameter with a failing parameter validation"
+			parser_definition() {
+				setup ARGS
+				param PARAM1 --param1 mandatory:true
+				param PARAM2 --param2 validate:'valid'
+			}
+			valid() { return 1; }
+			It "displays error"
+				When run parse --param2 "invalid"
+				The stderr should eq "Validation error (valid:1): --param2"
+				The status should be failure
+			End
+		End
+
+		Context "when missing a mandatory parameter with multiple missing mandatory parameters"
+			parser_definition() {
+				setup ARGS
+				param PARAM1 --param1
+				param PARAM2 --param2 mandatory:true
+				param PARAM3 --param3 mandatory:true
+			}
+			It "displays error"
+				When run parse --param1 "value"
+				The stderr should eq "Mandatory argument: --param2"
+				The status should be failure
+			End
+		End
+
 		Context 'when the plus attribute enabled'
 			parser_definition() { setup ARGS plus:true; }
 			It "displays error if unknown +option specified"
@@ -229,6 +275,7 @@ Describe "getoptions()"
 			setup RESTARGS error
 			param PARAM -p
 			param PARAM -q
+			param PARAM -m mandatory:true
 			param PARAM --pattern pattern:'foo | bar'
 			param VALID -v validate:'valid "$1"'
 			param ARG --arg validate:arg
@@ -238,13 +285,14 @@ Describe "getoptions()"
 		arg() { false; }
 		error() {
 			case $2 in
-				unknown) echo "custom $2: $3 [$OPTARG]"; return 20 ;;
-				valid:3) echo "valid $2: $3 [$OPTARG]"; return 30 ;;
-				pattern:'foo | bar') echo "pattern $2: $3 [$OPTARG]"; return 40 ;;
+				unknown) echo "custom $2: ${3:-} [$OPTARG]"; return 20 ;;
+				valid:3) echo "valid $2: ${3:-} [$OPTARG]"; return 30 ;;
+				pattern:'foo | bar') echo "pattern $2: ${3:-} [$OPTARG]"; return 40 ;;
+				mandatory) echo "custom $2: ${3:-} [$OPTARG]"; return 50 ;;
 				arg:*) echo "invalid argument [$OPTARG]"; return 1 ;;
 				noarg) echo "noarg [$OPTARG]"; return 1 ;;
 			esac
-			[ "$3" = "-q" ] && echo "$1 [$OPTARG]" && return 1
+			[ "${3:-}" = "-q" ] && echo "$1 [$OPTARG]" && return 1
 			return 0
 		}
 
@@ -276,6 +324,12 @@ Describe "getoptions()"
 			When run parse --pattern baz
 			The stderr should eq "pattern pattern:foo | bar: --pattern [baz]"
 			The status should eq 40
+		End
+
+		It "receives mandatory"
+			When run parse
+			The stderr should eq "custom mandatory: -m []"
+			The status should eq 50
 		End
 
 		It "can refer to the OPTARG variable"

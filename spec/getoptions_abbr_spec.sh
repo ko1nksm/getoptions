@@ -116,4 +116,28 @@ Describe "getoptions_abbr()"
 			The status should be failure
 		End
 	End
+
+	Context "when a mandatory parameter is defined with a long option"
+		parser_definition() { setup ARGS abbr:true; param PARAM --param mandatory:true; }
+
+		It "treats an abbreviation option"
+			When call parse --p=value
+			The variable PARAM should eq "value"
+		End
+	End
+
+	Context "when a mandatory parameter is defined with a long and short option"
+		parser_definition() { setup ARGS abbr:true; param PARAM -p --param abbr: mandatory:true; }
+
+		It "does not treat as an abbreviation option"
+			When run parse --p=value
+			The stderr should eq "Unrecognized option: --p"
+			The status should be failure
+		End
+
+		It "treats a short option"
+			When call parse -p value
+			The variable PARAM should eq "value"
+		End
+	End
 End

@@ -35,6 +35,7 @@ parser_definition() {
 	param   REGEX           --regex validate:'regex "^[1-9][0-9]*$"' \
 		-- '^[1-9][0-9]*$'
 	param   :multiple       --multiple init:'MULTIPLE=""' var:MULTIPLE
+	param   MANDATORY       --mandatory mandatory:true
 	array   ARRAY           --array init:'ARRAY=()' var:VALUE
 	parray 	PARRAY          --array-posix init:'PARRAY=""' var:VALUE
 	param   :'action "$1" p1 p2' --act1 --act2 var:param
@@ -48,6 +49,7 @@ parser_definition() {
 error() {
 	case $2 in
 		unknown) echo "$1" ;;
+		mandatory) echo "$1" ;;
 		number:*) echo "Not a number: $3" ;;
 		range:1) echo "Not a number: $3" ;;
 		range:2) echo "Out of range ($5 - $6): $3"; return 2 ;;
@@ -132,6 +134,7 @@ echo "PATTERN: $PATTERN"
 echo "BLOOD_TYPE: $BLOOD_TYPE"
 echo "REGEX: $REGEX"
 echo "MULTIPLE: $MULTIPLE"
+echo "MANDATORY: $MANDATORY"
 if [ ${#ARRAY[@]} -eq 0 ]; then
 	disp_array ARRAY
 else

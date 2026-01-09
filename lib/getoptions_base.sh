@@ -2,7 +2,7 @@
 # [getoptions] License: Creative Commons Zero v1.0 Universal
 getoptions() {
 	_error="" _on=1 _no="" _export="" _plus="" _mode="" _alt="" _rest="" _def=""
-	_flags="" _nflags="" _opts="" _help="" _abbr="" _cmds="" _init=@empty IFS=" "
+	_flags="" _nflags="" _mflags="" _opts="" _help="" _abbr="" _cmds="" _init=@empty IFS=" "
 	[ $# -lt 2 ] && set -- "${1:?No parser definition}" -
 	[ "$2" = - ] && _def=getoptions_parse
 
@@ -69,11 +69,12 @@ getoptions() {
 
 	_0 "${_def:-$2}() {"
 	_1 'OPTIND=$(($#+1))'
+	for mflag in $(printf '%s' "$_mflags"); do _1 "$(printf '%s' "$mflag" | tr '-' '_')_flag_declared=\"false\""; done
 	_1 "while OPTARG= && [ \"\${$_rest}\" != x ] && [ \$# -gt 0 ]; do"
 	[ "$_abbr" ] && getoptions_abbr "$@"
 
 	args() {
-		sw="" validate="" pattern="" counter="" on=$_on no=$_no export=$_export
+		sw="" validate="" pattern="" counter="" on=$_on no=$_no export=$_export mandatory=""
 		while loop "$@" && shift; do
 			case $1 in
 				--\{no-\}*) i=${1#--?no-?}; sw "'--$i'|'--no-$i'" ;;
@@ -98,6 +99,11 @@ getoptions() {
 	_param() {
 		args "$@"
 		_3 "$sw)"
+		[ "$mandatory" ] && {
+			mflag=$(printf '%s' "$sw" | awk -F'|' '{ print $1 }' | tr -d "'" | tr -d '[:space:]')
+			if [ -n "$_mflags" ]; then _mflags="${_mflags} ${mflag}"; else _mflags="$mflag"; fi
+			_4 "$(printf '%s' "$mflag" | tr '-' '_')_flag_declared=\"true\""
+		}
 		_4 '[ $# -le 1 ] && set "required" "$1" && break'
 		_4 'OPTARG=$2'
 		valid "$1" '$OPTARG'
@@ -180,14 +186,38 @@ getoptions() {
 	_2 "esac"
 	_2 "shift"
 	_1 "done"
-	_1 '[ $# -eq 0 ] && { OPTIND=1; unset OPTARG; return 0; }'
-	_1 'case $1 in'
+	if [ -n "$_mflags" ]; then
+		_1 '[ $# -eq 0 ] &&'
+		for mflag in $(printf '%s' "$_mflags"); do
+			_2 "[ \"\${$(printf '%s' "$mflag" | tr '-' '_')_flag_declared:-}\" = \"true\" ] &&"
+		done
+		_2 '{'
+		_3 'OPTIND=1'
+		_3 'unset OPTARG'
+		_3 'return 0'
+		_2 '}'
+	else
+		_1 '[ $# -eq 0 ] && { OPTIND=1; unset OPTARG; return 0; }'
+	fi
+	_1 'case ${1:-} in'
 	_2 'unknown) set "Unrecognized option: $2" "$@" ;;'
 	_2 'noarg) set "Does not allow an argument: $2" "$@" ;;'
 	_2 'required) set "Requires an argument: $2" "$@" ;;'
 	_2 'pattern:*) set "Does not match the pattern (${1#*:}): $2" "$@" ;;'
 	_2 'notcmd) set "Not a command: $2" "$@" ;;'
-	_2 '*) set "Validation error ($1): $2" "$@"'
+	if [ -n "$_mflags" ]; then
+		_2 '*)'
+		i=0
+		for mflag in $(printf '%s' "$_mflags"); do
+			ind() { if [ "$i" -eq 0 ]; then "_3" "$@"; else "_4" "$@"; fi }
+			ind "{ [ -z \"\${1:-}\" ] && [ -z \"\${$(printf '%s' "$mflag" | tr '-' '_')_flag_declared:-}\" ] && set \"Mandatory argument: ${mflag}\" \"mandatory\" \"${mflag}\"; } ||"
+			i=$((i + 1))
+		done
+		_4 'set "Validation error ($1): $2" "$@"'
+		_3 ';;'
+	else
+		_2 '*) set "Validation error ($1): $2" "$@" ;;'
+	fi
 	_1 "esac"
 	[ "$_error" ] && _1 "$_error" '"$@" >&2 || exit $?'
 	_1 'echo "$1" >&2'

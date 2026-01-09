@@ -296,6 +296,7 @@ They are available only in the `getoptions` and `getoptions_help` functions.
   - `hidden`:BOOLEAN - Do not display in help
   - `init`:[@INIT-VALUE | =STRING | CODE] - Initial value
   - `label`:STRING - Option part of help message
+  - `mandatory`:BOOLEAN - Flag parameter as mandatory
   - `pattern`:PATTERN - Pattern to accept
   - `validate`:STATEMENT - Code for value validation
   - `var`:STRING - Variable name displayed in help
